@@ -10,11 +10,12 @@
 #ifndef Likelihood_XmlBuilder_h
 #define Likelihood_XmlBuilder_h
 
+#include "xmlBase/rapidxml.hpp"
 //#include <xercesc/util/XercesDefs.hpp>
 
 #include <string>
 
-namespace xmlBase {
+namespace rapidxml {
    class SafeXmlParser;
 }
 
@@ -58,9 +59,9 @@ protected:
 
    XmlBuilder();
 
-   xmlBase::SafeXmlParser * m_parser;
+   rapidxml::SafeXmlParser * m_parser;
 
-  xmlbase::xml_document * m_doc;
+  rapidxml::xml_document<> * m_doc;
 
 };
 

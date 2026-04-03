@@ -12,6 +12,7 @@
 
 #include <utility>
 
+#include "xmlBase/rapidxml.hpp"
 #include "optimizers/Function.h"
 
 #include "Likelihood/MapBase.h"
@@ -150,7 +151,7 @@ public:
 
 #ifndef SWIG
    /// Set the Parameters from a Function DOM_Element.
-  virtual void setParams(const xmlbase::xml_node<> * elt);
+  virtual void setParams(const rapidxml::xml_node<> * elt);
 #endif // SWIG
 
 

@@ -10,7 +10,7 @@
 #define Likelihood_SourceModelBuilder_h
 
 #include "Likelihood/XmlBuilder.h"
-#include "xmlbase/rapidxml.h"
+#include "xmlBase/rapidxml.hpp"
 
 namespace optimizers {
    class Function;
@@ -55,14 +55,14 @@ protected:
 
 private:
 
-   xmlbase::xml_node<> * m_srcLib;
+   rapidxml::xml_node<> * m_srcLib;
 
-   xmlbase::xml_node<> * likelihoodSource(const Source & src);
-   xmlbase::xml_node<> * spectralPart(const Source & src);
-   void addSpatialPart(xmlbase::xml_node<> * srcElt, const Source & src);
-   void addComposite(xmlbase::xml_node<> * srcElt, const Source & src);
-   void append_source(xmlbase::xml_node<> * parent, const Source &src);   
-   void append_source_model(xmlbase::xml_node<> * parent, const SourceModel& srcModel);   
+   rapidxml::xml_node<> * likelihoodSource(const Source & src);
+   rapidxml::xml_node<> * spectralPart(const Source & src);
+   void addSpatialPart(rapidxml::xml_node<> * srcElt, const Source & src);
+   void addComposite(rapidxml::xml_node<> * srcElt, const Source & src);
+   void append_source(rapidxml::xml_node<> * parent, const Source &src);   
+   void append_source_model(rapidxml::xml_node<> * parent, const SourceModel& srcModel);   
 
 };
 

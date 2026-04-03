@@ -1,5 +1,5 @@
-/*
- * @file SourceFactory.cxx
+/**
+ * @file SourceFactory.cpp
  * @brief Implementation for the SourceFactory class, which applies the
  * Prototype pattern to return clones of various gamma-ray Sources.
  *
@@ -9,11 +9,15 @@
  */
 
 #include <cstdlib>
+#include <cmath>
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
 
-//#include <xercesc/util/XercesDefs.hpp>
-
-//#include "xmlBase/Dom.h"
-#include "xmlBase/safe_xml_parser.h"
+// RapidXML-based XML framework (replaces Xerces-C)
+#include "xmlBase/rapidxml.hpp"
+#include "xmlBase/safe_xml_parser.hpp"
 
 #include "facilities/Util.h"
 
@@ -36,586 +40,564 @@
 #include "Likelihood/RadialProfile.h"
 #include "Likelihood/ScaleFactor.h"
 #include "Likelihood/SourceFactory.h"
-#include "Likelihood/XmlParser.h"
 
 namespace Likelihood {
 
-//XERCES_CPP_NAMESPACE_USE
-//using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
-//using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
+  // ============================================================================
+  // Construction / Destruction
+  // ============================================================================
 
-SourceFactory::SourceFactory(const Observation & observation, bool verbose) 
-   : m_verbose(verbose), m_observation(observation), 
-     m_formatter(new st_stream::StreamFormatter("SourceFactory", "", 2)) {
-}
+  SourceFactory::SourceFactory(const Observation& observation, bool verbose)
+    : m_verbose(verbose)
+    , m_requireExposure(true)
+    , m_observation(observation)
+    , m_formatter(new st_stream::StreamFormatter("SourceFactory", "", 2))
+  {
+  }
 
-SourceFactory::~SourceFactory() {
-   std::map<std::string, Source *>::iterator it = m_prototypes.begin();
-   for (; it != m_prototypes.end(); it++) {
+  SourceFactory::~SourceFactory() {
+    for (auto& [name, src] : m_prototypes) {
+      delete src;
+    }
+    m_prototypes.clear();
+    delete m_formatter;
+  }
+
+  // ============================================================================
+  // Source Management
+  // ============================================================================
+
+  Source* SourceFactory::create(const std::string& name) {
+    auto it = m_prototypes.find(name);
+    if (it == m_prototypes.end()) {
+      std::ostringstream message;
+      message << "SourceFactory::create:\n"
+	      << "Cannot create Source named '" << name << "'";
+      throw Exception(message.str());
+    }
+    return it->second->clone();
+  }
+
+  Source* SourceFactory::releaseSource(const std::string& name) {
+    auto it = m_prototypes.find(name);
+    if (it == m_prototypes.end()) {
+      std::ostringstream message;
+      message << "SourceFactory::releaseSource:\n"
+	      << "Source named '" << name << "' not found";
+      throw Exception(message.str());
+    }
+    Source* src = it->second;
+    m_prototypes.erase(it);
+    return src;
+  }
+
+  void SourceFactory::addSource(const std::string& name, Source* src, bool fromClone) {
+    if (m_prototypes.count(name)) {
+      std::ostringstream message;
+      message << "SourceFactory::addSource:\n"
+	      << "A Source named '" << name << "' already exists.";
+      throw Exception(message.str());
+    }
+
+    if (fromClone) {
+      m_prototypes[name] = src->clone();
+    } else {
+      m_prototypes[name] = src;
+    }
+  }
+
+  void SourceFactory::replaceSource(Source* src, bool fromClone) {
+    const std::string& name = src->getName();
+    auto it = m_prototypes.find(name);
+    if (it != m_prototypes.end()) {
       delete it->second;
-   }
-   delete m_formatter;
-}
+      m_prototypes.erase(it);
+    }
+    addSource(name, src, fromClone);
+  }
 
-Source * SourceFactory::create(const std::string &name) {
-   if (!m_prototypes.count(name)) {
-      std::string errorMessage 
-         = "SourceFactory::create:\nCannot create Source named " + name + ".";
-      throw Exception(errorMessage);
-   }
-   return m_prototypes[name]->clone();
-}
+  void SourceFactory::fetchSrcNames(std::vector<std::string>& srcNames) const {
+    srcNames.clear();
+    srcNames.reserve(m_prototypes.size());
+    for (const auto& [name, src] : m_prototypes) {
+      srcNames.push_back(name);
+    }
+  }
 
-Source * SourceFactory::releaseSource(const std::string &name) {
-   if (!m_prototypes.count(name)) {
-      std::string errorMessage 
-         = "SourceFactory::releaseSource:\nNo Source named " + name + ".";
-      throw Exception(errorMessage);
-   }
-   Source * src = m_prototypes[name];
-   m_prototypes.erase(name);
-   return src;
-}
+  std::vector<std::string> SourceFactory::fetchSrcNames() const {
+    std::vector<std::string> srcNames;
+    srcNames.reserve(m_prototypes.size());
+    for (const auto& [name, src] : m_prototypes) {
+      srcNames.push_back(name);
+    }
+    return srcNames;
+  }
 
-void SourceFactory::addSource(const std::string &name, Source* src, 
-                              bool fromClone) {
-   if (!m_prototypes.count(name)) {
-      if (fromClone) {
-         m_prototypes[name] = src->clone();
-      } else {
-         m_prototypes[name] = src;
-      }
-   } else {
-      std::string errorMessage = "SourceFactory::addSource:\n A Source named "
-         + name + " already exists.";
-      throw Exception(errorMessage);
-   }
-}
+  // ============================================================================
+  // RapidXML Helper Methods
+  // ============================================================================
 
-void SourceFactory::replaceSource(Source* src, bool fromClone) {
-   if (m_prototypes.count(src->getName())) {
-      if (fromClone) {
-         m_prototypes[src->getName()] = src->clone();
-      } else {
-         m_prototypes[src->getName()] = src;
-      }
-   } else {
-      m_formatter->info() << "SourceFactory::replaceSource: A Source named "
-                          << src->getName() << " does not yet exist.\n"
-                          << "Adding it instead. "
-                          << std::endl;
-      addSource(src->getName(), src, fromClone);
-   }
-}
+  std::string SourceFactory::getAttributeValue(const rapidxml::xml_node<>* node,
+					       const char* attrName,
+					       const std::string& defaultValue) {
+    if (!node) return defaultValue;
 
-void SourceFactory::readXml(const std::string & xmlFile,
-                            optimizers::FunctionFactory & funcFactory,
-                            bool requireExposure,
-                            bool addPointSources, 
-                            bool loadMaps) {
+    auto* attr = node->first_attribute(attrName);
+    if (attr && attr->value()) {
+      return std::string(attr->value(), attr->value_size());
+    }
+    return defaultValue;
+  }
 
-   xmlBase::SafeXmlParser * parser = XmlParser_instance();
+  double SourceFactory::getAttributeValueAsDouble(const rapidxml::xml_node<>* node,
+						  const char* attrName,
+						  double defaultValue) {
+    std::string value = getAttributeValue(node, attrName, "");
+    if (value.empty()) return defaultValue;
 
-   std::vector<char> buffer;
-   rapidxml::xml_document<> doc;
-   
-   XmlResult<std::vector<char>> parse_result = parser->loadFile(xmlfile);
-   if (parse_result.isFailure() !=0) {
-     std::string errorMessage = "SourceFactory::readXml:\nInput xml file, " 
-       + xmlFile + " not parsed successfully.";
-     throw Exception("SourceFactory::readXml:\nsource_library not found in "
-		     + xmlFile); // TODO: add in Safe Message from XmlResult obj
-   }
+    try {
+      return std::stod(value);
+    } catch (const std::exception&) {
+      return defaultValue;
+    }
+  }
 
-   buffer = parse_result.value();
-   parser->parseString(doc, buffer.data()); // sets xml_document<> to parsed data
+  std::vector<rapidxml::xml_node<>*> SourceFactory::collectChildren(
+								    const rapidxml::xml_node<>* parent,
+								    const char* childName) {
 
-   rapidxml::xml_node<>* source_library = doc.first_node();  // TODO: throw exception if failure
-   
-// Direct Xerces API call...still available in Xerces 2.6.0:
-//   DOMElement * source_library = doc->getDocumentElement();
-//   if (!xmlBase::Dom::checkTagName(source_library, "source_library")) {
-//      throw Exception("SourceFactory::readXml:\nsource_library not found in "
-//         + xmlFile);
-//   }
+    std::vector<rapidxml::xml_node<>*> children;
+    if (!parent) return children;
 
-   readXml(source_library,xmlFile,funcFactory,requireExposure,addPointSources,loadMaps);
-   delete doc;
-}
+    for (auto* child = parent->first_node(childName);
+	 child != nullptr;
+	 child = child->next_sibling(childName)) {
+      children.push_back(child);
+    }
+    return children;
+  }
 
-void SourceFactory::fetchSrcNames(std::vector<std::string> &srcNames) {
-   if (!srcNames.empty()) srcNames.clear();
-   std::map<std::string, Source *>::const_iterator it = m_prototypes.begin();
-   for (; it != m_prototypes.end(); it++)
-      srcNames.push_back(it->first);
-}
+  // ============================================================================
+  // XML Reading
+  // ============================================================================
 
+  void SourceFactory::readXml(const std::string& xmlFile,
+			      optimizers::FunctionFactory& funcFactory,
+			      bool requireExposure,
+			      bool addPointSources,
+			      bool loadMaps) {
+    // Expand environment variables in the file path
+    std::string expandedPath = xmlFile;
+    facilities::Util::expandEnvVar(&expandedPath);
 
-  // PARTIALLY UPDATED: Function needs to be rewritten to use the rapidXML interface
-  void SourceFactory::readXml(const rapidxml::xml_node<>* source_library,
-			    const std::string & xmlFile,
-                            optimizers::FunctionFactory & funcFactory,
-                            bool requireExposure,
-                            bool addPointSources, 
-                            bool loadMaps) {
+    // Load and parse the XML file
+    std::ifstream file(expandedPath, std::ios::binary | std::ios::ate);
+    if (!file.is_open()) {
+      throw Exception("SourceFactory::readXml: Cannot open file: " + xmlFile);
+    }
 
-// Prepare the FunctionFactory object using the xml file specified in
-// the source_library tag.
-   m_requireExposure = requireExposure;
-   std::string function_library = parser->getAttributeValue<string>(source_library, "function_library").value();
-   if (function_library.find("xml") != std::string::npos) {
+    auto size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    m_xmlBuffer.resize(static_cast<size_t>(size) + 1);
+    if (!file.read(m_xmlBuffer.data(), size)) {
+      throw Exception("SourceFactory::readXml: Failed to read file: " + xmlFile);
+    }
+    m_xmlBuffer[static_cast<size_t>(size)] = '\0';
+
+    // Parse the XML
+    try {
+      m_xmlDoc.clear();
+      m_xmlDoc.parse<rapidxml::parse_default>(m_xmlBuffer.data());
+    } catch (const rapidxml::parse_error& e) {
+      std::ostringstream message;
+      message << "SourceFactory::readXml: XML parse error in file " << xmlFile
+	      << ": " << e.what();
+      throw Exception(message.str());
+    }
+
+    // Get the root element (source_library)
+    auto* source_library = m_xmlDoc.first_node("source_library");
+    if (!source_library) {
+      throw Exception("SourceFactory::readXml: No source_library element in " + xmlFile);
+    }
+
+    // Call the overloaded version with the parsed node
+    readXml(source_library, xmlFile, funcFactory, requireExposure, addPointSources, loadMaps);
+  }
+
+  void SourceFactory::readXml(rapidxml::xml_node<>* source_library,
+			      const std::string& xmlFile,
+			      optimizers::FunctionFactory& funcFactory,
+			      bool requireExposure,
+			      bool addPointSources,
+			      bool loadMaps) {
+    // Prepare the FunctionFactory using the xml file specified in the source_library tag
+    m_requireExposure = requireExposure;
+    std::string function_library = getAttributeValue(source_library, "function_library", "");
+
+    if (!function_library.empty() && function_library.find("xml") != std::string::npos) {
       facilities::Util::expandEnvVar(&function_library);
       try {
-         funcFactory.readXml(function_library);
-      } catch (optimizers::Exception &eObj) {
-         m_formatter->err() << eObj.what() << std::endl;
-         throw;
+	funcFactory.readXml(function_library);
+      } catch (optimizers::Exception& eObj) {
+	m_formatter->err() << eObj.what() << std::endl;
+	throw;
       }
-   }
+    }
 
-   std::vector<Source*> sources;
-   makeSources(xmlFile,source_library,sources,funcFactory,requireExposure,addPointSources,loadMaps);
+    std::vector<Source*> sources;
+    makeSources(xmlFile, source_library, sources, funcFactory,
+		requireExposure, addPointSources, loadMaps);
 
-   for ( std::vector<Source*>::iterator itr = sources.begin();
-	 itr != sources.end(); itr++ ) {
-     
-     // Add the source to the vector of prototypes.
-     Source* src = *itr;
-     addSource(src->getName(), src);
-     delete src;
-   }
-}
+    for (auto* src : sources) {
+      addSource(src->getName(), src);
+      delete src;
+    }
+  }
 
-void SourceFactory::makeSources(const std::string& xmlFile,
-				const rapidxml::xml_node<>* source_library,
-				std::vector<Source*>& sources,
-				optimizers::FunctionFactory & funcFactory,
-				bool requireExposure,
-				bool addPointSources,
-				bool loadMaps)  {
+  void SourceFactory::makeSources(const std::string& xmlFile,
+				  const rapidxml::xml_node<>* source_library,
+				  std::vector<Source*>& sources,
+				  optimizers::FunctionFactory& funcFactory,
+				  bool requireExposure,
+				  bool addPointSources,
+				  bool loadMaps) {
+    // Loop through source elements
+    auto srcs = collectChildren(source_library, "source");
 
-// Loop through source elements, adding each as a Source object prototype.
-   std::vector<rapidxml::xml_node<>*> srcs;
-   //xmlBase::Dom::getChildrenByTagName(source_library, "source", srcs);
-   srcs = parser->collectChildren(source_library, const char* "source"); 
-   std::vector<rapidxml::xml_node<>*>::const_iterator srcIt = srcs.begin();
-   for ( ; srcIt != srcs.end(); srcIt++) {
+    for (auto* srcNode : srcs) {
+      Source* src = nullptr;
 
-      Source * src = 0;
-
-// Get the type of this source which is either PointSource or
-// DiffuseSource (CompositeSource pending)...
-      std::string srcType = parser->getAttributeValue<string>(*srcIt, "type").value();
-// and its name.
-      std::string srcName = parser->getAttributeValue<string>(*srcIt, "name").value();
+      // Get the type and name of this source
+      std::string srcType = getAttributeValue(srcNode, "type", "");
+      std::string srcName = getAttributeValue(srcNode, "name", "");
 
       m_currentSrcName = srcName;
 
-      m_formatter->info(3) << "Creating source named "
-                           << srcName << std::endl;
+      m_formatter->info(3) << "Creating source named " << srcName << std::endl;
 
-// Retrieve the spectrum and spatialModel elements (there should only
-// be one of each).
-      std::vector<rapidxml::xml_node<>*> child;
+      // Retrieve the spectrum element
+      auto spectrumChildren = collectChildren(srcNode, "spectrum");
+      if (spectrumChildren.size() != 1) {
+	std::ostringstream message;
+	message << "Error parsing xml model file: \n"
+		<< xmlFile << "\n"
+		<< "for source " << srcName << "\n"
+		<< "Missing spectral model component.";
+	throw Exception(message.str());
+      }
+      auto* spectrum = spectrumChildren[0];
 
-      rapidxml::xml_node<>* spectrum;
-      try {
-         child = parser->collectChildren(*srcIt, "spectrum");
-         if (child.size() != 1) {
-            std::ostringstream message;
-            message << "Error parsing xml model file: \n"
-                    << xmlFile << "\n"
-                    << "for source " << srcName << "\n"
-                    << "Missing spectral model component.";
-            throw Exception(message.str());
-         }
-         spectrum = child[0];
-      } catch (optimizers::Exception &eObj) { // Fix Exception handling
-         m_formatter->err() << eObj.what() << std::endl;
-         throw;
+      // Process based on source type
+      if (srcType == "CompositeSource") {
+	auto sourceLibChildren = collectChildren(srcNode, "source_library");
+	if (sourceLibChildren.size() != 1) {
+	  std::ostringstream message;
+	  message << "Error parsing xml model file: \n"
+		  << xmlFile << "\n"
+		  << "for source " << srcName << ".\n"
+		  << "Missing source_library component.\n"
+		  << "Please check that you are using the correct xml format.";
+	  throw Exception(message.str());
+	}
+	auto* nestedSourceLibrary = sourceLibChildren[0];
+	src = makeCompositeSource(xmlFile, spectrum, nestedSourceLibrary, funcFactory,
+				  requireExposure, addPointSources, loadMaps);
+      } else {
+	auto spatialModelChildren = collectChildren(srcNode, "spatialModel");
+	if (spatialModelChildren.size() != 1) {
+	  std::ostringstream message;
+	  message << "Error parsing xml model file: \n"
+		  << xmlFile << "\n"
+		  << "for source " << srcName << ".\n"
+		  << "Missing spatial model component.\n"
+		  << "Please check that you are using the correct xml format.";
+	  throw Exception(message.str());
+	}
+	auto* spatialModel = spatialModelChildren[0];
+
+	if (addPointSources && srcType == "PointSource") {
+	  src = makePointSource(spectrum, spatialModel, funcFactory);
+	} else if (srcType == "DiffuseSource") {
+	  src = makeDiffuseSource(spectrum, spatialModel, funcFactory, loadMaps);
+	}
+
+	if (src != nullptr) {
+	  // Determine if psf can be applied
+	  std::string apply_psf = getAttributeValue(spatialModel, "apply_psf", "");
+	  if (apply_psf != "true" && apply_psf != "false" && !apply_psf.empty()) {
+	    throw std::runtime_error("Invalid value for apply_psf attribute in xml definition of " + src->getName());
+	  }
+	  src->set_psf_flag(apply_psf != "false");
+
+	  // Determine if exposure can be applied
+	  std::string apply_exposure = getAttributeValue(spatialModel, "apply_exposure", "");
+	  if (apply_exposure != "true" && apply_exposure != "false" && !apply_exposure.empty()) {
+	    throw std::runtime_error("Invalid value for apply_exposure attribute in xml definition of " + src->getName());
+	  }
+	  src->set_exposure_flag(apply_exposure != "false");
+	}
       }
 
-      // The processing logic for the spatialModel depends on the source
-      // type, so we must consider each case individually:
-      if ( srcType == "CompositeSource" ) {
-	 child = parser->collectChildren(*srcIt, "source_library");
-	 if (child.size() != 1) {
-	    std::ostringstream message;
-            message << "Error parsing xml model file: \n"
-                    << xmlFile << "\n"
-		    << "for source " << srcName << ".\n"
-		    << "Missing source_library component.\n"
-		    << "Please check that you are using the correct xml format.";
-	    throw Exception(message.str());
-	 }
-	 rapidxml::xml_node<>* source_library = child[0];
-	 src = makeCompositeSource(xmlFile,
-				   spectrum, source_library, funcFactory,
-				   requireExposure,addPointSources,
-				   loadMaps);
-      } else {      
-	 child = parser->collectChildren(*srcIt, "spatialModel");
-	 if (child.size() != 1) {
-	    std::ostringstream message;
-            message << "Error parsing xml model file: \n"
-                    << xmlFile << "\n"
-		    << "for source " << srcName << ".\n"
-		    << "Missing spatial model component.\n"
-		    << "Please check that you are using the correct xml format.";
-	    throw Exception(message.str());
-	 }
-	 rapidxml::xml_node<>* spatialModel = child[0];
-	 if (addPointSources && srcType == "PointSource") {
-	   src = makePointSource(spectrum, spatialModel, funcFactory);
-	 } else if (srcType == "DiffuseSource") {
-	   src = makeDiffuseSource(spectrum, spatialModel, funcFactory,
-				   loadMaps);
-	 } 
-
-	 if ( src != 0 ) {
-	   /// Determine if psf can be applied.
-	   std::string apply_psf(parser->getAttributeValue<string>(spatialModel, "apply_psf").value());
-	   if (apply_psf != "true" && apply_psf != "false" && apply_psf != "") {
-	     throw std::runtime_error("Invalid value for apply_psf attribute in xml definition of " + src->getName());
-	   }
-	   src->set_psf_flag(apply_psf != "false");
-
-	   /// Determine if exposure can be applied.
-	   std::string apply_exposure(parser->getAttributeValue<string>(spatialModel, "apply_exposure").value());
-	   if (apply_exposure != "true" && apply_exposure != "false" && apply_exposure != "") {
-	     throw std::runtime_error("Invalid value for apply_exposure attribute in xml definition of " + src->getName());
-	   }
-	   src->set_exposure_flag(apply_exposure != "false");
-	 }
-
+      if (src != nullptr) {
+	src->setName(srcName);
+	sources.push_back(src);
       }
+    }
+  }
 
-      if (src != 0) {
-         src->setName(srcName);
-	 sources.push_back(src);
-      }
-      
-   }
+  // ============================================================================
+  // Source Creation Methods
+  // ============================================================================
 
-}
+  Source* SourceFactory::makePointSource(const rapidxml::xml_node<>* spectrum,
+					 const rapidxml::xml_node<>* spatialModel,
+					 optimizers::FunctionFactory& funcFactory) {
+    std::string funcType = getAttributeValue(spatialModel, "type", "");
 
+    if (funcType != "SkyDirFunction") {
+      std::ostringstream message;
+      message << "SourceFactory::readXml:\n"
+	      << "Trying to create a PointSource with a spatialModel of type "
+	      << funcType << ".";
+      throw Exception(message.str());
+    }
 
-Source * SourceFactory::
-makePointSource(const rapidxml::xml_node<>* spectrum, 
-                const rapidxml::xml_node<>* spatialModel,
-                optimizers::FunctionFactory & funcFactory) {
-  std::string funcType = parser->getAttributeValue<string>(spatialModel, "type").value();
-   if (funcType != "SkyDirFunction") {
-      std::string errorMessage = std::string("SourceFactory::readXml:\n") 
-         + "Trying to create a PointSource with a spatialModel of type "
-         + funcType + ".";
-      throw Exception(errorMessage);
-   }
-// For v1r0 and prior versions, setting the direction of the 
-// PointSource object forces the exposure to be calculated and
-// so requires the ROI cuts and spacecraft data to have been
-// specified.  *If* this is desired behavior, then some checks
-// should be made and perhaps exceptions thrown if the ROI and
-// spacecraft info are not available.
-//
-// Extract the (RA, Dec) from the parameter elements.
-   double ra(0), dec(0);
-   std::vector<rapidxml::xml_node<> *> params;
-   params = parser->collectChildren(spatialModel, "parameter");
-   std::vector<rapidxml::xml_node<> *>::const_iterator paramIt = params.begin();
-   for ( ; paramIt != params.end(); paramIt++) {
-      std::string name = parser->getAttributeValue<string>(*paramIt, "name").value();
+    // Extract (RA, Dec) from the parameter elements
+    double ra = 0, dec = 0;
+    auto params = collectChildren(spatialModel, "parameter");
+
+    for (auto* paramNode : params) {
+      std::string name = getAttributeValue(paramNode, "name", "");
       if (name == "RA") {
-	 ra = ::atof( parser->getAttributeValue<string>(*paramIt, "value").value().c_str() );
+	ra = getAttributeValueAsDouble(paramNode, "value", 0.0);
       }
       if (name == "DEC") {
-	 dec = ::atof( parser->getAttributeValue<string>(*paramIt, "value").value().c_str() );
+	dec = getAttributeValueAsDouble(paramNode, "value", 0.0);
       }
+    }
+
+    checkRoiDist(ra, dec);
+
+    auto* src = new PointSource(ra, dec, m_observation, m_requireExposure);
+    setSpectrum(src, spectrum, funcFactory);
+
+    return src;
+  }
+
+  Source* SourceFactory::makeDiffuseSource(const rapidxml::xml_node<>* spectrum,
+                                          const rapidxml::xml_node<>* spatialModel,
+                                          optimizers::FunctionFactory& funcFactory,
+                                          bool loadMap) {
+   // Get the spatial model type and create the corresponding function
+   std::string type = getAttributeValue(spatialModel, "type", "");
+   
+   optimizers::Function* spatialDist = funcFactory.create(type);
+   
+   // Set spatial distribution parameters from XML
+   auto params = collectChildren(spatialModel, "parameter");
+   for (auto* paramNode : params) {
+      std::string name = getAttributeValue(paramNode, "name", "");
+      spatialDist->parameter(name).extractDomData(paramNode);
    }
-
-   Source * src(0);
-
-   checkRoiDist(ra, dec);
-
-   if (m_requireExposure) {
-      src = new PointSource(ra, dec, m_observation, m_verbose);
-   } else { // for BinnedLikelihood, skip the exposure calculation
-      src = new PointSource();
-      dynamic_cast<PointSource *>(src)->setDir(ra, dec, m_requireExposure,
-                                               m_verbose);
-   }
-
-   try {
-      setSpectrum(src, spectrum, funcFactory);
-      return src;
-   } catch (std::exception &eObj) {
-      m_formatter->err() << eObj.what() << std::endl;
-      throw;
-   } catch (...) {
-      m_formatter->err() << "Unexpected exception from "
-                         << "SourceFactory::setSpectrum" 
-                         << std::endl;
-      throw;
-   }
-   return 0;
-}
-
-Source * SourceFactory::
-makeDiffuseSource(const rapidxml::xml_node<> * spectrum, 
-                  const rapidxml::xml_node<> * spatialModel,
-                  optimizers::FunctionFactory & funcFactory,
-                  bool loadMap) {
-  std::string type = parser->getAttributeValue<string>(spatialModel, "type").value();
-   optimizers::Function * spatialDist = funcFactory.create(type);
-   std::vector<rapidxml::xml_node<> *> params;
-   params = parser->collectChildren(spatialModel, const char *"parameter");
-   std::vector<rapidxml::xml_node<> *>::const_iterator paramIt = params.begin();
-   for ( ; paramIt != params.end(); paramIt++) {
-      std::string name = parser->getAttributeValue<string>(*paramIt, "name").value();
-      spatialDist->parameter(name).extractDomData(*paramIt);
-   }
-   bool mapBasedIntegral(false);
+   
+   bool mapBasedIntegral = false;
+   
    if (type == "SpatialMap" || type == "MapCubeFunction") {
-      std::string fitsFile 
-	= parser->getAttributeValue<string>(spatialModel, "file").value();
-      dynamic_cast<MapBase *>(spatialDist)->readFitsFile(fitsFile,"",loadMap);
-      std::string map_based_integral 
-	= parser->getAttributeValue<string>(spatialModel, "map_based_integral").value();
+      std::string fitsFile = getAttributeValue(spatialModel, "file", "");
+      facilities::Util::expandEnvVar(&fitsFile);
+      dynamic_cast<MapBase*>(spatialDist)->readFitsFile(fitsFile, "", loadMap);
+      
+      std::string map_based_integral = getAttributeValue(spatialModel, "map_based_integral", "");
       mapBasedIntegral = (map_based_integral == "true");
    } else if (type == "RadialProfile") {
-     std::string tpl_file(parser->getAttributeValue<string>(spatialModel, "file").value());
-      dynamic_cast<RadialProfile *>(spatialDist)->readTemplateFile(tpl_file);
-   } else if (type == "RadialGaussian" || type == "RadialDisk") {
-     spatialDist->setParams(spatialModel);
+      std::string tpl_file = getAttributeValue(spatialModel, "file", "");
+      facilities::Util::expandEnvVar(&tpl_file);
+      dynamic_cast<RadialProfile*>(spatialDist)->readTemplateFile(tpl_file);
    }
-   Source * src;
-   try {
-      src = new DiffuseSource(spatialDist, m_observation, m_requireExposure,
-                              mapBasedIntegral);
-      setSpectrum(src, spectrum, funcFactory);
-      delete spatialDist;
-      return src;
-   } catch (std::exception &eObj) {
-      m_formatter->err() << eObj.what() << std::endl;
-      throw;
-   } catch (...) {
-      m_formatter->err() << "Unexpected exception from "
-                         << "SourceFactory::setSpectrum" 
-                         << std::endl;
-      throw;
-   }
-   return 0;
+   
+   // Create the DiffuseSource with the spatial distribution function
+   DiffuseSource* src = new DiffuseSource(spatialDist, m_observation, 
+                                          m_requireExposure, mapBasedIntegral);
+   
+   // Set the spectrum
+   setSpectrum(src, spectrum, funcFactory);
+   
+   return src;
 }
 
+  Source* SourceFactory::makeCompositeSource(const std::string& xmlFile,
+					     const rapidxml::xml_node<>* spectrum,
+					     rapidxml::xml_node<>* source_library,
+					     optimizers::FunctionFactory& funcFactory,
+					     bool requireExposure,
+					     bool addPointSources,
+					     bool loadMap) {
+    std::vector<Source*> sources;
+    makeSources(xmlFile, source_library, sources, funcFactory,
+		requireExposure, addPointSources, loadMap);
 
-Source *SourceFactory::makeCompositeSource(const std::string& xmlFile,
-					   const rapidxml::xml_node<>* spectrum,
-					   rapidxml::xml_node<>* source_library,
-					   optimizers::FunctionFactory & funcFactory,
-					   bool requireExposure,
-					   bool addPointSources,
-					   bool loadMap) {
-   std::vector<Source*> sources;
-   makeSources(xmlFile,source_library,sources,funcFactory,requireExposure,addPointSources,loadMap);
-   CompositeSource* comp_src = new CompositeSource(m_observation);   
-   SourceMap* srcMap(0);
-   for ( std::vector<Source*>::iterator itr = sources.begin(); itr != sources.end(); itr++ ) {
-      Source* src = *itr;
-      addSource(src->getName(),src);
-      comp_src->addSource(*itr,srcMap,true);
+    auto* comp_src = new CompositeSource(m_observation);
+    SourceMap* srcMap = nullptr;
+
+    for (auto* src : sources) {
+      addSource(src->getName(), src);
+      comp_src->addSource(src, srcMap, true);
       releaseSource(src->getName());
       delete src;
-   }
-   setSpectrum(comp_src,spectrum,funcFactory);
-   return comp_src;   
-}
+    }
 
- 
-void SourceFactory::setSpectrum(Source * src, const rapidxml::xml_node<>* spectrum, 
-                                optimizers::FunctionFactory & funcFactory) {
-  std::string type = parser->getAttributeValue<string>(spectrum, "type").value();
+    setSpectrum(comp_src, spectrum, funcFactory);
+    return comp_src;
+  }
 
-   optimizers::Function * spec = funcFactory.create(type);
+  void SourceFactory::setSpectrum(Source* src,
+				  const rapidxml::xml_node<>* spectrum,
+				  optimizers::FunctionFactory& funcFactory) {
+    std::string type = getAttributeValue(spectrum, "type", "");
 
-// Fetch the parameter elements (if any).
-   std::vector<rapidxml::xml_node<> *> params;
-   params = parser->collectChildren(spectrum, "parameter");
-   if (type == "MultipleBPL") {
+    optimizers::Function* spec = funcFactory.create(type);
+
+    // Fetch the parameter elements
+    auto params = collectChildren(spectrum, "parameter");
+
+    // Handle special function types
+    if (type == "MultipleBPL") {
       addParamsToMultipleBPL(spec, params, src);
-   }
-   if (type == "PiecewisePowerLaw") {
+    }
+    if (type == "PiecewisePowerLaw") {
       addParamsToPiecewisePL(spec, params, src);
-   }
+    }
 
-   if (params.size() > 0) {
-     std::vector<rapidxml::xml_node<> *>::const_iterator paramIt = params.begin();
-      for ( ; paramIt != params.end(); paramIt++) {
-	std::string name = parser->getAttributeValue<string>(*paramIt, "name").value();
-         spec->parameter(name).extractDomData(*paramIt);
-      }
-   }
+    // Set parameter values from XML
+    for (auto* paramNode : params) {
+      std::string name = getAttributeValue(paramNode, "name", "");
+      spec->parameter(name).extractDomData(paramNode);
+    }
 
-   // If FileFunction, read in the data:
-   if (type == "FileFunction") {
-     std::string filename = parser->getAttributeValue<string>(spectrum, "file").value();
-      dynamic_cast<FileFunction *>(spec)->readFunction(filename);
-   }
-   if (type == "ScaleFactor::FileFunction") {
-     std::string filename = parser->getAttributeValue<string>(spectrum, "file").value();
-      dynamic_cast<FileFunction *>(dynamic_cast<ScaleFactor *>(spec)->spectrum())->readFunction(filename);
-   }
-   if (type == "DMFitFunction") {
-     std::string filename = parser->getAttributeValue<string>(spectrum, "file").value();
-      dynamic_cast<DMFitFunction *>(spec)->readFunction(filename);
-   }
+    // Handle FileFunction types
+    if (type == "FileFunction") {
+      std::string filename = getAttributeValue(spectrum, "file", "");
+      dynamic_cast<FileFunction*>(spec)->readFunction(filename);
+    }
+    if (type == "ScaleFactor::FileFunction") {
+      std::string filename = getAttributeValue(spectrum, "file", "");
+      dynamic_cast<FileFunction*>(dynamic_cast<ScaleFactor*>(spec)->spectrum())->readFunction(filename);
+    }
+    if (type == "DMFitFunction") {
+      std::string filename = getAttributeValue(spectrum, "file", "");
+      dynamic_cast<DMFitFunction*>(spec)->readFunction(filename);
+    }
 
-   // Check if spectral scaling, i.e., for effective area systematics
-   // studies, is desired.
-   std::string scaling_file = 
-     parser->getAttributeValue<string>(spectrum, "scaling_file").value();
-   if (scaling_file != "") {
+    // Check for spectral scaling
+    std::string scaling_file = getAttributeValue(spectrum, "scaling_file", "");
+    if (!scaling_file.empty()) {
       FileFunction scalingFunction;
       scalingFunction.readFunction(scaling_file);
       spec->setScalingFunction(scalingFunction);
-   }
+    }
 
-   src->setSpectrum(spec);
+    src->setSpectrum(spec);
 
-   /// Determine if energy dispersion can be applied.
-   std::string apply_edisp(parser->getAttributeValue<string>(spectrum, "apply_edisp").value());
-   if (apply_edisp != "true" && apply_edisp != "false" && apply_edisp != "") {
+    // Determine if energy dispersion can be applied
+    std::string apply_edisp = getAttributeValue(spectrum, "apply_edisp", "");
+    if (apply_edisp != "true" && apply_edisp != "false" && !apply_edisp.empty()) {
       throw std::runtime_error("Invalid value for apply_edisp attribute in xml definition of " + src->getName());
-   }
-   src->set_edisp_flag(apply_edisp != "false");
+    }
+    src->set_edisp_flag(apply_edisp != "false");
 
-   delete spec;
-}
+    delete spec;
+  }
 
-void SourceFactory::checkRoiDist(double ra, double dec) const {
-   std::vector<double> roiPars(m_observation.roiCuts().roiCone());
-   astro::SkyDir roiDir(roiPars.at(0), roiPars.at(1));
-   double radius(roiPars.at(2));
-   astro::SkyDir srcDir(ra, dec);
-   double sep(srcDir.difference(roiDir)*180./M_PI);
-   if (sep > radius + 10) {
-      m_formatter->warn() << "WARNING: Point source " << m_currentSrcName
-                          << " lies " << sep 
-                          << " degrees from the ROI center at RA, Dec = " 
-                          << roiPars.at(0) << ", " << roiPars.at(1) << ' ' << radius
-                          << std::endl;
-   }
-}
+  // ============================================================================
+  // Parameter Handling for Special Functions
+  // ============================================================================
 
-void SourceFactory::
-addParamsToMultipleBPL(optimizers::Function * spec,
-                       const std::vector<rapidxml::xml_node<>*> & params,
-                       const Source * src) const {
-   // Extract the Normalization, Index#, and Break# parameters
-   // since they must be added to the Function before they can be
-   // set via the DOMElement.
-   double normalization(1);
-   std::vector<double> photonIndexes;
-   std::vector<double> breakEnergies;
-   // Read in the parameter values and ensure that the parameter
-   // names are in numerical order.
-   std::vector<rapidxml::xml_node<> *>::const_iterator paramIt = params.begin();
-   for ( ; paramIt != params.end(); ++paramIt) {
-     std::string name(parser->getAttributeValue<string>(*paramIt, "name").value());
+  void SourceFactory::addParamsToMultipleBPL(optimizers::Function* spec,
+					     const std::vector<rapidxml::xml_node<>*>& params,
+					     const Source* src) const {
+    double normalization = 1.0;
+    std::vector<double> photonIndexes;
+    std::vector<double> breakEnergies;
+
+    for (auto* paramNode : params) {
+      std::string name = getAttributeValue(paramNode, "name", "");
+
       if (name == "Normalization") {
-         normalization = 
-	   std::atof(parser->getAttributeValue<string>(*paramIt, "value").value().c_str());
+	normalization = getAttributeValueAsDouble(paramNode, "value", 1.0);
       }
       if (name.find("Index") == 0) {
-         size_t my_index_id = std::atoi(name.substr(5).c_str());
-	 if ( my_index_id >= photonIndexes.size()) {
- 	    photonIndexes.resize(my_index_id+1);
-            //std::ostringstream what;
-            //what << "MultpleBPL: Index#s are out of order for source "
-            //     << src->getName() 
-            //     << ". They must appear in the sequence Index0, Index1, "
-            //     << "Index2, ... in the xml model definition.";
-            //throw std::runtime_error(what.str());
-         }
-         double value = 
-	   std::atof(parser->getAttributeValue<string>(*paramIt, "value").value().c_str());
-         //photonIndexes.push_back(value);
-	 photonIndexes[my_index_id] = value;	 
+	size_t idx = static_cast<size_t>(std::atoi(name.substr(5).c_str()));
+	if (idx >= photonIndexes.size()) {
+	  photonIndexes.resize(idx + 1);
+	}
+	photonIndexes[idx] = getAttributeValueAsDouble(paramNode, "value", 0.0);
       }
       if (name.find("Break") == 0) {
-         size_t my_index_id = std::atoi(name.substr(5).c_str());
-         if (my_index_id >= breakEnergies.size()) {
- 	    breakEnergies.resize(my_index_id+1);
-            //std::ostringstream what;
-            //what << "MultpleBPL: Index#s are out of order for source "
-            //     << src->getName() 
-            //     << ". They must appear in the sequence Break0, Break1, "
-            //     << "Break2, ... in the xml model definition.";
-            //throw std::runtime_error(what.str());
-         }
-         double value = 
-	   std::atof(parser->getAttributeValue<string>(*paramIt, "value").value().c_str());
-         double scale =
-	   std::atof(parser->getAttributeValue<string>(*paramIt, "scale").value().c_str());
-         breakEnergies[my_index_id] = value*scale;
+	size_t idx = static_cast<size_t>(std::atoi(name.substr(5).c_str()));
+	if (idx >= breakEnergies.size()) {
+	  breakEnergies.resize(idx + 1);
+	}
+	double value = getAttributeValueAsDouble(paramNode, "value", 0.0);
+	double scale = getAttributeValueAsDouble(paramNode, "scale", 1.0);
+	breakEnergies[idx] = value * scale;
       }
-   } // paramIt
-   dynamic_cast<MultipleBrokenPowerLaw *>(spec)->addParams(normalization,
-                                                           photonIndexes,
-                                                           breakEnergies);
-}
+    }
 
-void SourceFactory::
-addParamsToPiecewisePL(optimizers::Function * spec,
-                       const std::vector<rapidxml::xml_node<> *> & params,
-                       const Source * src) const {
-   // Extract dNdE# and Energy# parameters.
+    dynamic_cast<MultipleBrokenPowerLaw*>(spec)->addParams(normalization, photonIndexes, breakEnergies);
+  }
+
+  void SourceFactory::addParamsToPiecewisePL(optimizers::Function* spec,
+                                            const std::vector<rapidxml::xml_node<>*>& params,
+                                            const Source* src) const {
+   // Extract dNdE# and Energy# parameters
    std::vector<double> dNdEs;
    std::vector<double> energies;
-   // Read in the parameters and ensure that they are in numerical order;
-   std::vector<rapidxml::xml_node<>*>::const_iterator paramIt = params.begin();
-   for ( ; paramIt != params.end(); ++paramIt) {
-     std::string name(parser->getAttributeValue<string>(*paramIt, "name").value());
+   
+   for (auto* paramNode : params) {
+      std::string name = getAttributeValue(paramNode, "name", "");
+      
       if (name.substr(0, 4) == "dNdE") {
-         size_t my_dNdE_id = std::atoi(name.substr(4).c_str());
-	 // EAC, allow these to be out of order
-         if (my_dNdE_id >= dNdEs.size()) {
- 	    dNdEs.resize(my_dNdE_id+1);
-            //std::ostringstream what;
-            //what << "PiecewisePowerLaw: dNdE#s are out of order for source "
-            //     << src->getName()
-            //     << ". They must appear in the sequence dNdE0, dNdE1, ... "
-            //     << "in the xml model definition.";
-            //throw std::runtime_error(what.str());
+         size_t idx = static_cast<size_t>(std::atoi(name.substr(4).c_str()));
+         if (idx >= dNdEs.size()) {
+            dNdEs.resize(idx + 1);
          }
-         // The actual value will get set by extractDomData, so insert
-         // placeholder.
-         //dNdEs.push_back(0); 
-	 dNdEs[my_dNdE_id] = 0.;
+         // Placeholder value - actual value will be set by extractDomData later
+         dNdEs[idx] = 0.0;
       }
       if (name.substr(0, 6) == "Energy") {
-         size_t my_energy_id = std::atoi(name.substr(6).c_str());
-         if (my_energy_id >= energies.size() ){
-	    energies.resize(my_energy_id+1);
-            //std::ostringstream what;
-            //what << "PiecewisePowerLaw: Energy#s are out of order for source "
-            //     << src->getName()
-            //     << ". They must appear in the sequence Energy0, Energy1, ... "
-            //    << "in the xml model definition.";
-            //throw std::runtime_error(what.str());
+         size_t idx = static_cast<size_t>(std::atoi(name.substr(6).c_str()));
+         if (idx >= energies.size()) {
+            energies.resize(idx + 1);
          }
-         double value =
-	   std::atof(parser->getAttributeValue<string>(*paramIt, "value").value().c_str());
-         double scale =
-	   std::atof(parser->getAttributeValue<string>(*paramIt, "scale").value().c_str());
-         //energies.push_back(value*scale);
-	 energies[my_energy_id] = value*scale;
+         double value = getAttributeValueAsDouble(paramNode, "value", 0.0);
+         double scale = getAttributeValueAsDouble(paramNode, "scale", 1.0);
+         energies[idx] = value * scale;
       }
-   } // paramIt
-   double indexL(-2);
-   double indexH(-3);
-   dynamic_cast<PiecewisePowerLaw *>(spec)->addParams(indexL, indexH,
-                                                      dNdEs, energies);
+   }
+   
+   // Use default index values as in original code
+   double indexL = -2.0;
+   double indexH = -3.0;
+   
+   dynamic_cast<PiecewisePowerLaw*>(spec)->addParams(indexL, indexH, dNdEs, energies);
 }
+  
+  void SourceFactory::checkRoiDist(double ra, double dec) const {
+    std::vector<double> roiPars(m_observation.roiCuts().roiCone());
+    astro::SkyDir roiDir(roiPars.at(0), roiPars.at(1));
+    double radius = roiPars.at(2);
+    astro::SkyDir srcDir(ra, dec);
+    double sep = srcDir.difference(roiDir) * 180.0 / M_PI;
 
-} // namespace Likelihood
-BB
+    if (sep > radius + 10) {
+      m_formatter->warn() << "WARNING: Point source " << m_currentSrcName
+			  << " lies " << sep
+			  << " degrees from the ROI center at RA, Dec = "
+			  << roiPars.at(0) << ", " << roiPars.at(1)
+			  << ' ' << radius << std::endl;
+    }
+  }
+
+} // namespace Likelihood~
