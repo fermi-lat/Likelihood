@@ -10,15 +10,12 @@
 #define LikelihoodTests_XmlDiff_h
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
-//#include <xercesc/dom/DOM.hpp>
-
-#include "xmlBase/safe_xml_parser.h"
-#include "xmlBase/rapidxml.h"
-
-//using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
+// RapidXML-based framework includes
+#include "xmlBase/rapidxml.hpp"
 
 /**
  * @class XmlDiff
@@ -45,6 +42,10 @@
 class XmlDiff {
 
 public:
+   // Type aliases for RapidXML types
+   using XmlNode = rapidxml::xml_node<char>;
+   using XmlDocument = rapidxml::xml_document<char>;
+   using XmlAttribute = rapidxml::xml_attribute<char>;
 
    /// @param file1 The first XML file to be compared.
    /// @param file2 The second XML file.
@@ -54,31 +55,62 @@ public:
    ///        child elements. It should have a unique value for each 
    ///        element.
    XmlDiff(std::string file1, std::string file2, 
-           const std::string & tagName, const std::string & attribute);
+           const std::string& tagName, const std::string& attribute);
 
    ~XmlDiff();
 
-   bool compare();
+   /// Compare the two XML files
+   /// @return true if files are equivalent, false otherwise
+   [[nodiscard]] bool compare();
 
 private:
-
    std::string m_tagName;
    std::string m_attribute;
 
    std::string m_file1;
    std::string m_file2;
 
-  typedef std::map<std::string, xmlbase::xml_node<> *> DomMap;
+   // Document storage (RapidXML requires buffers to persist during document lifetime)
+   std::unique_ptr<XmlDocument> m_doc1;
+   std::unique_ptr<XmlDocument> m_doc2;
+   std::vector<char> m_buffer1;
+   std::vector<char> m_buffer2;
+
+   using DomMap = std::map<std::string, XmlNode*>;
    DomMap m_domMap1;
    DomMap m_domMap2;
 
-  void createDomElementMap(const xmlbase::xml_node<> * rootElt, DomMap & domMap);
+   /// Load and parse an XML file
+   /// @param filename Path to the XML file
+   /// @param doc Output document (will be populated)
+   /// @param buffer Output buffer (must persist during document lifetime)
+   /// @return true on success, false on failure
+   bool loadDocument(const std::string& filename,
+                     std::unique_ptr<XmlDocument>& doc,
+                     std::vector<char>& buffer);
 
-   void writeReserializedFile(const std::string & filename, 
-                              const DomMap & domMap);
+   /// Create a map of elements keyed by the specified attribute
+   /// @param rootElt Root element to search
+   /// @param domMap Output map to populate
+   void createDomElementMap(XmlNode* rootElt, DomMap& domMap);
 
-   void readLines(const std::string &inputFile, 
-                  std::vector<std::string> lines);
+   /// Write elements from a map to a file in sorted order
+   /// @param filename Output file path
+   /// @param domMap Map of elements to write
+   void writeReserializedFile(const std::string& filename, 
+                              const DomMap& domMap);
+
+   /// Read all lines from a file
+   /// @param inputFile Input file path
+   /// @param lines Output vector of lines
+   void readLines(const std::string& inputFile, 
+                  std::vector<std::string>& lines);
+
+   // Helper methods for XML operations
+   static std::string getAttribute(XmlNode* node, const char* name);
+   static std::string getTagName(XmlNode* node);
+   static void prettyPrint(XmlNode* node, std::ostream& out, 
+                           const std::string& indent = "");
 };
 
 #endif // LikelihoodTests_XmlDiff_h
