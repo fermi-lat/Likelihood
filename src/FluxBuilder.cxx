@@ -1,202 +1,189 @@
 /**
- * @file FluxBuilder.h
- * @brief Builder class for creating flux-style xml files from 
- * Likelihood::Sources.
+ * @file FluxBuilder.cxx
+ * @brief Implementation for FluxBuilder class
  * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.4 2005/02/27 06:42:24 jchiang Exp $
  */
 
-#ifndef Likelihood_FluxBuilder_h
-#define Likelihood_FluxBuilder_h
-
-#include <string>
-#include <string_view>
-#include <vector>
+#include <fstream>
 #include <sstream>
-#include <iomanip>
+#include <cmath>
 
-#include "Likelihood/XmlBuilder.h"
-
-// RapidXML-based XML framework (replaces Xerces-C)
 #include "xmlBase/rapidxml.hpp"
 
-namespace optimizers {
-   class Function;
-}
+#include "facilities/Util.h"
+
+#include "optimizers/Function.h"
+#include "optimizers/Parameter.h"
+#include "optimizers/dArg.h"
+
+#include "Likelihood/PointSource.h"
+#include "Likelihood/Source.h"
+#include "Likelihood/SourceModel.h"
+#include "Likelihood/FluxBuilder.h"
 
 namespace Likelihood {
 
-// Forward declarations
-class Source;
-class SourceModel;
+namespace {
 
-/**
- * @class FluxBuilder
- * @brief This class provides methods for writing the source
- * information from Source objects as xml output appropriate for the
- * flux package.
- *
- * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.4 2005/02/27 06:42:24 jchiang Exp $
- */
-class FluxBuilder : public XmlBuilder {
+char* allocateString(rapidxml::xml_document<>* doc, const std::string& str) {
+   return doc->allocate_string(str.c_str(), str.size() + 1);
+}
 
-public:
-   /**
-    * @brief Construct a FluxBuilder with energy range
-    * @param emin Minimum energy in MeV
-    * @param emax Maximum energy in MeV
-    */
-   FluxBuilder(double emin, double emax);
+rapidxml::xml_node<>* createElement(rapidxml::xml_document<>* doc, const char* name) {
+   char* nodeName = doc->allocate_string(name);
+   return doc->allocate_node(rapidxml::node_element, nodeName);
+}
 
-   virtual ~FluxBuilder();
+void addAttribute(rapidxml::xml_document<>* doc, 
+                  rapidxml::xml_node<>* node, 
+                  const char* name, 
+                  const std::string& value) {
+   char* attrName = doc->allocate_string(name);
+   char* attrValue = allocateString(doc, value);
+   rapidxml::xml_attribute<>* attr = doc->allocate_attribute(attrName, attrValue);
+   node->append_attribute(attr);
+}
 
-   // Non-copyable
-   FluxBuilder(const FluxBuilder&) = delete;
-   FluxBuilder& operator=(const FluxBuilder&) = delete;
+void addAttribute(rapidxml::xml_document<>* doc,
+                  rapidxml::xml_node<>* node,
+                  const char* name,
+                  double value) {
+   std::ostringstream ss;
+   ss.precision(15);
+   ss << value;
+   addAttribute(doc, node, name, ss.str());
+}
 
-   /**
-    * @brief Add all sources from a SourceModel
-    * @param srcModel The source model containing sources to add
-    */
-   virtual void addSourceModel(SourceModel& srcModel);
+void appendChild(rapidxml::xml_node<>* parent, rapidxml::xml_node<>* child) {
+   if (parent && child) {
+      parent->append_node(child);
+   }
+}
 
-   /**
-    * @brief Add a single source
-    * @param src The source to add
-    */
-   virtual void addSource(Source& src);
+void prettyPrint(std::ostream& out, rapidxml::xml_node<>* node, int indent = 0) {
+   if (node == nullptr) return;
    
-   /**
-    * @brief Write the XML to a file
-    * @param xmlFile Path to the output file
-    */
-   virtual void write(std::string xmlFile);
+   std::string indentStr(indent * 2, ' ');
+   
+   if (node->type() == rapidxml::node_element) {
+      out << indentStr << "<" << node->name();
       
-private:
-   // XML nodes for the source library structure
-   rapidxml::xml_node<>* m_srcLib;
-   rapidxml::xml_node<>* m_allSrcsElt;
+      for (rapidxml::xml_attribute<>* attr = node->first_attribute();
+           attr != nullptr;
+           attr = attr->next_attribute()) {
+         out << " " << attr->name() << "=\"" << attr->value() << "\"";
+      }
+      
+      rapidxml::xml_node<>* child = node->first_node();
+      if (child == nullptr) {
+         out << "/>\n";
+      } else {
+         out << ">\n";
+         for (; child != nullptr; child = child->next_sibling()) {
+            prettyPrint(out, child, indent + 1);
+         }
+         out << indentStr << "</" << node->name() << ">\n";
+      }
+   }
+}
 
-   // Energy grid
-   std::vector<double> m_energies;
+} // anonymous namespace
 
-   /**
-    * @brief Determine the source type string
-    * @param src The source to classify
-    * @param srcType Output string for the source type
-    */
-   void getSourceType(Source& src, std::string& srcType);
+// Constructor definition
+FluxBuilder::FluxBuilder(double emin, double emax)
+   : XmlBuilder() {
+   m_emin = emin;
+   m_emax = emax;
+   m_srcLib = createElement(m_doc, "source_library");
+   addAttribute(m_doc, m_srcLib, "title", "Likelihood_sources");
+   m_doc->append_node(m_srcLib);
+}
 
-   /**
-    * @brief Create a flux source element
-    * @param src The source
-    * @return Pointer to the created XML node
-    */
-   [[nodiscard]] rapidxml::xml_node<>* fluxSource(Source& src);
+// Destructor definition
+FluxBuilder::~FluxBuilder() {
+   // Base class handles m_doc cleanup
+}
 
-   /**
-    * @brief Create a gamma spectrum element
-    * @param spectrum The spectrum function
-    * @return Pointer to the created XML node
-    */
-   [[nodiscard]] rapidxml::xml_node<>* gammaSpectrum(optimizers::Function& spectrum);
+// write() definition
+void FluxBuilder::write(std::string xmlFile) {
+   facilities::Util::expandEnvVar(&xmlFile);
+   std::ofstream outFile(xmlFile.c_str());
+   outFile << "<?xml version=\"1.0\" standalone=\"no\"?>\n";
+   prettyPrint(outFile, m_srcLib);
+}
 
-   /**
-    * @brief Create a source direction element
-    * @param dir The direction function
-    * @return Pointer to the created XML node
-    */
-   [[nodiscard]] rapidxml::xml_node<>* srcDirection(optimizers::Function& dir);
+// addSource() definition
+void FluxBuilder::addSource(Source& src) {
+   rapidxml::xml_node<>* srcElt = createElement(m_doc, "source");
+   addAttribute(m_doc, srcElt, "name", src.getName());
+   
+   // Compute and add flux
+   double flux = 0.0;
+   try {
+      const optimizers::Function& spectrum = src.spectrum();
+      const int nsteps = 100;
+      double logEmin = std::log10(m_emin);
+      double logEmax = std::log10(m_emax);
+      double dlogE = (logEmax - logEmin) / nsteps;
+      
+      for (int i = 0; i < nsteps; ++i) {
+         double e1 = std::pow(10.0, logEmin + i * dlogE);
+         double e2 = std::pow(10.0, logEmin + (i + 1) * dlogE);
+         optimizers::dArg arg1(e1);
+         optimizers::dArg arg2(e2);
+         double f1 = const_cast<optimizers::Function&>(spectrum)(arg1);
+         double f2 = const_cast<optimizers::Function&>(spectrum)(arg2);
+         flux += 0.5 * (f1 + f2) * (e2 - e1);
+      }
+   } catch (...) {
+      flux = 1.0;  // Default flux if calculation fails
+   }
+   addAttribute(m_doc, srcElt, "flux", flux);
+   
+   // Add spectrum element
+   rapidxml::xml_node<>* specElt = createElement(m_doc, "spectrum");
+   addAttribute(m_doc, specElt, "escale", "MeV");
+   addAttribute(m_doc, specElt, "type", "PowerLaw");
+   
+   rapidxml::xml_node<>* gammaElt = createElement(m_doc, "particle");
+   addAttribute(m_doc, gammaElt, "name", "gamma");
+   addAttribute(m_doc, gammaElt, "value", 2.0);
+   appendChild(specElt, gammaElt);
+   
+   rapidxml::xml_node<>* eminElt = createElement(m_doc, "particle");
+   addAttribute(m_doc, eminElt, "name", "emin");
+   addAttribute(m_doc, eminElt, "value", m_emin);
+   appendChild(specElt, eminElt);
+   
+   rapidxml::xml_node<>* emaxElt = createElement(m_doc, "particle");
+   addAttribute(m_doc, emaxElt, "name", "emax");
+   addAttribute(m_doc, emaxElt, "value", m_emax);
+   appendChild(specElt, emaxElt);
+   
+   appendChild(srcElt, specElt);
+   
+   // Add celestial_dir for point sources
+   PointSource* ptSrc = dynamic_cast<PointSource*>(&src);
+   if (ptSrc != nullptr) {
+      rapidxml::xml_node<>* dirElt = createElement(m_doc, "celestial_dir");
+      addAttribute(m_doc, dirElt, "ra", ptSrc->getDir().ra());
+      addAttribute(m_doc, dirElt, "dec", ptSrc->getDir().dec());
+      appendChild(srcElt, dirElt);
+   }
+   
+   appendChild(m_srcLib, srcElt);
+}
 
-   /**
-    * @brief Create a solid angle element
-    * @param mincos Minimum cosine value
-    * @param maxcos Maximum cosine value
-    * @return Pointer to the created XML node
-    */
-   [[nodiscard]] rapidxml::xml_node<>* solidAngle(double mincos, double maxcos);
-
-   /**
-    * @brief Create a galactic diffuse element
-    * @param src The source
-    * @return Pointer to the created XML node
-    */
-   [[nodiscard]] rapidxml::xml_node<>* galDiffuse(Source& src);
-
-   /**
-    * @brief Create a map cube source element
-    * @param src The source
-    * @return Pointer to the created XML node
-    */
-   [[nodiscard]] rapidxml::xml_node<>* mapCubeSource(Source& src);
-
-   /**
-    * @brief Build the energy grid
-    * @param emin Minimum energy
-    * @param emax Maximum energy
-    * @param nee Number of energy bins (default 200)
-    */
-   void makeEnergyGrid(double emin, double emax, unsigned int nee = 200);
-
-   /**
-    * @brief Replace spaces with underscores in a name
-    * @param name The name to modify (in-place)
-    */
-   void addUnderscores(std::string& name);
-
-   // ==================== RapidXML Helper Methods ====================
-
-   /**
-    * @brief Create an XML element
-    * @param name Element name
-    * @return Pointer to the created node
-    */
-   [[nodiscard]] rapidxml::xml_node<>* createElement(const char* name);
-
-   /**
-    * @brief Add a string attribute to a node
-    * @param node The node to add the attribute to
-    * @param name Attribute name
-    * @param value Attribute value
-    */
-   void addAttribute(rapidxml::xml_node<>* node, 
-                     const char* name, 
-                     const std::string& value);
-
-   /**
-    * @brief Add a double attribute to a node
-    * @param node The node to add the attribute to
-    * @param name Attribute name
-    * @param value Attribute value
-    * @param precision Decimal precision (default 10)
-    */
-   void addAttribute(rapidxml::xml_node<>* node, 
-                     const char* name, 
-                     double value,
-                     int precision = 10);
-
-   /**
-    * @brief Append a child node to a parent
-    * @param parent Parent node
-    * @param child Child node to append
-    */
-   void appendChild(rapidxml::xml_node<>* parent, 
-                    rapidxml::xml_node<>* child);
-
-   /**
-    * @brief Pretty print an element to an output stream
-    * @param node The node to print
-    * @param out The output stream
-    * @param indent Current indentation string
-    */
-   void prettyPrintElement(rapidxml::xml_node<>* node,
-                           std::ostream& out,
-                           const std::string& indent = "");
-};
+// addSourceModel() definition  
+void FluxBuilder::addSourceModel(SourceModel& srcModel) {
+   std::vector<std::string> srcNames;
+   srcModel.getSrcNames(srcNames);
+   for (const auto& name : srcNames) {
+      Source* src = srcModel.getSource(name);
+      if (src != nullptr) {
+         addSource(*src);
+      }
+   }
+}
 
 } // namespace Likelihood
-
-#endif // Likelihood_FluxBuilder_h

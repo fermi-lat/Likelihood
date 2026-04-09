@@ -1,5 +1,5 @@
 /** 
- * @file SourceModel.cxx
+ * @file SourceModel.cpp
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
@@ -10,13 +10,16 @@
 #include <cstdlib>
 
 #include <algorithm>
+#include <fstream>
+#include <memory>
+#include <optional>
+#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <sstream>
 #include <vector>
-#include <optional>
 
-#include "xmlBase/safe_xml_parser.hpp"
+// RapidXML headers
+#include "xmlBase/rapidxml.hpp"
 
 #include "facilities/Util.h"
 
@@ -43,11 +46,130 @@
 
 namespace Likelihood {
 
+namespace {
+
+// RAII wrapper for RapidXML document that owns its buffer
+class XmlDocument {
+public:
+   XmlDocument() = default;
+   ~XmlDocument() = default;
+   
+   // Non-copyable
+   XmlDocument(const XmlDocument&) = delete;
+   XmlDocument& operator=(const XmlDocument&) = delete;
+   
+   // Movable
+   XmlDocument(XmlDocument&&) = default;
+   XmlDocument& operator=(XmlDocument&&) = default;
+   
+   bool parseFile(const std::string& filename) {
+      std::ifstream file(filename);
+      if (!file.is_open()) {
+         return false;
+      }
+      
+      // Read entire file into buffer
+      std::ostringstream ss;
+      ss << file.rdbuf();
+      m_buffer = ss.str();
+      
+      try {
+         // RapidXML modifies the buffer, so we need a non-const copy
+         m_doc.parse<rapidxml::parse_default>(&m_buffer[0]);
+         return true;
+      } catch (const rapidxml::parse_error&) {
+         return false;
+      }
+   }
+   
+   rapidxml::xml_node<>* first_node(const char* name = nullptr) {
+      return m_doc.first_node(name);
+   }
+   
+   rapidxml::xml_document<>* get() { return &m_doc; }
+
+private:
+   std::string m_buffer;
+   rapidxml::xml_document<> m_doc;
+};
+
+// Helper function to collect child nodes by tag name
+void collectChildNodes(rapidxml::xml_node<>* parent, 
+                       const char* tagName,
+                       std::vector<rapidxml::xml_node<>*>& children) {
+   children.clear();
+   if (parent == nullptr) return;
+   
+   for (rapidxml::xml_node<>* child = parent->first_node(tagName);
+        child != nullptr;
+        child = child->next_sibling(tagName)) {
+      children.push_back(child);
+   }
+}
+
+// Helper function to get string attribute value
+std::optional<std::string> getStringAttribute(rapidxml::xml_node<>* node, 
+                                              const char* attrName) {
+   if (node == nullptr) return std::nullopt;
+   
+   rapidxml::xml_attribute<>* attr = node->first_attribute(attrName);
+   if (attr == nullptr) return std::nullopt;
+   
+   return std::string(attr->value(), attr->value_size());
+}
+
+// Helper function to get double attribute value
+std::optional<double> getDoubleAttribute(rapidxml::xml_node<>* node,
+                                         const char* attrName) {
+   auto strVal = getStringAttribute(node, attrName);
+   if (!strVal) return std::nullopt;
+   
+   try {
+      return std::stod(*strVal);
+   } catch (...) {
+      return std::nullopt;
+   }
+}
+
+// Helper function to parse a Parameter from XML node
+std::optional<optimizers::Parameter> parseParameterNode(rapidxml::xml_node<>* paramNode) {
+   if (paramNode == nullptr) return std::nullopt;
+   
+   auto nameOpt = getStringAttribute(paramNode, "name");
+   if (!nameOpt) return std::nullopt;
+   
+   auto valueOpt = getDoubleAttribute(paramNode, "value");
+   if (!valueOpt) return std::nullopt;
+   
+   optimizers::Parameter param(*nameOpt, *valueOpt);
+   
+   // Set optional attributes
+   if (auto scaleOpt = getDoubleAttribute(paramNode, "scale")) {
+      param.setScale(*scaleOpt);
+   }
+   
+   if (auto minOpt = getDoubleAttribute(paramNode, "min")) {
+      if (auto maxOpt = getDoubleAttribute(paramNode, "max")) {
+         param.setBounds(*minOpt, *maxOpt);
+      }
+   }
+   
+   if (auto freeOpt = getStringAttribute(paramNode, "free")) {
+      param.setFree(*freeOpt == "1" || *freeOpt == "true");
+   }
+   
+   return param;
+}
+
+} // anonymous namespace
+
 SourceModel::SourceModel(const Observation & observation, bool verbose) 
    : optimizers::Statistic("SourceModel", 0),
-     m_observation(observation), m_useNewImp(true), m_verbose(verbose), 
+     m_observation(observation), 
+     m_useNewImp(true), 
+     m_verbose(verbose), 
      m_formatter(new st_stream::StreamFormatter("SourceModel", "", 2)) {
-   if (char* useOldImp = ::getenv("USE_OLD_LOGLIKE"); useOldImp != nullptr) {
+   if (char* useOldImp = std::getenv("USE_OLD_LOGLIKE"); useOldImp != nullptr) {
       m_useNewImp = false;
    }
 }
@@ -72,7 +194,7 @@ SourceModel::~SourceModel() {
    delete m_formatter;
 }
 
-void SourceModel::addSource(Source *src, bool fromClone, SourceMap* /* srcMap */, bool /* loadMap*/ ) {
+void SourceModel::addSource(Source *src, bool fromClone, SourceMap* /* srcMap */, bool /* loadMap */) {
    if (!m_sources.count(src->getName())) {
       m_sources[src->getName()] = fromClone ? src->clone() : src;
       m_sources[src->getName()]->setObservation(&m_observation);
@@ -138,18 +260,6 @@ void SourceModel::getSrcNames(std::vector<std::string> &names) const {
    }
 }
 
-CompositeSource* SourceModel::mergeSources(const std::string& compName,
-                                           const std::vector<std::string>& srcNames,
-                                           const std::string& specFuncName) {
-   auto cmp = new CompositeSource(m_observation, compName, specFuncName);
-   initialize_composite(*cmp);
-   for (const auto& name : srcNames) {
-      cmp->steal_source(*this, name);
-   }
-   addSource(cmp, false);
-   return cmp;
-}
-
 optimizers::Function* SourceModel::splitCompositeSource(const std::string& compName,
                                                         std::vector<std::string>& srcNames) {
    Source* src = deleteSource(compName);
@@ -190,6 +300,18 @@ Source* SourceModel::give_source(SourceModel& other,
    }
    other.addSource(src, false, srcMap);
    return src;
+}
+
+CompositeSource* SourceModel::mergeSources(const std::string& compName,
+                                           const std::vector<std::string>& srcNames,
+                                           const std::string& specFuncName) {
+   auto cmp = new CompositeSource(m_observation, compName, specFuncName);
+   initialize_composite(*cmp);
+   for (const auto& name : srcNames) {
+      cmp->steal_source(*this, name);
+   }
+   addSource(cmp, false);
+   return cmp;
 }
 
 double SourceModel::value(const optimizers::Arg &) const {
@@ -314,26 +436,21 @@ void SourceModel::readXml(const std::string& xmlFile,
    std::string expandedFile = xmlFile;
    facilities::Util::expandEnvVar(&expandedFile);
 
-   auto* parser = XmlParser_instance();
-   
-   auto docResult = parser->parseFile(expandedFile);
-   if (!docResult) {
+   XmlDocument doc;
+   if (!doc.parseFile(expandedFile)) {
       std::string errorMessage = "SourceModel::readXml:\nInput xml file, "
          + expandedFile + ", not parsed successfully.";
       throw Exception(errorMessage);
    }
    
-   rapidxml::xml_document<>* doc = docResult.value();
-   rapidxml::xml_node<>* source_library = doc->first_node("source_library");
+   rapidxml::xml_node<>* source_library = doc.first_node("source_library");
    
    if (source_library == nullptr) {
-      delete doc;
       throw Exception("SourceModel::readXml:\nsource_library not found");
    }
    
    readXml(source_library, expandedFile, funcFactory, requireExposure, 
            addPointSources, loadMaps);
-   delete doc;
 }
 
 void SourceModel::readXml(rapidxml::xml_node<>* srcLibrary,
@@ -347,7 +464,7 @@ void SourceModel::readXml(rapidxml::xml_node<>* srcLibrary,
    try {
       srcFactory.readXml(srcLibrary, xmlFile, funcFactory, requireExposure,
                          addPointSources, loadMaps);
-   } catch (xml_framework::XmlException & eObj) {
+   } catch (std::exception & eObj) {
       m_formatter->err() << eObj.what() << std::endl;
       std::ostringstream message;
       message << "\nError reading in the xml model file.\n"
@@ -376,40 +493,33 @@ void SourceModel::reReadXml(const std::string& xmlFile) {
    std::string expandedFile = xmlFile;
    facilities::Util::expandEnvVar(&expandedFile);
 
-   auto* parser = XmlParser_instance();
-
-   auto docResult = parser->parseFile(expandedFile);
-   if (!docResult) {
+   XmlDocument doc;
+   if (!doc.parseFile(expandedFile)) {
       std::string errorMessage = "SourceModel::reReadXml:\nInput xml file, "
          + expandedFile + ", not parsed successfully.";
       throw Exception(errorMessage);
    }
    
-   rapidxml::xml_document<>* doc = docResult.value();
-   rapidxml::xml_node<>* source_library = doc->first_node("source_library");
+   rapidxml::xml_node<>* source_library = doc.first_node("source_library");
    
    if (source_library == nullptr) {
-      delete doc;
       throw Exception("SourceModel::reReadXml:\nsource_library not found");
    }
    
    reReadXml(source_library);
-   delete doc;
 }
 
 void SourceModel::reReadXml(rapidxml::xml_node<>* source_library) {
-   auto* parser = XmlParser_instance();
-   
    // Loop through source xml nodes and Source objects in parallel.
    std::vector<rapidxml::xml_node<>*> srcs;
-   parser->collectChildren(source_library, "source", srcs);
+   collectChildNodes(source_library, "source", srcs);
 
    for (auto* srcNode : srcs) {
-      auto srcNameResult = parser->getAttributeValue<std::string>(srcNode, "name");
-      if (!srcNameResult) {
+      auto srcNameOpt = getStringAttribute(srcNode, "name");
+      if (!srcNameOpt) {
          continue;
       }
-      std::string srcName = srcNameResult.value();
+      std::string srcName = *srcNameOpt;
       
       // Find corresponding Source in model
       Source* my_source = getSource(srcName);
@@ -418,23 +528,23 @@ void SourceModel::reReadXml(rapidxml::xml_node<>* source_library) {
       }
 
       // Get source type
-      auto srcTypeResult = parser->getAttributeValue<std::string>(srcNode, "type");
-      if (!srcTypeResult) {
+      auto srcTypeOpt = getStringAttribute(srcNode, "type");
+      if (!srcTypeOpt) {
          continue;
       }
-      std::string srcType = srcTypeResult.value();
+      std::string srcType = *srcTypeOpt;
 
       // Get spectrum node and update parameters
       rapidxml::xml_node<>* spectrumNode = srcNode->first_node("spectrum");
       if (spectrumNode != nullptr) {
          std::vector<optimizers::Parameter> spectrumModel;
          std::vector<rapidxml::xml_node<>*> specParams;
-         parser->collectChildren(spectrumNode, "parameter", specParams);
+         collectChildNodes(spectrumNode, "parameter", specParams);
          
          for (auto* paramNode : specParams) {
-            auto paramResult = parser->parseParameter(paramNode);
-            if (paramResult) {
-               spectrumModel.push_back(paramResult.value());
+            auto paramOpt = parseParameterNode(paramNode);
+            if (paramOpt) {
+               spectrumModel.push_back(*paramOpt);
             }
          }
          
@@ -450,18 +560,17 @@ void SourceModel::reReadXml(rapidxml::xml_node<>* source_library) {
             double ra = 0.0, dec = 0.0;
             
             std::vector<rapidxml::xml_node<>*> params;
-            parser->collectChildren(spatialModelNode, "parameter", params);
+            collectChildNodes(spatialModelNode, "parameter", params);
             
             for (auto* paramNode : params) {
-               auto nameResult = parser->getAttributeValue<std::string>(paramNode, "name");
-               auto valueResult = parser->getAttributeValue<std::string>(paramNode, "value");
+               auto nameOpt = getStringAttribute(paramNode, "name");
+               auto valueOpt = getDoubleAttribute(paramNode, "value");
                
-               if (nameResult && valueResult) {
-                  std::string paramName = nameResult.value();
-                  if (paramName == "RA") {
-                     ra = std::atof(valueResult.value().c_str());
-                  } else if (paramName == "DEC") {
-                     dec = std::atof(valueResult.value().c_str());
+               if (nameOpt && valueOpt) {
+                  if (*nameOpt == "RA") {
+                     ra = *valueOpt;
+                  } else if (*nameOpt == "DEC") {
+                     dec = *valueOpt;
                   }
                }
             }
@@ -479,12 +588,12 @@ void SourceModel::reReadXml(rapidxml::xml_node<>* source_library) {
          if (spatialModelNode != nullptr) {
             std::vector<optimizers::Parameter> spatialModel;
             std::vector<rapidxml::xml_node<>*> spatialParams;
-            parser->collectChildren(spatialModelNode, "parameter", spatialParams);
+            collectChildNodes(spatialModelNode, "parameter", spatialParams);
             
             for (auto* paramNode : spatialParams) {
-               auto paramResult = parser->parseParameter(paramNode);
-               if (paramResult) {
-                  spatialModel.push_back(paramResult.value());
+               auto paramOpt = parseParameterNode(paramNode);
+               if (paramOpt) {
+                  spatialModel.push_back(*paramOpt);
                }
             }
             
