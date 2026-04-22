@@ -35,12 +35,6 @@ namespace optimizers {
 
 namespace Likelihood {
 
-#ifndef SWIG
-// Forward declare RapidXML types for internal use
-namespace rapidxml {
-    template<class Ch> class xml_node;
-}
-#endif
 /** 
  * @class SourceFactory
  *
@@ -150,11 +144,11 @@ private:
    st_stream::StreamFormatter* m_formatter;
    std::string m_currentSrcName;
 
-   // XML document and buffer for parsing
+#ifndef SWIG
+   // XML document and buffer for parsing - hidden from SWIG
    mutable rapidxml::xml_document<> m_xmlDoc;
    mutable std::vector<char> m_xmlBuffer;
 
-#ifndef SWIG
    /**
     * @brief Create sources from XML source_library element
     */
@@ -198,52 +192,36 @@ private:
    void setSpectrum(Source* src, 
                     const rapidxml::xml_node<>* spectrum,
                     optimizers::FunctionFactory& funcFactory);
-#endif // SWIG
 
    /**
-    * @brief Check if a source is within acceptable ROI distance
+    * @brief Add parameters to MultipleBrokenPowerLaw function
     */
-   void checkRoiDist(double ra, double dec) const;
-
-   /**
-    * @brief Add parameters for MultipleBrokenPowerLaw function
-    */
-   void addParamsToMultipleBPL(optimizers::Function* spec, 
+   void addParamsToMultipleBPL(optimizers::Function* spec,
                                const std::vector<rapidxml::xml_node<>*>& params,
                                const Source* src) const;
 
    /**
-    * @brief Add parameters for PiecewisePowerLaw function
+    * @brief Add parameters to PiecewisePowerLaw function
     */
-   void addParamsToPiecewisePL(optimizers::Function* spec, 
+   void addParamsToPiecewisePL(optimizers::Function* spec,
                                const std::vector<rapidxml::xml_node<>*>& params,
                                const Source* src) const;
 
-   // ==================== RapidXML Helper Methods ====================
-
    /**
-    * @brief Get attribute value as string
-    * @param node The XML node
-    * @param attrName Attribute name
-    * @param defaultValue Default value if attribute not found
-    * @return Attribute value or default
+    * @brief Get attribute value from XML node
     */
    [[nodiscard]] static std::string getAttributeValue(
        const rapidxml::xml_node<>* node,
        const char* attrName,
-       const std::string& defaultValue = "");
+       const std::string& defaultValue);
 
    /**
-    * @brief Get attribute value as double
-    * @param node The XML node
-    * @param attrName Attribute name
-    * @param defaultValue Default value if attribute not found
-    * @return Attribute value or default
+    * @brief Get attribute value as double from XML node
     */
    [[nodiscard]] static double getAttributeValueAsDouble(
        const rapidxml::xml_node<>* node,
        const char* attrName,
-       double defaultValue = 0.0);
+       double defaultValue);
 
    /**
     * @brief Collect child elements with a specific name
@@ -254,6 +232,12 @@ private:
    [[nodiscard]] static std::vector<rapidxml::xml_node<>*> collectChildren(
        const rapidxml::xml_node<>* parent,
        const char* childName);
+#endif // SWIG
+
+   /**
+    * @brief Check if a source is within acceptable ROI distance
+    */
+   void checkRoiDist(double ra, double dec) const;
 };
 
 } // namespace Likelihood
