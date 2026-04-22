@@ -12,12 +12,12 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <string_view>
 #include <vector>
 
 #ifndef SWIG
 // RapidXML-based XML framework (replaces Xerces-C)
 #include "xmlBase/rapidxml.hpp"
+#include <string_view>
 #endif
 
 #include "Likelihood/Exception.h"
@@ -57,23 +57,25 @@ public:
 
    ~SourceFactory();
 
-   // Non-copyable
+#ifndef SWIG
+   // Non-copyable - hidden from SWIG as it doesn't handle = delete well
    SourceFactory(const SourceFactory&) = delete;
    SourceFactory& operator=(const SourceFactory&) = delete;
+#endif
 
    /**
     * @brief Create a source by name (returns a clone)
     * @param name The source name
     * @return Pointer to cloned source (caller takes ownership)
     */
-   [[nodiscard]] Source* create(const std::string& name);
+   Source* create(const std::string& name);
 
    /**
     * @brief Release ownership of a source
     * @param name The source name
     * @return Pointer to the source (caller takes ownership)
     */
-   [[nodiscard]] Source* releaseSource(const std::string& name);
+   Source* releaseSource(const std::string& name);
 
    /**
     * @brief Add a source prototype
@@ -106,24 +108,6 @@ public:
                 bool addPointSources = true,
                 bool loadMaps = true);
 
-#ifndef SWIG
-   /**
-    * @brief Read source definitions from an XML node
-    * @param source_library Pointer to the source_library XML node
-    * @param xmlFile Path to the XML file (for error messages)
-    * @param funcFactory Function factory for creating spectral functions
-    * @param requireExposure Whether exposure calculation is required
-    * @param addPointSources Whether to add point sources
-    * @param loadMaps Whether to load spatial maps
-    */
-   void readXml(rapidxml::xml_node<>* source_library,
-                const std::string& xmlFile,
-                optimizers::FunctionFactory& funcFactory,
-                bool requireExposure = true,
-                bool addPointSources = true,
-                bool loadMaps = true);
-#endif // SWIG
-
    /**
     * @brief Get all registered source names
     * @param srcNames Output vector to receive source names
@@ -134,18 +118,24 @@ public:
     * @brief Get all registered source names (C++17 style)
     * @return Vector of source names
     */
-   [[nodiscard]] std::vector<std::string> fetchSrcNames() const;
-
-private:
-   bool m_verbose;
-   std::map<std::string, Source*> m_prototypes;
-   bool m_requireExposure;
-   const Observation& m_observation;
-   st_stream::StreamFormatter* m_formatter;
-   std::string m_currentSrcName;
+   std::vector<std::string> fetchSrcNames() const;
 
 #ifndef SWIG
-   // XML document and buffer for parsing - hidden from SWIG
+   // ==================== RapidXML-specific interface ====================
+   // Hidden from SWIG - these use RapidXML types
+
+   /**
+    * @brief Read source definitions from an XML node
+    */
+   void readXml(rapidxml::xml_node<>* source_library,
+                const std::string& xmlFile,
+                optimizers::FunctionFactory& funcFactory,
+                bool requireExposure = true,
+                bool addPointSources = true,
+                bool loadMaps = true);
+
+private:
+   // XML document and buffer for parsing
    mutable rapidxml::xml_document<> m_xmlDoc;
    mutable std::vector<char> m_xmlBuffer;
 
@@ -163,28 +153,28 @@ private:
    /**
     * @brief Create a point source from XML elements
     */
-   [[nodiscard]] Source* makePointSource(const rapidxml::xml_node<>* spectrum,
-                                         const rapidxml::xml_node<>* spatialModel,
-                                         optimizers::FunctionFactory& funcFactory);
+   Source* makePointSource(const rapidxml::xml_node<>* spectrum,
+                           const rapidxml::xml_node<>* spatialModel,
+                           optimizers::FunctionFactory& funcFactory);
 
    /**
     * @brief Create a diffuse source from XML elements
     */
-   [[nodiscard]] Source* makeDiffuseSource(const rapidxml::xml_node<>* spectrum,
-                                           const rapidxml::xml_node<>* spatialModel,
-                                           optimizers::FunctionFactory& funcFactory,
-                                           bool loadMap = true);
+   Source* makeDiffuseSource(const rapidxml::xml_node<>* spectrum,
+                             const rapidxml::xml_node<>* spatialModel,
+                             optimizers::FunctionFactory& funcFactory,
+                             bool loadMap = true);
 
    /**
     * @brief Create a composite source from XML elements
     */
-   [[nodiscard]] Source* makeCompositeSource(const std::string& xmlFile,
-                                             const rapidxml::xml_node<>* spectrum,
-                                             rapidxml::xml_node<>* source_library,
-                                             optimizers::FunctionFactory& funcFactory,
-                                             bool requireExposure = true,
-                                             bool addPointSources = true,
-                                             bool loadMap = true);
+   Source* makeCompositeSource(const std::string& xmlFile,
+                               const rapidxml::xml_node<>* spectrum,
+                               rapidxml::xml_node<>* source_library,
+                               optimizers::FunctionFactory& funcFactory,
+                               bool requireExposure = true,
+                               bool addPointSources = true,
+                               bool loadMap = true);
 
    /**
     * @brief Set the spectrum for a source from XML
@@ -210,7 +200,7 @@ private:
    /**
     * @brief Get attribute value from XML node
     */
-   [[nodiscard]] static std::string getAttributeValue(
+   static std::string getAttributeValue(
        const rapidxml::xml_node<>* node,
        const char* attrName,
        const std::string& defaultValue);
@@ -218,26 +208,38 @@ private:
    /**
     * @brief Get attribute value as double from XML node
     */
-   [[nodiscard]] static double getAttributeValueAsDouble(
+   static double getAttributeValueAsDouble(
        const rapidxml::xml_node<>* node,
        const char* attrName,
        double defaultValue);
 
    /**
     * @brief Collect child elements with a specific name
-    * @param parent Parent node
-    * @param childName Name of children to collect
-    * @return Vector of matching child nodes
     */
-   [[nodiscard]] static std::vector<rapidxml::xml_node<>*> collectChildren(
+   static std::vector<rapidxml::xml_node<>*> collectChildren(
        const rapidxml::xml_node<>* parent,
        const char* childName);
-#endif // SWIG
 
    /**
     * @brief Check if a source is within acceptable ROI distance
     */
    void checkRoiDist(double ra, double dec) const;
+
+#else
+   // When SWIG is processing, provide minimal private section
+private:
+   void checkRoiDist(double ra, double dec) const;
+#endif // SWIG
+
+   // Members visible to both SWIG and C++ compiler
+   // (but SWIG doesn't need to wrap private members)
+private:
+   bool m_verbose;
+   std::map<std::string, Source*> m_prototypes;
+   bool m_requireExposure;
+   const Observation& m_observation;
+   st_stream::StreamFormatter* m_formatter;
+   std::string m_currentSrcName;
 };
 
 } // namespace Likelihood
