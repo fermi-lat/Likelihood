@@ -15,8 +15,10 @@
 #include <string_view>
 #include <vector>
 
+#ifndef SWIG
 // RapidXML-based XML framework (replaces Xerces-C)
 #include "xmlBase/rapidxml.hpp"
+#endif
 
 #include "Likelihood/Exception.h"
 #include "Likelihood/Observation.h"
@@ -33,6 +35,12 @@ namespace optimizers {
 
 namespace Likelihood {
 
+#ifndef SWIG
+// Forward declare RapidXML types for internal use
+namespace rapidxml {
+    template<class Ch> class xml_node;
+}
+#endif
 /** 
  * @class SourceFactory
  *
