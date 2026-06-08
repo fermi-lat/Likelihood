@@ -716,12 +716,34 @@ optimizers::FunctionFactory* LikelihoodTests::funcFactoryInstance() {
    return m_funcFactory;
 }
 
-SourceFactory* LikelihoodTests::srcFactoryInstance(const std::string& scFile,
-                                                    const std::string& expMapFile,
-                                                    const std::string& sourceXmlFile,
-                                                    bool requireExposure,
-                                                    bool verbose) {
-   // Implementation
+SourceFactory * LikelihoodTests::
+srcFactoryInstance(const std::string & scFile,
+                   const std::string & expMapFile,
+                   const std::string & sourceXmlFile,
+                   bool requireExposure, bool verbose) {
+   if (m_srcFactory == 0) {
+      m_roiCuts->setCuts(86.404, 28.936, 25., 30., 2e5, 0., 8.64e4, -1., true);
+      if (scFile == "") {
+         m_scData->readData(m_scFile, 0, 86400, true);
+      } else {
+         m_scData->readData(scFile, 0, 86400, true);
+      }
+
+      if (expMapFile == "") {
+         m_expMap->readExposureFile(m_expMapFile);
+      } else {
+         m_expMap->readExposureFile(expMapFile);
+      }
+
+      optimizers::FunctionFactory * funcFactory = funcFactoryInstance();
+
+      m_srcFactory = new SourceFactory(*m_observation, verbose);
+      if (sourceXmlFile == "") {
+         m_srcFactory->readXml(m_sourceXmlFile, *funcFactory, requireExposure);
+      } else {
+         m_srcFactory->readXml(sourceXmlFile, *funcFactory, requireExposure);
+      }
+   }
    return m_srcFactory;
 }
 
