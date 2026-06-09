@@ -290,14 +290,14 @@ double LikelihoodTests::ASSERT_TOLERANCE = 1e-6;
 #define ASSERT_EQUALS(X, Y) CPPUNIT_ASSERT(std::fabs((X) - (Y)) < ASSERT_TOLERANCE * (std::fabs(X) + std::fabs(Y)) / 2.)
 
 void LikelihoodTests::setUp() {
-   if (!m_respFuncs) m_respFuncs = new ResponseFunctions();
-   if (!m_scData) m_scData = new ScData();
-   if (!m_roiCuts) m_roiCuts = new RoiCuts();
-   if (!m_expCube) m_expCube = new ExposureCube();
-   if (!m_expMap) m_expMap = new ExposureMap();
-   if (!m_eventCont) m_eventCont = new EventContainer(*m_respFuncs,
-                                                       *m_roiCuts, 
-                                                       *m_scData);
+   if (m_respFuncs == 0) m_respFuncs = new ResponseFunctions();
+   if (m_scData == 0) m_scData = new ScData();
+   if (m_roiCuts == 0) m_roiCuts = new RoiCuts();
+   if (m_expCube == 0) m_expCube = new ExposureCube();
+   if (m_expMap == 0) m_expMap = new ExposureMap();
+   if (m_eventCont == 0) m_eventCont = new EventContainer(*m_respFuncs,
+                                                          *m_roiCuts, 
+                                                          *m_scData);
    m_observation = new Observation(m_respFuncs,
                                    m_scData,
                                    m_roiCuts,
@@ -305,15 +305,34 @@ void LikelihoodTests::setUp() {
                                    m_expMap,
                                    m_eventCont);
 
-   // Get root path to test data.
-   // Fix: Store string to avoid dangling pointer
-   std::string packagePath = st_facilities::Environment::packagePath("Likelihood");
-   if (packagePath.empty()) {
-      // Use relative path from cmt directory
+// Get root path to test data.
+   const char * root = 
+      st_facilities::Environment::packagePath("Likelihood").c_str();
+   if (!root) {  //use relative path from cmt directory
       m_rootPath = "..";
    } else {
       m_rootPath = st_facilities::Environment::dataPath("Likelihood");
    }
+
+// Prepare the ResponseFunctions object.
+   irfLoader::Loader::go();
+   irfInterface::IrfsFactory * myFactory 
+      = irfInterface::IrfsFactory::instance();
+   m_respFuncs->addRespPtr(0, myFactory->create("DC1A::Front"));
+   m_respFuncs->addRespPtr(1, myFactory->create("DC1A::Back"));
+//    m_respFuncs->addRespPtr(0, myFactory->create("P7SOURCE_V6::FRONT"));
+//    m_respFuncs->addRespPtr(1, myFactory->create("P7SOURCE_V6::BACK"));
+
+// Fractional tolerance for double comparisons.
+   m_fracTol = 1e-4;
+
+// Use lazy evaluation for m_funcFactory and m_srcFactory.
+   m_funcFactory = 0;
+   m_srcFactory = 0;
+
+   m_scFile = dataPath("oneday_scData_0000.fits");
+   m_expMapFile = dataPath("anticenter_expMap.fits");
+   m_sourceXmlFile = dataPath("anticenter_model.xml");
 }
 
 void LikelihoodTests::tearDown() {
