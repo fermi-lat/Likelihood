@@ -116,6 +116,7 @@ void FluxBuilder::write(std::string xmlFile) {
 void FluxBuilder::addSource(Source& src) {
    rapidxml::xml_node<>* srcElt = createElement(m_doc, "source");
    addAttribute(m_doc, srcElt, "name", src.getName());
+   addAttribute(m_doc, srcElt, "type", src.getName());
    
    // Compute and add flux
    double flux = 0.0;
