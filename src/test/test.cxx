@@ -42,11 +42,11 @@
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
 #include "optimizers/FunctionTest.h"
-//#ifdef DARWIN_F2C_FAILURE
-//#include "optimizers/NewMinuit.h"
-//#else
+#ifdef DARWIN_F2C_FAILURE
+#include "optimizers/NewMinuit.h"
+#else
 #include "optimizers/Minuit.h"
-//#endif
+#endif
 
 #include "irfInterface/IrfsFactory.h"
 #include "irfInterface/AcceptanceCone.h"
@@ -1220,11 +1220,11 @@ void LikelihoodTests::test_BinnedLikelihood() {
    
    for (size_t iter(0); iter < 2; iter++) {
 // Try to fit using binned model.
-//#ifdef DARWIN_F2C_FAILURE
-//      optimizers::NewMinuit my_optimizer(binnedLogLike);
-//#else
+#ifdef DARWIN_F2C_FAILURE
+      optimizers::NewMinuit my_optimizer(binnedLogLike);
+#else
       optimizers::Minuit my_optimizer(binnedLogLike);
-      //#endif
+#endif
       
       int verbose(0);
       double tol(1e-5);
@@ -1324,11 +1324,12 @@ void LikelihoodTests::test_BinnedLikelihood() {
 }
 
 double fit(BinnedLikelihood & like, double tol=1e-5, int verbose=0) {
-  //#ifdef DARWIN_F2C_FAILURE
-  //   optimizers::NewMinuit my_optimizer(like);
-  //#else
-   optimizers::Minuit my_optimizer(like);
-   //#endif
+// Try to fit using binned model.
+#ifdef DARWIN_F2C_FAILURE
+   optimizers::NewMinuit my_optimizer(binnedLogLike);
+#else
+   optimizers::Minuit my_optimizer(binnedLogLike);
+#endif
    my_optimizer.find_min(verbose, tol);
    double fit_value(like.value());
    return fit_value;
