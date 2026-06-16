@@ -293,7 +293,7 @@ ResponseFunctions* LikelihoodTests::m_respFuncs = nullptr;
 EventContainer* LikelihoodTests::m_eventCont = nullptr;
 double LikelihoodTests::ASSERT_TOLERANCE = 1e-4;
 
-#define ASSERT_EQUALS(X, Y) CPPUNIT_ASSERT(std::fabs((X) - (Y)) < ASSERT_TOLERANCE )
+#define ASSERT_EQUALS(X, Y) CPPUNIT_ASSERT(std::fabs((X - Y)/Y) < ASSERT_TOLERANCE )
 
 void LikelihoodTests::setUp() {
    if (m_respFuncs == 0) m_respFuncs = new ResponseFunctions();
