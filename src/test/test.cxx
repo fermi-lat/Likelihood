@@ -2136,7 +2136,7 @@ CountsMap LikelihoodTests::singleSrcMap(unsigned int nee,
 }
 
 CountsMapHealpix LikelihoodTests::healpixmap_allsky() const {
-   std::string datafile = dataPath("countsMap_hpx_allsky.fits");
+   std::string datafile = dataPath("ccube_galdiffuse_hpx.fits");
    return CountsMapHealpix(datafile);
 }
 
