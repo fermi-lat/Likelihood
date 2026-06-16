@@ -80,6 +80,15 @@ void addAttribute(rapidxml::xml_document<>* doc,
    addAttribute(doc, node, name, value ? std::string("true") : std::string("false"));
 }
 
+// Helper function to add an attribute with char array value
+void addAttribute(rapidxml::xml_document<>* doc,
+                  rapidxml::xml_node<>* node,
+                  const char* name,
+                  const char* value) {
+   addAttribute(doc, node, name, std::string(value));
+}
+  
+ 
 // Helper function to append a child node
 void appendChild(rapidxml::xml_node<>* parent, rapidxml::xml_node<>* child) {
    if (parent && child) {
@@ -176,6 +185,8 @@ rapidxml::xml_node<>* SourceModelBuilder::likelihoodSource(const Source & src) {
       addComposite(srcElt, src);
       break;
    case Source::Point:
+      addSpatialPart(srcElt, src);
+      break;
    case Source::Diffuse:
       addSpatialPart(srcElt, src);
       break;

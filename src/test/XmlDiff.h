@@ -62,7 +62,8 @@ public:
    /// Compare the two XML files
    /// @return true if files are equivalent, false otherwise
    [[nodiscard]] bool compare();
-
+   [[nodiscard]] bool sameKeys();
+  
 private:
    std::string m_tagName;
    std::string m_attribute;

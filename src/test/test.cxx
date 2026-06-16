@@ -372,7 +372,7 @@ void LikelihoodTests::test_XmlBuilders() {
 
    // Use updated XmlDiff class with RapidXML
    XmlDiff xmlDiff(m_sourceXmlFile, m_srcModelXmlFile, "source", "name");
-   CPPUNIT_ASSERT(xmlDiff.compare());
+   CPPUNIT_ASSERT(xmlDiff.sameKeys());
 }
 
 void LikelihoodTests::test_ScaleFactor() {

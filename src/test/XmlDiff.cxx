@@ -248,3 +248,17 @@ bool XmlDiff::compare() {
    
    return true;
 }
+
+bool XmlDiff::sameKeys() {
+   if (m_domMap1.size() != m_domMap2.size()) {
+      return false;
+   }
+   
+   for (const auto& [key, node] : m_domMap1) {
+      if (m_domMap2.find(key) == m_domMap2.end()) {
+         return false;
+      }
+   }
+   return true;
+}
+
