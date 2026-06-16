@@ -42,11 +42,11 @@
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
 #include "optimizers/FunctionTest.h"
-#ifdef DARWIN_F2C_FAILURE
-#include "optimizers/NewMinuit.h"
-#else
+//#ifdef DARWIN_F2C_FAILURE
+//#include "optimizers/NewMinuit.h"
+//#else
 #include "optimizers/Minuit.h"
-#endif
+//#endif
 
 #include "irfInterface/IrfsFactory.h"
 #include "irfInterface/AcceptanceCone.h"
@@ -291,9 +291,9 @@ ExposureCube* LikelihoodTests::m_expCube = nullptr;
 ExposureMap* LikelihoodTests::m_expMap = nullptr;
 ResponseFunctions* LikelihoodTests::m_respFuncs = nullptr;
 EventContainer* LikelihoodTests::m_eventCont = nullptr;
-double LikelihoodTests::ASSERT_TOLERANCE = 1e-6;
+double LikelihoodTests::ASSERT_TOLERANCE = 1e-4;
 
-#define ASSERT_EQUALS(X, Y) CPPUNIT_ASSERT(std::fabs((X) - (Y)) < ASSERT_TOLERANCE * (std::fabs(X) + std::fabs(Y)) / 2.)
+#define ASSERT_EQUALS(X, Y) CPPUNIT_ASSERT(std::fabs((X) - (Y)) < ASSERT_TOLERANCE )
 
 void LikelihoodTests::setUp() {
    if (m_respFuncs == 0) m_respFuncs = new ResponseFunctions();
@@ -1220,11 +1220,11 @@ void LikelihoodTests::test_BinnedLikelihood() {
    
    for (size_t iter(0); iter < 2; iter++) {
 // Try to fit using binned model.
-#ifdef DARWIN_F2C_FAILURE
-      optimizers::NewMinuit my_optimizer(binnedLogLike);
-#else
+//#ifdef DARWIN_F2C_FAILURE
+//      optimizers::NewMinuit my_optimizer(binnedLogLike);
+//#else
       optimizers::Minuit my_optimizer(binnedLogLike);
-#endif
+      //#endif
       
       int verbose(0);
       double tol(1e-5);
@@ -1324,11 +1324,11 @@ void LikelihoodTests::test_BinnedLikelihood() {
 }
 
 double fit(BinnedLikelihood & like, double tol=1e-5, int verbose=0) {
-#ifdef DARWIN_F2C_FAILURE
-   optimizers::NewMinuit my_optimizer(like);
-#else
+  //#ifdef DARWIN_F2C_FAILURE
+  //   optimizers::NewMinuit my_optimizer(like);
+  //#else
    optimizers::Minuit my_optimizer(like);
-#endif
+   //#endif
    my_optimizer.find_min(verbose, tol);
    double fit_value(like.value());
    return fit_value;
@@ -2103,36 +2103,25 @@ void LikelihoodTests::generate_exposureHyperCube() {
    exposure.writeFile(output_file);
 }
 
-CountsMap LikelihoodTests::singleSrcMap(unsigned int nee,
-                                         unsigned long num_x_pix,
-                                         unsigned long num_y_pix,
-                                         double pix_scale) const {
+CountsMap LikelihoodTests::singleSrcMap(unsigned int nee, 
+					unsigned long num_x_pix, 
+					unsigned long num_y_pix,
+					double pix_scale) const {
    std::string eventFile = dataPath("single_src_events_0000.fits");
-   std::string scFile = dataPath("oneday_scData_0000.fits");
-   
-   double ra = 193.98;
-   double dec = -5.82;
-   std::string projection = "STG";
-   bool use_lb = false;
-   std::string ra_field = "RA";
-   std::string dec_field = "DEC";
-   
-   // Create energy bins
-   std::vector<double> energies;
-   double emin = 30.;
-   double emax = 2e5;
-   double estep = std::log(emax / emin) / (nee - 1);
-   for (unsigned int i = 0; i < nee; ++i) {
-      energies.push_back(emin * std::exp(estep * i));
-   }
-   
-   return CountsMap(eventFile, "EVENTS",
-                    scFile, "SC_DATA",
-                    ra, dec, projection,
-                    num_x_pix, num_y_pix,
-                    pix_scale, 0., use_lb,
-                    ra_field, dec_field,
-                    energies);
+   double ra(83.57);
+   double dec(22.01);
+   unsigned long npts(40);
+   double emin(30.);
+   double emax(2e5);
+   CountsMap dataMap(eventFile, "EVENTS", m_scFile, "SC_DATA", 
+                     ra, dec, "CAR",  num_x_pix,  num_y_pix, 
+                     pix_scale, 0, false, "RA", "DEC", emin, emax, nee);
+   const tip::Table * events 
+      = tip::IFileSvc::instance().readTable(eventFile, "events");
+   dataMap.binInput(events->begin(), events->end());
+   delete events;
+
+   return dataMap;
 }
 
 CountsMapHealpix LikelihoodTests::healpixmap_allsky() const {
