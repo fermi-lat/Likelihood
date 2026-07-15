@@ -1,66 +1,38 @@
 /**
  * @file FluxBuilder.h
- * @brief Builder class for creating flux-style xml files from 
- * Likelihood::Sources.
- * the flux package.
+ * @brief Class to build flux-style XML files from Likelihood sources
  * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.4 2005/02/27 06:42:24 jchiang Exp $
  */
 
 #ifndef Likelihood_FluxBuilder_h
 #define Likelihood_FluxBuilder_h
 
-#include "Likelihood/XmlBuilder.h"
+#include <string>
 
-namespace optimizers {
-   class Function;
-}
+#include "xmlBase/rapidxml.hpp"
+
+#include "Likelihood/XmlBuilder.h"
 
 namespace Likelihood {
 
-/**
- * @class FluxBuilder
- * @brief This class provides methods for writing the source
- * information from Source objects as xml output appropriate for the
- * flux package.
- *
- * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.4 2005/02/27 06:42:24 jchiang Exp $
- */
+class Source;
+class SourceModel;
 
 class FluxBuilder : public XmlBuilder {
-
 public:
-
    FluxBuilder(double emin, double emax);
-
-   virtual ~FluxBuilder();
-
-   virtual void addSourceModel(SourceModel& srcModel);
-
-   virtual void addSource(Source &src);
    
-   virtual void write(std::string xmlFile);
-      
+   virtual ~FluxBuilder();
+   
+   void addSource(Source& src);
+   
+   void addSourceModel(SourceModel& srcModel);
+   
+   void write(std::string xmlFile);
+
 private:
-
-   typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMElement DomElement;
-   DomElement * m_srcLib;
-   DomElement * m_allSrcsElt;
-   void getSourceType(Source &src, std::string &srcType);
-   DomElement * fluxSource(Source & src);
-   DomElement * gammaSpectrum(optimizers::Function &spectrum);
-   DomElement * srcDirection(optimizers::Function &dir);
-   DomElement * solidAngle(double mincos, double maxcos);
-   DomElement * galDiffuse(Source & src);
-   DomElement * mapCubeSource(Source & src);
-
-   std::vector<double> m_energies;
-   void makeEnergyGrid(double emin, double emax, unsigned int nee=200);
-
-   void addUnderscores(std::string &name);
+   double m_emin;
+   double m_emax;
 };
 
 } // namespace Likelihood

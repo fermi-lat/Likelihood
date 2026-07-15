@@ -25,7 +25,8 @@
 
 #include "st_facilities/Util.h"
 
-#include "xmlBase/Dom.h"
+//#include "xmlBase/Dom.h"
+//#include "xmlBase/safe_xml_parser.hpp"
 #include "xmlBase/XmlParser.h"
 
 #include "tip/IFileSvc.h"
@@ -41,10 +42,10 @@
 #include "Likelihood/EventContainer.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/SourceModel.h"
-#include "Likelihood/XmlParser.h"
+//#include "Likelihood/XmlParser.h"
 
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
+//using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
+//using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 using namespace Likelihood;
 
 namespace {
@@ -199,7 +200,7 @@ void diffuseResponses::run() {
                              << std::endl;
       }
    }
-   XmlParser::delete_instance();
+   //xmlBase::delete_instance();
 }
 
 void diffuseResponses::promptForParameters() {
@@ -281,19 +282,33 @@ void diffuseResponses::convert_header(const std::string & evfile) const {
    }
 }
 
-void diffuseResponses::readDiffuseNames(std::vector<std::string> & srcNames) {
-   srcNames.clear();
-   std::string xmlFile = m_pars["srcmdl"];
-   xmlBase::XmlParser * parser = new xmlBase::XmlParser();
-   DOMDocument * doc = parser->parse(xmlFile.c_str());
-   DOMElement * source_library = doc->getDocumentElement();
-   std::vector<DOMElement *> srcs;
-   xmlBase::Dom::getChildrenByTagName(source_library, "source", srcs);
-   for (unsigned int i = 0; i < srcs.size(); i++) {
-      if (xmlBase::Dom::getAttribute(srcs[i], "type") == "DiffuseSource") {
-         srcNames.push_back(xmlBase::Dom::getAttribute(srcs[i], "name"));
-      }
-   }
+void diffuseResponses::readDiffuseNames(std::vector<std::string>& srcNames) {
+    srcNames.clear();
+    std::string xmlFile = m_pars["srcmdl"];
+    
+    xmlBase::XmlParser parser;
+    xmlBase::xml_document* doc = parser.parse(xmlFile.c_str());
+    
+    if (!doc) {
+        throw std::runtime_error("Failed to parse XML file: " + xmlFile);
+    }
+    
+    xmlBase::xml_node* source_library = xmlBase::XmlParser::getDocumentElement(doc);
+    
+    if (!source_library) {
+        throw std::runtime_error("No root element in XML file: " + xmlFile);
+    }
+    
+    std::vector<xmlBase::xml_node*> srcs;
+    xmlBase::XmlParser::collectChildren(source_library, "source", srcs);
+    
+    for (size_t i = 0; i < srcs.size(); ++i) {
+        std::string typeAttr = xmlBase::XmlParser::getAttribute(srcs[i], "type");
+        if (typeAttr == "DiffuseSource") {
+            std::string nameAttr = xmlBase::XmlParser::getAttribute(srcs[i], "name");
+            srcNames.push_back(nameAttr);
+        }
+    }
 }
 
 bool diffuseResponses::haveDiffuseColumns(const std::string & eventFile) {
