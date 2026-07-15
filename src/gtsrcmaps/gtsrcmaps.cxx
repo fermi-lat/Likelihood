@@ -110,6 +110,10 @@ void gtsrcmaps::run() {
    std::string srcModelFile = m_pars["srcmdl"];
    bool clobber = m_pars["clobber"];
    bool copyall = m_pars["copyall"];
+   if (!copyall) {
+     bool copyall = true;
+   }
+  
 
    m_binnedLikelihood = AppHelpers::makeBinnedLikelihood(m_pars, *m_helper, "cmap");
    const CountsMapBase* dataMap = &m_binnedLikelihood->countsMap();
@@ -188,6 +192,8 @@ void gtsrcmaps::run() {
    m_binnedLikelihood->buildFixedModelWts(true);
    m_binnedLikelihood->saveSourceMaps(srcMapsFile);
 
+   SourceMapCache::copyWcsToExtensions(srcMapsFile);
+   
    std::unique_ptr<tip::Image>
       image(tip::IFileSvc::instance().editImage(srcMapsFile, ""));
    my_cuts.addVersionCut("IRF_VERSION", m_helper->irfsName());

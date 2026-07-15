@@ -135,7 +135,11 @@ namespace Likelihood {
 
      
      /* --------------- Functions for dealing with source maps -------------- */
-     
+
+     /* Copy WCS keywords from primary header to all source map extensions
+	filename : The name of the source maps file*/
+     static void copyWcsToExtensions(const std::string& filename);
+
      /// Returns true if a SourceMap has been build for a source
      bool hasSourceMap(const std::string & name) const;
       
