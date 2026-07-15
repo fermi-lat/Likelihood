@@ -10,6 +10,7 @@
 #define Likelihood_SourceModelBuilder_h
 
 #include "Likelihood/XmlBuilder.h"
+#include "xmlBase/rapidxml.hpp"
 
 namespace optimizers {
    class Function;
@@ -28,10 +29,10 @@ namespace Likelihood {
  */
 
 
-#ifndef SWIG
-typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMElement DomElement;
-typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument DOMDocument;
-#endif //SWIG
+//#ifndef SWIG
+//typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMElement DomElement;
+//typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument DOMDocument;
+//#endif //SWIG
 
 
 class SourceModelBuilder : public XmlBuilder {
@@ -54,14 +55,14 @@ protected:
 
 private:
 
-   DomElement * m_srcLib;
+   rapidxml::xml_node<> * m_srcLib;
 
-   DomElement * likelihoodSource(const Source & src);
-   DomElement * spectralPart(const Source & src);
-   void addSpatialPart(DomElement * srcElt, const Source & src);
-   void addComposite(DomElement * srcElt, const Source & src);
-   void append_source(DomElement * parent, const Source &src);   
-   void append_source_model(DomElement * parent, const SourceModel& srcModel);   
+   rapidxml::xml_node<> * likelihoodSource(const Source & src);
+   rapidxml::xml_node<> * spectralPart(const Source & src);
+   void addSpatialPart(rapidxml::xml_node<> * srcElt, const Source & src);
+   void addComposite(rapidxml::xml_node<> * srcElt, const Source & src);
+   void append_source(rapidxml::xml_node<> * parent, const Source &src);   
+   void append_source_model(rapidxml::xml_node<> * parent, const SourceModel& srcModel);   
 
 };
 

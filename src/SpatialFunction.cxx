@@ -96,7 +96,7 @@ const astro::SkyDir& SpatialFunction::dir() const {
   return m_dir;
 }
 
-void SpatialFunction::setParams(const DOMElement * elt) {
+void SpatialFunction::setParams(rapidxml::xml_node<> * elt) {
   optimizers::Function::setParams(elt);
   update();
 }

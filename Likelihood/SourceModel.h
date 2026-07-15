@@ -13,6 +13,9 @@
 #include <vector>
 #include <stdexcept>
 #include <string>
+#include <string_view>
+
+#include "xmlBase/rapidxml.hpp"
 
 #include "optimizers/Statistic.h"
 
@@ -29,11 +32,6 @@ namespace optimizers {
 }
 
 namespace Likelihood {
-
-#ifndef SWIG
-   using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
-#endif //SWIG
-
 
    class CountsMapBase;
    class CompositeSource;
@@ -104,11 +102,10 @@ public:
    }
 
    /// Add a source.
-  virtual void addSource(Source *src, bool fromClone=true, SourceMap* srcMap = 0, bool loadMap=true);
+   virtual void addSource(Source *src, bool fromClone=true, SourceMap* srcMap = nullptr, bool loadMap=true);
 
    /// Delete a source by name and return a copy.
    virtual Source * deleteSource(const std::string &srcName);
-
 
    /// delete all the sources
    void deleteAllSources();
@@ -121,7 +118,7 @@ public:
 
    /// Fill a vector with pointers to sources
    void getSources(const std::vector<std::string>& srcNames, 
-		   std::vector<const Source*>& srcs) const;
+                   std::vector<const Source*>& srcs) const;
 
    /// @return reference to the Source map.
    const std::map<std::string, Source *> & sources() const {
@@ -129,7 +126,7 @@ public:
    }
 
    unsigned int getNumSrcs() const {
-      return m_sources.size();
+      return static_cast<unsigned int>(m_sources.size());
    }
 
    void getSrcNames(std::vector<std::string> &) const;
@@ -138,27 +135,27 @@ public:
 
    /// Merge several sources into a composite source
    virtual CompositeSource* mergeSources(const std::string& compName,
-					 const std::vector<std::string>& srcNames,
-					 const std::string& specFuncName);
+                                         const std::vector<std::string>& srcNames,
+                                         const std::string& specFuncName);
    
    /// Split a composite source into its components
    virtual optimizers::Function* splitCompositeSource(const std::string& compName,
-						      std::vector<std::string>& srcNames);
+                                                      std::vector<std::string>& srcNames);
 
    /// Steal a source from another SourceModel
    Source* steal_source(SourceModel& other,
-			const std::string& srcName,
-			SourceMap* srcMap);
+                        const std::string& srcName,
+                        SourceMap* srcMap);
 
    /// Give a source to another SourceModel
    Source* give_source(SourceModel& other,
-		       const std::string& srcName,
-		       SourceMap* srcMap);   
+                       const std::string& srcName,
+                       SourceMap* srcMap);   
 
    virtual double value(const optimizers::Arg &x) const;
 
    /// Create the source model by reading an XML file.
-   virtual void readXml(std::string xmlFile,
+   virtual void readXml(const std::string& xmlFile,
                         optimizers::FunctionFactory & funcFactory,
                         bool requireExposure=true,
                         bool addPointSources=true,
@@ -166,27 +163,27 @@ public:
 
    /// Re-read an XML file, updating only the Parameters in the
    /// source model.
-   virtual void reReadXml(std::string xmlFile);
+   virtual void reReadXml(const std::string& xmlFile);
 
 #ifndef SWIG
-   /// Create the source model from a DOMElement
-   virtual void readXml(DOMElement* srcLibray,
-			const std::string& xmlFile,
+   /// Create the source model from a rapidxml::xml_node<>
+   virtual void readXml(rapidxml::xml_node<>* srcLibrary,
+                        const std::string& xmlFile,
                         optimizers::FunctionFactory & funcFactory,
                         bool requireExposure=true,
                         bool addPointSources=true,
                         bool loadMaps=true);
 
-   virtual void reReadXml(DOMElement* srcLibray);
+   virtual void reReadXml(rapidxml::xml_node<>* srcLibrary);
 #endif // SWIG
 
    /// Write an XML file for the current source model.
-   virtual void writeXml(std::string xmlFile,
+   virtual void writeXml(const std::string& xmlFile,
                          const std::string &functionLibrary="",
                          const std::string &srcLibTitle="source library");
 
    /// Write a flux-style xml file for the current source model.
-   virtual void write_fluxXml(std::string xmlFile);
+   virtual void write_fluxXml(const std::string& xmlFile);
 
    /// Write an XML file for the current source model.
    virtual void writeXml(SourceModelBuilder& builder);
@@ -231,7 +228,7 @@ public:
 protected:
 
    /// Hook to transfer information to a composite source
-   virtual void initialize_composite(CompositeSource& comp) const {;}
+   virtual void initialize_composite(CompositeSource& comp) const { (void)comp; }
 
    const Observation & m_observation;
 
@@ -243,7 +240,7 @@ protected:
 
    /// disable this since parameters may no longer have unique names
    double derivByParamImp(const optimizers::Arg &, const std::string &) 
-      const {return 0;}
+      const { return 0; }
 
    void fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs, 
                     bool getFree) const;
@@ -268,7 +265,6 @@ protected:
    virtual void getFreeDerivs(std::vector<double> &derivs) const {
       derivs.clear();
    }
-
 
 private:
 

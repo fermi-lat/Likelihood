@@ -12,6 +12,7 @@
 
 #include <utility>
 
+#include "xmlBase/rapidxml.hpp"
 #include "optimizers/Function.h"
 
 #include "Likelihood/MapBase.h"
@@ -24,11 +25,11 @@ namespace astro {
 
 namespace Likelihood {
 
-#ifndef SWIG
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMNode;
-#endif // SWIG
+  //#ifndef SWIG
+  //using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
+  //using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
+  //using XERCES_CPP_NAMESPACE_QUALIFIER DOMNode;
+  //#endif // SWIG
 
 class Event;
 class ResponseFunctions;
@@ -150,7 +151,7 @@ public:
 
 #ifndef SWIG
    /// Set the Parameters from a Function DOM_Element.
-   virtual void setParams(const DOMElement * elt);
+  virtual void setParams(rapidxml::xml_node<> * elt);
 #endif // SWIG
 
 

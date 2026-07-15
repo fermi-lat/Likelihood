@@ -1,54 +1,37 @@
 /**
  * @file XmlParser.h
- * @brief Singleton wrapper for xmlBase::XmlParser instance
+ * @brief Singleton XML parser using RapidXML-based SafeXmlParser
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/XmlParser.h,v 1.4 2006/03/16 06:20:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/XmlParser.h,v 1.3 2006/03/16 06:20:08 jchiang Exp $
  */
 
 #ifndef Likelihood_XmlParser_h
 #define Likelihood_XmlParser_h
 
-#include "xmlBase/XmlParser.h"
-
-#include "st_facilities/libStApiExports.h"
+#include "xmlBase/safe_xml_parser.hpp"
 
 namespace Likelihood {
 
 /**
  * @class XmlParser
- * @brief Provides a Singleton wrapper a the static instance
- * of xmlBase::XmlParser.
- *
- * @author J. Chiang
+ * @brief Singleton wrapper for SafeXmlParser
  */
-
-class SCIENCETOOLS_API XmlParser {
-
+class XmlParser {
 public:
-
-   /// @return Pointer to the single xmlBase::XmlParser instance.
-   static xmlBase::XmlParser * instance() {
-      if (s_instance == 0) {
-         s_instance = new xmlBase::XmlParser();
+   static xml_framework::SafeXmlParser* instance() {
+      if (s_instance == nullptr) {
+         s_instance = new xml_framework::SafeXmlParser();
       }
       return s_instance;
    }
 
-   static void delete_instance() {
-      delete s_instance;
-      s_instance = 0;
-   }
-
 private:
-
-   static xmlBase::XmlParser * s_instance;
-
+   static xml_framework::SafeXmlParser* s_instance;
 };
 
-// Opaque wrapper since linkage of exported symbols from windows dlls is
-// all fouled up.
-xmlBase::XmlParser * XmlParser_instance();
+// Free function to get the parser instance (for C-style access)
+xml_framework::SafeXmlParser* XmlParser_instance();
 
 } // namespace Likelihood
 
