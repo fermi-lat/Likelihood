@@ -13,6 +13,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <stdexcept>
+#include <memory>
 
 #include "tip/Extension.h"
 #include "tip/IFileSvc.h"
