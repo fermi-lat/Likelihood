@@ -13,8 +13,11 @@
 #include <cmath>
 #include <cstdlib>
 #include <stdexcept>
+#include <memory>
 
 #include "tip/Extension.h"
+#include "tip/IFileSvc.h"
+#include "tip/FileSummary.h"
 #include "st_stream/StreamFormatter.h"
 
 #include "Likelihood/BinnedCountsCache.h"
@@ -591,5 +594,85 @@ namespace Likelihood {
     }
     sourceMap.update_drm_cache(m_drm, true);
   }
-  
-} // namespace Likelihood
+
+  void SourceMapCache::copyWcsToExtensions(const std::string& filename) {
+    // Read WCS keywords from primary header
+    std::unique_ptr<tip::Image> primary(
+        tip::IFileSvc::instance().editImage(filename, ""));
+    const tip::Header& primaryHeader = primary->getHeader();
+    
+    // WCS keywords to propagate
+    static const std::vector<std::string> wcsKeys = {
+        "CTYPE1", "CTYPE2", "CTYPE3",
+        "CRPIX1", "CRPIX2", "CRPIX3",
+        "CRVAL1", "CRVAL2", "CRVAL3", 
+        "CDELT1", "CDELT2", "CDELT3",
+        "CROTA2", "EQUINOX", "RADESYS"
+    };
+    
+    // Store values with their types
+    std::map<std::string, double> numericValues;
+    std::map<std::string, std::string> stringValues;
+    
+    for (const auto& key : wcsKeys) {
+        try {
+            double dval;
+            primaryHeader[key].get(dval);
+            numericValues[key] = dval;
+        } catch (...) {
+            try {
+                std::string sval;
+                primaryHeader[key].get(sval);
+                stringValues[key] = sval;
+            } catch (...) {
+                // Keyword doesn't exist
+            }
+        }
+    }
+    
+    primary.reset();  // Close primary before iterating extensions
+    
+    // Get file summary to iterate over extensions
+    tip::FileSummary summary;
+    tip::IFileSvc::instance().getFileSummary(filename, summary);
+    
+    for (auto it = summary.begin(); it != summary.end(); ++it) {
+        const std::string& extName = it->getExtId();
+        
+        // Skip primary HDU (empty extension name)
+        if (extName.empty()) continue;
+        
+        // Skip known non-image extensions
+        if (extName == "GTI" || extName == "EBOUNDS" || 
+            extName == "ENERGIES" || extName == "EVENTS") {
+            continue;
+        }
+        
+        // Try to open as an image - if it fails, it's not an image extension
+        try {
+            std::unique_ptr<tip::Image> ext(
+                tip::IFileSvc::instance().editImage(filename, extName));
+            tip::Header& extHeader = ext->getHeader();
+            
+            // Copy numeric WCS keywords
+            for (const auto& [key, val] : numericValues) {
+                try {
+                    extHeader[key].set(val);
+                } catch (...) {}
+            }
+            
+            // Copy string WCS keywords
+            for (const auto& [key, val] : stringValues) {
+                try {
+                    extHeader[key].set(val);
+                } catch (...) {}
+            }
+            
+        } catch (...) {
+            // Not an image extension or couldn't open, skip it
+            continue;
+        }
+    }
+  }
+}
+// namespace Likelihood
