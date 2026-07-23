@@ -207,7 +207,7 @@ void ExpMap::createExposureMap() {
    if (gti_roicuts) {
      gti_roicuts->getGtis(timeCuts);
    } else {
-     roicuts.getGtis(timeCuts);
+     roiCuts.getGtis(timeCuts);
    }
 
    double tstart(timeCuts.front().first);
