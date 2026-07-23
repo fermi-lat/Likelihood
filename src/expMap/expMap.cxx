@@ -204,6 +204,7 @@ void ExpMap::createExposureMap() {
    roiCuts.writeDssKeywords(image->getHeader());
    
    std::vector< std::pair<double, double> > timeCuts;
+   delete image;
    if (gti_roicuts) {
       gti_roicuts->writeGtiExtension(exposureFile);
       gti_roicuts->getGtis(timeCuts);
@@ -226,5 +227,4 @@ void ExpMap::createExposureMap() {
    bool extension;
    st_facilities::Util::writeDateKeywords(image, tstart, tstop,
                                           extension=false);
-   delete image;
 }
