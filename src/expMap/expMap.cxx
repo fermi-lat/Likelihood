@@ -203,7 +203,7 @@ void ExpMap::createExposureMap() {
 
    roiCuts.writeDssKeywords(image->getHeader());
 
-  /std::vector< std::pair<double, double> > timeCuts;
+   std::vector< std::pair<double, double> > timeCuts;
    if (gti_roicuts) {
      gti_roicuts->getGtis(timeCuts);
    } else {
