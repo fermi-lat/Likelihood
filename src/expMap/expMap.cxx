@@ -202,15 +202,12 @@ void ExpMap::createExposureMap() {
    }
 
    roiCuts.writeDssKeywords(image->getHeader());
-   
+
    std::vector< std::pair<double, double> > timeCuts;
    if (gti_roicuts) {
-      gti_roicuts->writeGtiExtension(exposureFile);
-      gti_roicuts->getGtis(timeCuts);
-      delete gti_roicuts;
+     gti_roicuts->getGtis(timeCuts);
    } else {
-      roiCuts.writeGtiExtension(exposureFile);
-      roiCuts.getGtis(timeCuts);
+     roiCuts.getGtis(timeCuts);
    }
 
    double tstart(timeCuts.front().first);
@@ -223,8 +220,15 @@ void ExpMap::createExposureMap() {
          tstop = timeCuts.at(i).second;
       }
    }
+   
    bool extension;
    st_facilities::Util::writeDateKeywords(image, tstart, tstop,
                                           extension=false);
    delete image;
+   if (gti_roicuts) {
+      gti_roicuts->writeGtiExtension(exposureFile);
+      delete gti_roicuts;
+   } else {
+      roiCuts.writeGtiExtension(exposureFile);
+   }
 }
