@@ -408,7 +408,6 @@ namespace Likelihood {
       std::string fitsFile = getAttributeValue(spatialModel, "file", "");
       facilities::Util::expandEnvVar(&fitsFile);
       dynamic_cast<MapBase*>(spatialDist)->readFitsFile(fitsFile, "", loadMap);
-      
       std::string map_based_integral = getAttributeValue(spatialModel, "map_based_integral", "");
       mapBasedIntegral = (map_based_integral == "true");
    } else if (type == "RadialProfile") {
@@ -416,7 +415,8 @@ namespace Likelihood {
       facilities::Util::expandEnvVar(&tpl_file);
       dynamic_cast<RadialProfile*>(spatialDist)->readTemplateFile(tpl_file);
    } else if (type == "RadialGaussian" || type == "RadialDisk") {
-     dynamic_cast<SpatialFunction*>(spatialDist)->update();
+     //dynamic_cast<SpatialFunction*>(spatialDist)->update();
+      spatialDist->setParams(spatialModel);
    }
    
    // Create the DiffuseSource with the spatial distribution function
