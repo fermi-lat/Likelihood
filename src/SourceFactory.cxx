@@ -417,7 +417,7 @@ namespace Likelihood {
       facilities::Util::expandEnvVar(&tpl_file);
       dynamic_cast<RadialProfile*>(spatialDist)->readTemplateFile(tpl_file);
    } else if (type == "RadialGaussian" || type == "RadialDisk") {
-      dynamic_cast<SpatialFunction*>(spatialDist)->setParams(spatialModel);
+      dynamic_cast<SpatialFunction*>(spatialDist)->setParams(const_cast<rapidxml::xml_node<>*>(spatialModel));
       //spatialDist->setParams(spatialModel);
    }
    
