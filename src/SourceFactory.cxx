@@ -36,6 +36,8 @@
 #include "Likelihood/MultipleBrokenPowerLaw.h"
 #include "Likelihood/PiecewisePowerLaw.h"
 #include "Likelihood/Observation.h"
+#include "Likelihood/RadialDisk.h"
+#include "Likelihood/RadialGaussian.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/RadialProfile.h"
 #include "Likelihood/ScaleFactor.h"
