@@ -415,6 +415,8 @@ namespace Likelihood {
       std::string tpl_file = getAttributeValue(spatialModel, "file", "");
       facilities::Util::expandEnvVar(&tpl_file);
       dynamic_cast<RadialProfile*>(spatialDist)->readTemplateFile(tpl_file);
+   } else if (type == "RadialGaussian" || type == "RadialDisk") {
+     dynamic_cast<SpatialFunction*>(spatialDist)->update();
    }
    
    // Create the DiffuseSource with the spatial distribution function
