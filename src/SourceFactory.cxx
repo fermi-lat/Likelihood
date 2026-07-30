@@ -36,6 +36,8 @@
 #include "Likelihood/MultipleBrokenPowerLaw.h"
 #include "Likelihood/PiecewisePowerLaw.h"
 #include "Likelihood/Observation.h"
+#include "Likelihood/RadialDisk.h"
+#include "Likelihood/RadialGaussian.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/RadialProfile.h"
 #include "Likelihood/ScaleFactor.h"
@@ -408,13 +410,15 @@ namespace Likelihood {
       std::string fitsFile = getAttributeValue(spatialModel, "file", "");
       facilities::Util::expandEnvVar(&fitsFile);
       dynamic_cast<MapBase*>(spatialDist)->readFitsFile(fitsFile, "", loadMap);
-      
       std::string map_based_integral = getAttributeValue(spatialModel, "map_based_integral", "");
       mapBasedIntegral = (map_based_integral == "true");
    } else if (type == "RadialProfile") {
       std::string tpl_file = getAttributeValue(spatialModel, "file", "");
       facilities::Util::expandEnvVar(&tpl_file);
       dynamic_cast<RadialProfile*>(spatialDist)->readTemplateFile(tpl_file);
+   } else if (type == "RadialGaussian" || type == "RadialDisk") {
+      dynamic_cast<SpatialFunction*>(spatialDist)->setParams(const_cast<rapidxml::xml_node<>*>(spatialModel));
+      //spatialDist->setParams(spatialModel);
    }
    
    // Create the DiffuseSource with the spatial distribution function

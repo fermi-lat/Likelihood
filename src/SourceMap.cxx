@@ -859,6 +859,7 @@ void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool include
          } else {
             make_model();
          }
+	 m_dataCleared = false;
       }
   }
 
