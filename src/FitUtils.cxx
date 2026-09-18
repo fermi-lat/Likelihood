@@ -52,7 +52,7 @@ namespace Likelihood {
     void expand_energies(std::vector<double> & energies, int edisp_bins) {      
       size_t nee = energies.size();
 
-      if ( nee < 2 ) return;
+      if ( edisp_bins <= 0 || nee < 2 ) return;
       
       // Make the output vector and copy the input vector to the middle of it
       std::vector<double> out_vect(nee+2*edisp_bins, 0);
