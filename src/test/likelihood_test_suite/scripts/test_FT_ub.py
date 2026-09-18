@@ -7,7 +7,7 @@ def test_FT_ub(dirs):
 
     sroi = "_1001"
     suffix = sroi + "_E19.fits"
-    ltcube = dirs['LOCAL_DATA'] + "ltcube_10years_zmax105.fits"
+    ltcube = dirs['LOCAL_DATA'] + "ltcube_12years_zmax105.fits"
     evfile = dirs['LOCAL_DATA'] + "MergedEVENTS" + suffix
     expmap = dirs['LOCAL_DATA'] + "expMap" + suffix
     irfs = "P8R3_SOURCE_V2"

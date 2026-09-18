@@ -12,15 +12,16 @@ Each of these are reported for each test run.
 The script is written in Python and requres Python 3 to be installed. The only non-standard Python library required is the `memory_profiler` package that can be installed via pip or conda.
 
 ## Contents
-The top level directory contains three files and four directories:
+The top level directory contains three files and three directories:
 * **README.md** - this file
 * **likelihoodTestSuite.py** - the main program file for the test suite 
 * **time_calib.py** - a module containing a small function used for time calibration
-* **data/** - directory containing the data used by the test scripts
 * **key_data/** - directory containing the expected output files (keys) to verify correct execution of the various tests.
 * **output/** - directory containing the output results for each script.  Contents are compared against the corresponding files in the key_data directory to validate test execution.
 * **scripts/** - directory containing the individual tests to be run
   * **scripts/inactive/** - scripts in this directory are not executed.  If you wish to temporarily disable execution of a script, move it here.  It also contains a template file for writing new scripts
+
+The data used by the test scripts is not stored with the suite.  It is large and changes rarely, so it is installed separately into `$CONDA_PREFIX/share/fermitools/data/test-scripts/`.  The test scripts reach it through `dirs['LOCAL_DATA']`.
   
 ## Running the Test Suite
 The suite is invoked by running:
@@ -111,6 +112,8 @@ The key file is the expected output from runnin the test.  The test suite caputr
 
 The easiest way to create the key file is to run the test suite in an environment with a version of the Fermitools that produces the correct results.  The program will print the message `**key file missing` for the test.  However, it will have generated the correct output in the `output/` directory.  In that directory, the files are named `test_<testfilename>.test_<testname>.out` simply change the `.out` extention to `.key` and move the file to the `key_data/` directory and you are good to go.
 
+***Note:** Some Likelihood messages include the full path of the data files, which depends on where the data is installed.  To keep the key files portable, after each test runs the suite replaces the data directory path (`$CONDA_PREFIX/share/fermitools/data/test-scripts/`) in the `.out` file with `data/`.  So a `data/` path in an output or key file refers to the installed data directory.*
+
 ### Setting Nominal Time and Memory values
 Now that you have a proper key file, run the test suite again.  This time it will print out the values for the `Elapsed Time` and `Max Memory` columns for your new test.  Set the `NOMINAL_MEMORY` and `NOMINAL_TIME` constants in your test script to the measured values.  You might want to run the test a few times and use the average of a few runs.
 
@@ -123,3 +126,16 @@ Possible updates to make to the program.
 * Add command-line option to set the color coding threshold
 * Make the nominal time and memory correspond to individual tests instead of test files so multiple related tests can be put in a single test file.
 * Add option for results to be written to a file.
+
+## Known Issues: Unresolved Model File References
+Some source model XML files (installed in `$(CONDA_PREFIX)/share/fermitools/data/test-scripts/`) reference files that are not part of the test data or the Fermitools `refdata`.  The key files were generated with these files missing, so the tests pass as-is, but the references should be looked into.
+
+| Model file | Line | Reference | Notes |
+|---|---|---|---|
+| `srcModel_4.xml-initial` | 15 | `data/gll_iem_v02.fit` | Still a relative path. Used by `test_restore.py`. |
+| `srcModel_1_E1.xml-initial` | 15 | `gll_iem_v02.fit` | Used by `test_delete_src.py`. |
+| `srcModel_1_E1.xml-initial` | 26 | `IC443.fits` | Spatial map for source `EXTIC443`. Used by `test_delete_src.py`. |
+
+* `gll_iem_v02.fit` is not in `$(CONDA_PREFIX)/share/fermitools/refdata/fermi/galdiffuse/` (which has `gll_iem_v07.fits`).  A copy exists in `~/ST/testing/deleteSource/`.  The reference may be a typo for the v07 model.
+* `IC443.fits` exists in `~/ST/testing/deleteSource/` and was possibly missed when building the test data.
+* If either file is added to the test data, the corresponding key files will likely need to be regenerated.

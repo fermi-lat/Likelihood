@@ -1,7 +1,7 @@
 import time
 from math import cos, sin, sqrt
 
-NOMINAL = 0.45
+NOMINAL = 0.30 #0.45
 
 def benchmark(count = 10):
     start = time.time()

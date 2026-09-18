@@ -1,4 +1,5 @@
 import os
+import ctypes
 from contextlib import redirect_stdout, redirect_stderr
 import re
 import inspect
@@ -9,6 +10,7 @@ import traceback
 from memory_profiler import memory_usage
 import time_calib
 from pathlib import Path
+import tracemalloc
 
 #color codes
 ANSI_RED = "\033[91m"
@@ -67,16 +69,32 @@ def print_full_results(results, threshold = 10):
 stdout_fd = os.dup(sys.stdout.fileno())
 stderr_fd = os.dup(sys.stderr.fileno())
 
+libc = ctypes.CDLL(None)
+
+# Line buffer Python stdout even when not writing to a terminal so output
+# interleaves the same way it does on a terminal.
+sys.stdout.reconfigure(line_buffering=True)
+
+def flush_all():
+    # Flush Python and C stdio buffers so output lands in the right place when the
+    # file descriptors are switched.  When stdout is not a terminal these are block
+    # buffered.  The C flush also covers Likelihood's C++ output and Minuit (f2c).
+    sys.stdout.flush()
+    sys.stderr.flush()
+    libc.fflush(None)
+
 # set up some directories for the functions to use
 dirs = {}
 dirs["FERMI_DIR"] = os.environ['FERMI_DIR']
 dirs["GLOBAL_DATA_DIR"] = dirs['FERMI_DIR'] + "/refdata/fermi/"
 dirs["LOCAL_DATA"] = os.environ['CONDA_PREFIX'] + "/share/fermitools/data/test-scripts/"
-key_path = os.environ['CONDA_PREFIX'] + "/share/fermitools/data/test-scripts/outref/"
+key_path = "key_data"
 
 print("\nPerforming time calibration ... ", end="")
 scale = time_calib.benchmark()/time_calib.NOMINAL
+# print(f"scaling factor: {time_calib.benchmark():.3f}/{time_calib.NOMINAL:.3f} = {scale:.3f}")
 print(f"scaling factor: {scale:.3f}")
+
 
 # Create output directory if not present
 OUTPUT_PATH = "output"
@@ -124,20 +142,33 @@ for test in sorted(tests):
     # print(f"\nRunning test: {test}:")
     test_ran = True
     with open(f"output/{test}.out", 'w') as outfile:
+        flush_all()
         os.dup2(outfile.fileno(),sys.stdout.fileno())
         os.dup2(outfile.fileno(),sys.stderr.fileno())
         # with redirect_stdout(f), redirect_stderr(f):
         start_time = time.time()
         try:
+            tracemalloc.start()
+            tracemalloc.reset_peak()
             mem_usage = memory_usage(lambda:eval(cmd), backend="psutil_uss")
+            current,peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
             # print(mem_usage)
         except BaseException as e:
             print(''.join(traceback.format_tb(e.__traceback__)))
             print(e)
             test_ran = False
         stop_time = time.time()
+        flush_all()
         os.dup2(stdout_fd,sys.stdout.fileno())
         os.dup2(stderr_fd,sys.stderr.fileno())
+
+    # The data location varies by install, so replace it with the relative "data/" form
+    # used in the key files. This keeps keys created from .out files portable.
+    with open(f"output/{test}.out",'r') as file:
+        output = file.read()
+    with open(f"output/{test}.out",'w') as file:
+        file.write(output.replace(dirs["LOCAL_DATA"], "data/"))
 
     if test_ran:
         if os.path.exists(f"{key_path}/{test}.key"):
@@ -148,14 +179,15 @@ for test in sorted(tests):
             diff_results = "PASS" if key == output else "FAIL"
 
             elapsed = stop_time-start_time
-            nominalTime = eval(f"mod.{test.split('.')[0]}.NOMINAL_TIME")
+            nominalTime = eval(f"mod.{test.split('.')[0]}.NOMINAL_TIME") * scale
             nominalMemory = eval(f"mod.{test.split('.')[0]}.NOMINAL_MEMORY")
             maxMemory = max(mem_usage[1:]) # The first point always seems high. The second value is always a drop to near zero and then it climbs again.
+            # maxMemory = peak/1024/6 
             results[test]={
                 'output_check': diff_results,
                 'elapsed_time': elapsed,
                 'max_memory': maxMemory,
-                'nominal_time': nominalTime * scale,
+                'nominal_time': nominalTime,
                 'nominal_memory': nominalMemory,
                 'time_delta': elapsed - nominalTime,
                 'memory_delta': maxMemory - nominalMemory,
