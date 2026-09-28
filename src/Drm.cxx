@@ -422,7 +422,7 @@ void Drm_Cache::update(const Drm& drm,
     }
     
     if ( m_edisp_val < 0 ) {
-      m_meas_counts_wt[k] = m_xi[k]*m_true_counts_wt[kref];
+      m_meas_counts_wt[k] = (kref >= 0) ? m_xi[k]*m_true_counts_wt[kref] : 0.;
     }
     
     if ( m_xi[k] < 0 ) {
