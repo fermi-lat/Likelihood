@@ -111,6 +111,9 @@ void appendParameterNodes(rapidxml::xml_document<>* doc,
       addAttribute(doc, paramNode, "min", param.getBounds().first);
       addAttribute(doc, paramNode, "max", param.getBounds().second);
       addAttribute(doc, paramNode, "free", param.isFree() ? 1 : 0);
+      if (param.error() > 0) {
+         addAttribute(doc, paramNode, "error", param.error());
+      }
       appendChild(parent, paramNode);
    }
 }
