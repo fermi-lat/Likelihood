@@ -382,7 +382,16 @@ namespace Likelihood {
 
     checkRoiDist(ra, dec);
 
-    auto* src = new PointSource(ra, dec, m_observation, m_requireExposure);
+    PointSource* src = nullptr;
+    if (m_requireExposure) {
+      src = new PointSource(ra, dec, m_observation, m_verbose);
+    } else {
+      // Skip the exposure calculation (gtsrcprob, gtmodelmap,
+      // BinnedLikelihood, TsCube/HealCube).  The four-argument c'tor
+      // always computes it, so set the direction separately.
+      src = new PointSource(&m_observation);
+      src->setDir(ra, dec, /*updateExposure=*/false, m_verbose);
+    }
     setSpectrum(src, spectrum, funcFactory);
 
     return src;
