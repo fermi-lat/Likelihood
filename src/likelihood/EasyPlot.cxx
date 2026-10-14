@@ -1,9 +1,32 @@
 #include "matplotlibcpp.h"
 #include "EasyPlot.h" 
+#include <cfenv>
 #include <vector>
 #include <string>
 
 namespace plt = matplotlibcpp;
+
+namespace {
+  /* Disable floating point exception traps while matplotlib runs. On Linux the
+   * Science Tools are built with TRAP_FPE, so main() calls feenableexcept, and
+   * numpy/matplotlib (which rely on inf and nan being produced quietly) would
+   * otherwise crash with SIGFPE, e.g. while drawing log-scaled axes. The
+   * application's floating point environment is restored afterwards.
+   */
+  class FpeGuard {
+    public:
+      FpeGuard() { std::feholdexcept(&m_env); }
+      ~FpeGuard() {
+        // Discard exceptions raised by Python before restoring the traps.
+        std::feclearexcept(FE_ALL_EXCEPT);
+        std::fesetenv(&m_env);
+      }
+    private:
+      FpeGuard(const FpeGuard &);
+      FpeGuard & operator =(const FpeGuard &);
+      std::fenv_t m_env;
+  };
+}
 
 /* Patterning file after the plotting definitions in EasyPlot.cxx
  * Need to make sure that references to that file get repointed to 
@@ -63,6 +86,7 @@ namespace EasyPlot {
 			   const std::string & yscale,
 			   const std::string & title)
   {
+    FpeGuard guard;
     if (!xlabel.empty()) plt::xlabel(xlabel); // Default is ''
     if (!ylabel.empty()) plt::ylabel(ylabel); // Default is ''
     if (!title.empty()) plt::title(title); // Default is ''
@@ -78,6 +102,7 @@ namespace EasyPlot {
 	       const char color,
 	       const std::string & line_style)
   {
+    FpeGuard guard;
     // Keyword Map - scatter format (-fmt='o') and plot color (-color=str(color))
     const StringMap keywords = plotKeywords(".", color, line_style);
     plt::errorbar(x, y, yerr, xerr, keywords);
@@ -90,6 +115,7 @@ namespace EasyPlot {
 	       const char color,
 	       const std::string & line_style)
   {
+    FpeGuard guard;
     // Keyword Map - scatter format (-fmt='o') and plot color (-color=str(color))
     const StringMap keywords = plotKeywords(".",color,line_style);
     plt::errorbar(x, y, yerr, keywords);
@@ -101,6 +127,7 @@ namespace EasyPlot {
 	       const char color,
 	       const std::string & line_style)
   {
+    FpeGuard guard;
     // Keyword Map - scatter format (-fmt='o') and plot color (-color=str(color))
     const StringMap keywords = plotKeywords(".",color,line_style);
     const double s=1.0; // The marker size in points**2
@@ -113,6 +140,7 @@ namespace EasyPlot {
 		const char color,
 		const std::string & line_style)
   {
+    FpeGuard guard;
     // Keyword Map - scatter format (-fmt='o') and plot color (-color=str(color))
     const StringMap keywords = plotKeywords("",color,line_style);
     plt::plot(x, y, keywords);
@@ -139,6 +167,7 @@ namespace EasyPlot {
   
   void MPLPlot::showPlot()
   {
+    FpeGuard guard;
     plt::show();
   }
   
@@ -155,21 +184,25 @@ namespace EasyPlot {
   // Formatting/Utility function passthrough
   void MPLPlot::ylim(const double left, const double right)
   {
+    FpeGuard guard;
     plt::ylim(left,right);
   }
 
   void MPLPlot::xlim(const double left, const double right)
   {
+    FpeGuard guard;
     plt::xlim(left,right);
   }
 
   void MPLPlot::subplot(long nrows, long ncols, long plot_number)
   {
+    FpeGuard guard;
     plt::subplot(nrows, ncols, plot_number);
   }
 
   void MPLPlot::figure(long number)
   {
+    FpeGuard guard;
     plt::figure(number);
   }
 } // namespace EasyPlot
