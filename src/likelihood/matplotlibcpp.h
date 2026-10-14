@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <iostream>
+#include <cfenv>
 #include <cstdint> // <cstdint> requires c++11 support
 #include <functional>
 #include <string> // std::stod
@@ -292,7 +293,13 @@ private:
     }
 
     ~_interpreter() {
+        // Finalizing runs Python (and numpy) code, so do it with floating point
+        // exception traps disabled, as when calling matplotlib (see EasyPlot.cxx).
+        std::fenv_t env;
+        std::feholdexcept(&env);
         Py_Finalize();
+        std::feclearexcept(FE_ALL_EXCEPT);
+        std::fesetenv(&env);
     }
 };
 
