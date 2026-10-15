@@ -101,7 +101,7 @@ void AlphaBkg::computeAlphaBkg() {
 
    m_output = Likelihood::CountsMapBase::makeAlphaMap(epsilon2, m_inputMaps);
    std::string outfile = m_pars["outfile"];
-   m_output->writeOutput("gtalphgbkg", outfile);
+   m_output->writeOutput("gtalphabkg " + getVersion(), outfile);
 
 }
 

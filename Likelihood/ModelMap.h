@@ -36,6 +36,10 @@ public:
    void writeOutputMap(const std::string & outfile,
                        std::string outtype="CMAP");
 
+   /// Set the value written to the CREATOR keyword of the output map
+   /// (default "gtmodel").
+   void setCreator(const std::string & creator) { m_creator = creator; }
+
 protected:
 
    void writeOutputMap_wcs(const std::string & outfile,
@@ -51,6 +55,8 @@ private:
    BinnedLikelihood & m_logLike;
 
    std::vector<float> m_outmap;
+
+   std::string m_creator;
 
 };
 
