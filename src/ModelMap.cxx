@@ -60,7 +60,7 @@ namespace Likelihood {
 
 ModelMap::ModelMap(BinnedLikelihood & logLike,
                    const std::vector<float> * model_map) 
-   : m_logLike(logLike) {
+   : m_logLike(logLike), m_creator("gtmodel") {
    if (model_map == 0) {
       m_logLike.computeModelMap(m_outmap);
    } else {
@@ -104,14 +104,14 @@ void ModelMap::writeOutputMap_healpix(const std::string & outfile,
    if (outtype == "CCUBE") {
      CountsMapHealpix outmap(cmap);
      outmap.setImage(m_outmap);
-     outmap.writeOutput("gtmodel",outfile);
+     outmap.writeOutput(m_creator,outfile);
      return;
    } else {
      // use the c'tor to automatically do the sum over energies
      int nEBins = std::max( cmap.energies().size() -1, size_t(1));
      CountsMapHealpix outmap(cmap,0,nEBins);
      outmap.setImage(m_outmap);
-     outmap.writeOutput("gtmodel",outfile);
+     outmap.writeOutput(m_creator,outfile);
    } 
    // Add the GTIs to the file
    dataSubselector::Cuts my_cuts(infile, "", false);
@@ -149,7 +149,7 @@ void ModelMap::writeOutputMap_wcs(const std::string & outfile,
       }
    }
 
-   cmap.writeOutput("gtmodel", outfile);
+   cmap.writeOutput(m_creator, outfile);
 
    std::string infile(cmap.filename());
    const tip::Image * orig_image = tip::IFileSvc::instance().readImage(infile, "");

@@ -181,7 +181,7 @@ void gtsrcmaps::run() {
    } else {
       if (clobber || !st_facilities::Util::fileExists(srcMapsFile)) {
 	 // EAC: call to base class writeOutput method
-         dataMap->writeOutput("gtsrcmaps", srcMapsFile);
+         dataMap->writeOutput("gtsrcmaps " + getVersion(), srcMapsFile);
       } else {
          std::string message(srcMapsFile + 
                              " already exists, and clobber set to no.");

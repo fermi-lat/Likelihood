@@ -105,7 +105,8 @@ void ModelMap::computeModelMap() {
    m_logLike->computeModelMap(ext_model_map);
 
    Likelihood::ModelMap modelMap(*m_logLike, &ext_model_map);
-   
+   modelMap.setCreator("gtmodel " + getVersion());
+
    std::string outfile = m_pars["outfile"];
    std::string outtype = m_pars["outtype"];
 
