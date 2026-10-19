@@ -20,8 +20,8 @@
 #include "Likelihood/Convolve.h"
 
 namespace {
-   fftw_complex * 
-   complexVector(const std::vector<double> & input, bool fill=true) {
+   auto 
+   complexVector(const std::vector<double> & input, bool fill=true) -> fftw_complex * {
       size_t npts = input.size();
       fftw_complex * output;
       output = (fftw_complex *) fftw_malloc(sizeof(fftw_complex)*npts);
@@ -34,9 +34,9 @@ namespace {
       return output;
    }
 
-   fftw_complex * 
+   auto 
    complexArray(const std::vector< std::vector<double> > & input,
-                bool fill=true, size_t nx=0, size_t ny=0) {
+                bool fill=true, size_t nx=0, size_t ny=0) -> fftw_complex * {
       size_t dx(0), dy(0);
       if (ny == 0 || ny < input.size()) {
          ny = input.size();
@@ -67,9 +67,9 @@ namespace {
       }
       return output;
    }
-   std::vector< std::vector<double> > 
+   auto 
    subArray(std::vector< std::vector<double> > & input,
-            const std::vector< std::vector<double> > & signal) {
+            const std::vector< std::vector<double> > & signal) -> std::vector< std::vector<double> > {
       size_t dx = (input.size() - signal.size())/2;
       size_t dy = (input.at(0).size() - signal.at(0).size())/2;
       std::vector< std::vector<double> > output(signal.size());
@@ -85,9 +85,9 @@ namespace {
 
 namespace Likelihood {
 
-std::vector< std::vector<double> > 
+auto 
 Convolve::convolve2d(const std::vector< std::vector<double> > & signal,
-                     const std::vector< std::vector<double> > & psf) {
+                     const std::vector< std::vector<double> > & psf) -> std::vector< std::vector<double> > {
    if (psf.size() > signal.size()) {
       throw std::runtime_error("Convolve::convolve2d: Psf size must "
                                "be smaller than the signal size.");
@@ -171,9 +171,9 @@ Convolve::convolve2d(const std::vector< std::vector<double> > & signal,
    return ::subArray(output, signal);
 }
 
-std::vector<double> 
+auto 
 Convolve::convolve(const std::vector<double> & signal,
-                   const std::vector<double> & psf) {
+                   const std::vector<double> & psf) -> std::vector<double> {
    if (psf.size() != signal.size()) {
       throw std::runtime_error("convolve: psf size must be the same "
                                "as the signal size.");
@@ -224,9 +224,9 @@ Convolve::convolve(const std::vector<double> & signal,
    return output;
 }
 
-std::vector<float> 
+auto 
 Convolve::convolve(const std::vector<float> & signal,
-                   const std::vector<float> & psf) {
+                   const std::vector<float> & psf) -> std::vector<float> {
    std::vector<double> dsignal(signal.size(), 0);
    std::vector<double> dpsf(psf.size(), 0);
    for (size_t i(0); i < signal.size(); i++) {
@@ -243,9 +243,9 @@ Convolve::convolve(const std::vector<float> & signal,
    return my_result;
 }
 
-std::vector< std::vector<float> > 
+auto 
 Convolve::convolve2d(const std::vector< std::vector<float> > & signal,
-                     const std::vector< std::vector<float> > & psf) {
+                     const std::vector< std::vector<float> > & psf) -> std::vector< std::vector<float> > {
    std::vector< std::vector<double> > dsignal(signal.size(),
                                               std::vector<double>(signal[0].size(), 0));
    std::vector< std::vector<double> > dpsf(psf.size(),

@@ -26,8 +26,8 @@
 
 
 namespace {
-   double integrate(const std::vector<double> & x, 
-                    const std::vector<double> & y) {
+   auto integrate(const std::vector<double> & x, 
+                    const std::vector<double> & y) -> double {
       if (x.size() != y.size()) {
          throw std::runtime_error("::integrate: x and y sizes do not match.");
       }
@@ -204,8 +204,8 @@ void Drm::compute_livetime() {
 }
 
 
-double Drm::
-matrix_element(double etrue, double emeas_min, double emeas_max) const {
+auto Drm::
+matrix_element(double etrue, double emeas_min, double emeas_max) const -> double {
    const ResponseFunctions & resps(m_observation->respFuncs());
    const ExposureCube & expcube(m_observation->expCube());
    double met((expcube.tstart() + expcube.tstop())/2.);
@@ -262,13 +262,13 @@ matrix_element(double etrue, double emeas_min, double emeas_max) const {
 }
 
 
-double Drm::extrapolate_lo(const std::deque<double>& counts) const{
+auto Drm::extrapolate_lo(const std::deque<double>& counts) const -> double{
   // EAC, this can be wildly off for value near zero
   // double min_counts_value(1e-10);
   return extrapolate_lo(counts[0], counts[1]);
 }
 
-double Drm::extrapolate_lo(const double& c0, const double & c1) const{
+auto Drm::extrapolate_lo(const double& c0, const double & c1) const -> double{
   // EAC, this can be wildly off for value near zero
   // double min_counts_value(1e-10);
   static double min_counts_value(1e-4);
@@ -284,13 +284,13 @@ double Drm::extrapolate_lo(const double& c0, const double & c1) const{
 
   
   
-double Drm::extrapolate_hi(const std::deque<double>& counts) const{
+auto Drm::extrapolate_hi(const std::deque<double>& counts) const -> double{
   size_t ncc(counts.size() - 1);
   return extrapolate_hi(counts[ncc-1], counts[ncc]);
 }
 
 
-double Drm::extrapolate_hi(const double& c0, const double & c1) const{
+auto Drm::extrapolate_hi(const double& c0, const double & c1) const -> double{
 
   // On the high end, the effective area is smoother, so we 
   // can use the log-extrapolation down to much smaller values
@@ -436,7 +436,7 @@ void Drm_Cache::update(const Drm& drm,
 }
 
 
-size_t Drm_Cache::memory_size() const {
+auto Drm_Cache::memory_size() const -> size_t {
   size_t retVal(0);
   retVal += sizeof(*this);
   retVal += sizeof(double)*m_true_counts.capacity();

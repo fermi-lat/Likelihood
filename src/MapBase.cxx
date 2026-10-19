@@ -51,7 +51,7 @@ MapBase::MapBase(const MapBase & other)
      m_extension(other.m_extension) {
 }
 
-MapBase & MapBase::operator=(const MapBase & rhs) {
+auto MapBase::operator=(const MapBase & rhs) -> MapBase & {
    if (this != &rhs) {
       m_projmap = rhs.m_projmap;
       m_fitsFile = rhs.m_fitsFile;
@@ -92,7 +92,7 @@ void MapBase::readFitsFile() {
    WcsMapLibrary::instance()->add_observer(this);
 }
 
-ProjMap & MapBase::projmap() {
+auto MapBase::projmap() -> ProjMap & {
    if (m_projmap == 0) {
       readFitsFile();
    }
@@ -113,7 +113,7 @@ void MapBase::update() {
    }
 }
 
-bool MapBase::insideMap(const astro::SkyDir & dir) const {
+auto MapBase::insideMap(const astro::SkyDir & dir) const -> bool {
    return projmap().insideMap(dir);
 }
 
@@ -216,8 +216,8 @@ void MapBase::getMinMaxDistPixels(const astro::SkyDir & dir,
    farthestPixel = pixels.second;
 }
 
-double MapBase::interpolatePowerLaw(double x, double x1, double x2,
-                                    double y1, double y2) {
+auto MapBase::interpolatePowerLaw(double x, double x1, double x2,
+                                    double y1, double y2) -> double {
    if (y1 == 0 && y2 == 0) {
       return 0;
    }

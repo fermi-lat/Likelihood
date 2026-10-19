@@ -50,7 +50,7 @@ RadialProfile::~RadialProfile() {
    delete m_center;
 }
 
-RadialProfile & RadialProfile::operator=(const RadialProfile & rhs) {
+auto RadialProfile::operator=(const RadialProfile & rhs) -> RadialProfile & {
    if (this != &rhs) {
       optimizers::Function::operator=(rhs);
       if (rhs.m_center) {
@@ -63,7 +63,7 @@ RadialProfile & RadialProfile::operator=(const RadialProfile & rhs) {
    return *this;
 }
 
-double RadialProfile::valueAtOffset(double offset) const {
+auto RadialProfile::valueAtOffset(double offset) const -> double {
    size_t indx(0);
    if (offset >= m_theta.back()) { // extrapolate beyond last point
       indx = m_theta.size() - 2;
@@ -75,7 +75,7 @@ double RadialProfile::valueAtOffset(double offset) const {
       *(m_profile.at(indx+1) - m_profile.at(indx)) + m_profile.at(indx);
 }
 
-double RadialProfile::value(const optimizers::Arg & x) const {
+auto RadialProfile::value(const optimizers::Arg & x) const -> double {
    const SkyDirArg & dir = dynamic_cast<const SkyDirArg &>(x);
    if (m_center == 0) {
       m_center = new astro::SkyDir(getParam("RA").getValue(),
@@ -86,8 +86,8 @@ double RadialProfile::value(const optimizers::Arg & x) const {
 }
 
 
-double RadialProfile::derivByParamImp(const optimizers::Arg & x, 
-                                      const std::string & parName) const {
+auto RadialProfile::derivByParamImp(const optimizers::Arg & x, 
+                                      const std::string & parName) const -> double {
    if (parName == "Normalization") {
       return value(x)/getParam(parName).getValue();
    }
@@ -101,11 +101,11 @@ void RadialProfile::setCenter(double ra, double dec) {
    m_center = new astro::SkyDir(ra, dec);
 }
 
-const astro::SkyDir& RadialProfile::getCenter() const {
+auto RadialProfile::getCenter() const -> const astro::SkyDir& {
   return *m_center;
 }
 
-double RadialProfile::angularIntegral() const {
+auto RadialProfile::angularIntegral() const -> double {
    std::vector<double> xvals;
    std::vector<double> yvals;
    for (size_t i(0); i < m_theta.size(); i++) {
@@ -151,7 +151,7 @@ void RadialProfile::readTemplateFile(const std::string & template_file) {
    }
 }
 
-const std::string & RadialProfile::templateFile() const {
+auto RadialProfile::templateFile() const -> const std::string & {
    return m_templateFile;
 }
 

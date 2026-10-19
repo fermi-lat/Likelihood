@@ -185,7 +185,7 @@ SourceMap::~SourceMap() {
    delete m_drm_cache;
 }
 
-float SourceMap::operator[](size_t idx) const {
+auto SourceMap::operator[](size_t idx) const -> float {
   return m_mapType == FileUtils::HPX_Sparse ? find_value(idx) : m_model[idx];
 }
 
@@ -395,7 +395,7 @@ void SourceMap::computeNpredArray_sparse() {
   }
 
 
-  const Drm_Cache* SourceMap::update_drm_cache(const Drm* drm, bool force) {
+  auto SourceMap::update_drm_cache(const Drm* drm, bool force) -> const Drm_Cache* {
     bool changed = m_drm != drm;
     m_drm = drm;
     return drm_cache(force || changed);
@@ -420,8 +420,8 @@ void SourceMap::computeNpredArray_sparse() {
   }
 
 
-  const std::vector<double>& SourceMap::counts_spectra(int edisp_val,
-						       bool use_weighted) const {
+  auto SourceMap::counts_spectra(int edisp_val,
+						       bool use_weighted) const -> const std::vector<double>& {
      const std::vector<double>& the_vect = use_weighted ? 
        ( edisp_val == 0 ? m_drm_cache->true_counts_wt() : m_drm_cache->meas_counts_wt() ) :
        ( edisp_val == 0 ? m_drm_cache->true_counts() : m_drm_cache->meas_counts() );
@@ -429,7 +429,7 @@ void SourceMap::computeNpredArray_sparse() {
    }
 
 
-bool SourceMap::spectrum_changed() const {
+auto SourceMap::spectrum_changed() const -> bool {
   if ( m_src == 0 ) return true;
   std::vector<double> parValues;
   m_src->spectrum().getParamValues(parValues);
@@ -445,7 +445,7 @@ bool SourceMap::spectrum_changed() const {
 }
 
 
-std::vector<float> & SourceMap::model(bool force) {
+auto SourceMap::model(bool force) -> std::vector<float> & {
   if ( m_model.size() == 0 || force ) {
     if ( m_filename.size() > 0 && FileUtils::fileHasExtension(m_filename, m_name) ) {
       readModel(m_filename);
@@ -460,7 +460,7 @@ std::vector<float> & SourceMap::model(bool force) {
 }
   
 
-const std::vector<double> & SourceMap::specVals(bool force, bool latch_params) {
+auto SourceMap::specVals(bool force, bool latch_params) -> const std::vector<double> & {
   if ( m_specVals.size() == 0 || force ) {
     // Decide if we need the full or truncated version of the energy vector
     setSpectralValues(latch_params);
@@ -468,14 +468,14 @@ const std::vector<double> & SourceMap::specVals(bool force, bool latch_params) {
   return m_specVals;
 }
 
-const std::vector<std::pair<double,double> >&  SourceMap::specWts(bool force) {
+auto  SourceMap::specWts(bool force) -> const std::vector<std::pair<double,double> >& {
   if ( m_specWts.size() == 0 || force ) {
     setSpectralValues();
   }
   return m_specWts;
 }
 
-const std::vector<std::vector<double> >& SourceMap::specDerivs(const std::vector<std::string>& paramNames, bool force) {
+auto SourceMap::specDerivs(const std::vector<std::string>& paramNames, bool force) -> const std::vector<std::vector<double> >& {
   if ( m_specVals.size() == 0 || force ) {
     setSpectralDerivs(paramNames);
   }
@@ -483,21 +483,21 @@ const std::vector<std::vector<double> >& SourceMap::specDerivs(const std::vector
 }
 
 
-const std::vector<double> & SourceMap::npreds(bool force) {
+auto SourceMap::npreds(bool force) -> const std::vector<double> & {
   if ( m_npreds.size() == 0 || force ) {
     computeNpredArray();
   }
   return m_npreds;
 }
   
-const std::vector<std::vector<std::pair<double,double> > >& SourceMap::weighted_npreds(bool force) {
+auto SourceMap::weighted_npreds(bool force) -> const std::vector<std::vector<std::pair<double,double> > >& {
   if ( m_weighted_npreds.size() == 0 || force ) {
     computeNpredArray();
   }
   return m_weighted_npreds;
 }  
 
-const Drm_Cache* SourceMap::drm_cache(bool force) {
+auto SourceMap::drm_cache(bool force) -> const Drm_Cache* {
   if ( m_drm_cache == 0) {
     m_drm_cache = new Drm_Cache(*m_drm, *this);
   } else if ( force ) {
@@ -532,9 +532,9 @@ void SourceMap::subtractFromVector(std::vector<float>& vect, bool includeSpec, i
   }
 }
 
-double SourceMap::summed_counts(size_t kmin, size_t kmax,
+auto SourceMap::summed_counts(size_t kmin, size_t kmax,
 				int edisp_val,
-				bool use_weighted) {
+				bool use_weighted) -> double {
     
   if ( m_drm_cache == 0 ) {
     throw std::runtime_error("Called summed counts on a SourceMap that does not have a Drm_Cache ");
@@ -565,7 +565,7 @@ void SourceMap::setWeights(const WeightMap* weights) {
 }
 
 
-size_t SourceMap::memory_size() const {
+auto SourceMap::memory_size() const -> size_t {
   size_t retVal(0);
   retVal += sizeof(*this);
   retVal += m_name.capacity();
@@ -593,7 +593,7 @@ void SourceMap::test_sparse(const std::string& prefix) const {
 }
 
 
-int SourceMap::readModel(const std::string& filename) {
+auto SourceMap::readModel(const std::string& filename) -> int {
   m_model.clear();
   m_filename = filename;
   m_model_is_local = false;
@@ -636,7 +636,7 @@ int SourceMap::readModel(const std::string& filename) {
   return status;
 }
 
-int SourceMap::readImage(const std::string& sourceMapsFile) {
+auto SourceMap::readImage(const std::string& sourceMapsFile) -> int {
   m_mapType = FileUtils::get_src_map_type(sourceMapsFile,m_name);
   int nEvals(0.);
   FileUtils::read_fits_image_to_float_vector(sourceMapsFile,m_name,m_model,nEvals);
@@ -659,7 +659,7 @@ int SourceMap::readImage(const std::string& sourceMapsFile) {
   return 0;
 }
 
-int SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
+auto SourceMap::readTable_healpix(const std::string& sourceMapsFile) -> int {
   m_mapType = FileUtils::get_src_map_type(sourceMapsFile,m_name);
   int status(0);
   int nEnergy(0);
@@ -694,7 +694,7 @@ int SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
 }
 
 
-int SourceMap::make_model() {
+auto SourceMap::make_model() -> int {
   if ( m_src == 0 ) return -1;
   
   m_model_is_local = true;

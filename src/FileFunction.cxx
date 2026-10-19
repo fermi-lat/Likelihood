@@ -30,7 +30,7 @@ FileFunction::FileFunction(double Normalization)
    addParam("Normalization", Normalization, true);
 }
 
-double FileFunction::value(const optimizers::Arg & xarg) const {
+auto FileFunction::value(const optimizers::Arg & xarg) const -> double {
    double x(std::log(dynamic_cast<const optimizers::dArg &>(xarg).getValue()));
    double norm(m_parameter[0].getTrueValue());
    if (x == m_x.front()) {
@@ -41,9 +41,9 @@ double FileFunction::value(const optimizers::Arg & xarg) const {
    return norm*interpolateFlux(x);
 }
 
-double FileFunction::
+auto FileFunction::
 derivByParamImp(const optimizers::Arg & xarg,
-                const std::string & paramName) const {
+                const std::string & paramName) const -> double {
    if (paramName != "Normalization") {
       throw optimizers::ParameterNotFound(paramName, getName(),
                                           "FileFunction::derivByParam");
@@ -53,7 +53,7 @@ derivByParamImp(const optimizers::Arg & xarg,
    return scale*interpolateFlux(x);
 }
 
-double FileFunction::interpolateFlux(double logEnergy) const {
+auto FileFunction::interpolateFlux(double logEnergy) const -> double {
    double flux(0);
    try {
       flux = std::exp(st_facilities::Util::interpolate(m_x, m_y, logEnergy));
@@ -103,11 +103,11 @@ void FileFunction::setSpectrum(const std::vector<double> & energy,
    }
 }
 
-const std::vector<double> & FileFunction::log_energy() const {
+auto FileFunction::log_energy() const -> const std::vector<double> & {
    return m_x;
 }
 
-const std::vector<double> & FileFunction::log_dnde() const {
+auto FileFunction::log_dnde() const -> const std::vector<double> & {
    return m_y;
 }
 

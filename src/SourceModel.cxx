@@ -56,13 +56,13 @@ public:
    
    // Non-copyable
    XmlDocument(const XmlDocument&) = delete;
-   XmlDocument& operator=(const XmlDocument&) = delete;
+   auto operator=(const XmlDocument&) -> XmlDocument& = delete;
    
    // Movable
    XmlDocument(XmlDocument&&) = default;
-   XmlDocument& operator=(XmlDocument&&) = default;
+   auto operator=(XmlDocument&&) -> XmlDocument& = default;
    
-   bool parseFile(const std::string& filename) {
+   auto parseFile(const std::string& filename) -> bool {
       std::ifstream file(filename);
       if (!file.is_open()) {
          return false;
@@ -82,11 +82,11 @@ public:
       }
    }
    
-   rapidxml::xml_node<>* first_node(const char* name = nullptr) {
+   auto first_node(const char* name = nullptr) -> rapidxml::xml_node<>* {
       return m_doc.first_node(name);
    }
    
-   rapidxml::xml_document<>* get() { return &m_doc; }
+   auto get() -> rapidxml::xml_document<>* { return &m_doc; }
 
 private:
    std::string m_buffer;
@@ -108,8 +108,8 @@ void collectChildNodes(rapidxml::xml_node<>* parent,
 }
 
 // Helper function to get string attribute value
-std::optional<std::string> getStringAttribute(rapidxml::xml_node<>* node, 
-                                              const char* attrName) {
+auto getStringAttribute(rapidxml::xml_node<>* node, 
+                                              const char* attrName) -> std::optional<std::string> {
    if (node == nullptr) return std::nullopt;
    
    rapidxml::xml_attribute<>* attr = node->first_attribute(attrName);
@@ -119,8 +119,8 @@ std::optional<std::string> getStringAttribute(rapidxml::xml_node<>* node,
 }
 
 // Helper function to get double attribute value
-std::optional<double> getDoubleAttribute(rapidxml::xml_node<>* node,
-                                         const char* attrName) {
+auto getDoubleAttribute(rapidxml::xml_node<>* node,
+                                         const char* attrName) -> std::optional<double> {
    auto strVal = getStringAttribute(node, attrName);
    if (!strVal) return std::nullopt;
    
@@ -132,7 +132,7 @@ std::optional<double> getDoubleAttribute(rapidxml::xml_node<>* node,
 }
 
 // Helper function to parse a Parameter from XML node
-std::optional<optimizers::Parameter> parseParameterNode(rapidxml::xml_node<>* paramNode) {
+auto parseParameterNode(rapidxml::xml_node<>* paramNode) -> std::optional<optimizers::Parameter> {
    if (paramNode == nullptr) return std::nullopt;
    
    auto nameOpt = getStringAttribute(paramNode, "name");
@@ -205,7 +205,7 @@ void SourceModel::addSource(Source *src, bool fromClone, SourceMap* /* srcMap */
    }
 }
  
-Source * SourceModel::deleteSource(const std::string &srcName) {
+auto SourceModel::deleteSource(const std::string &srcName) -> Source * {
    if (auto it = m_sources.find(srcName); it != m_sources.end()) {
       Source * mySource = it->second;
       m_sources.erase(it);
@@ -227,14 +227,14 @@ void SourceModel::deleteAllSources() {
    m_parameter.clear();
 }
 
-Source * SourceModel::getSource(const std::string & srcName) {
+auto SourceModel::getSource(const std::string & srcName) -> Source * {
    if (auto it = m_sources.find(srcName); it != m_sources.end()) {
       return it->second;
    }
    return nullptr;
 }
 
-const Source & SourceModel::source(const std::string & srcName) const {
+auto SourceModel::source(const std::string & srcName) const -> const Source & {
    if (auto my_src = m_sources.find(srcName); my_src != m_sources.end()) {
       return *(my_src->second);
    }
@@ -260,8 +260,8 @@ void SourceModel::getSrcNames(std::vector<std::string> &names) const {
    }
 }
 
-optimizers::Function* SourceModel::splitCompositeSource(const std::string& compName,
-                                                        std::vector<std::string>& srcNames) {
+auto SourceModel::splitCompositeSource(const std::string& compName,
+                                                        std::vector<std::string>& srcNames) -> optimizers::Function* {
    Source* src = deleteSource(compName);
    if (src == nullptr) {
       throw std::runtime_error("SourceModel::splitCompositeSource did not find source: " + compName);
@@ -280,9 +280,9 @@ optimizers::Function* SourceModel::splitCompositeSource(const std::string& compN
    return specFunc;
 }
   
-Source* SourceModel::steal_source(SourceModel& other,
+auto SourceModel::steal_source(SourceModel& other,
                                   const std::string& srcName,
-                                  SourceMap* srcMap) {
+                                  SourceMap* srcMap) -> Source* {
    Source* src = other.deleteSource(srcName);
    if (src == nullptr) {
       throw std::runtime_error("SourceModel::steal_source could not find source: " + srcName);
@@ -291,9 +291,9 @@ Source* SourceModel::steal_source(SourceModel& other,
    return src;
 }
 
-Source* SourceModel::give_source(SourceModel& other,
+auto SourceModel::give_source(SourceModel& other,
                                  const std::string& srcName,
-                                 SourceMap* srcMap) {
+                                 SourceMap* srcMap) -> Source* {
    Source* src = deleteSource(srcName);
    if (src == nullptr) {
       throw std::runtime_error("SourceModel::give_source could not find source: " + srcName);
@@ -302,9 +302,9 @@ Source* SourceModel::give_source(SourceModel& other,
    return src;
 }
 
-CompositeSource* SourceModel::mergeSources(const std::string& compName,
+auto SourceModel::mergeSources(const std::string& compName,
                                            const std::vector<std::string>& srcNames,
-                                           const std::string& specFuncName) {
+                                           const std::string& specFuncName) -> CompositeSource* {
    auto cmp = new CompositeSource(m_observation, compName, specFuncName);
    initialize_composite(*cmp);
    for (const auto& name : srcNames) {
@@ -314,7 +314,7 @@ CompositeSource* SourceModel::mergeSources(const std::string& compName,
    return cmp;
 }
 
-double SourceModel::value(const optimizers::Arg &) const {
+auto SourceModel::value(const optimizers::Arg &) const -> double {
    return 0;
 }
 
@@ -333,8 +333,8 @@ void SourceModel::setParam(const optimizers::Parameter & param,
    throw optimizers::Exception(errorMessage);
 }
  
-std::vector<double>::const_iterator 
-SourceModel::setParamValues_(std::vector<double>::const_iterator it) {
+auto 
+SourceModel::setParamValues_(std::vector<double>::const_iterator it) -> std::vector<double>::const_iterator {
    for (auto& [name, source] : m_sources) {
       it = source->spectrum().setParamValues_(it);
    }
@@ -342,8 +342,8 @@ SourceModel::setParamValues_(std::vector<double>::const_iterator it) {
    return it;
 }
 
-std::vector<double>::const_iterator 
-SourceModel::setFreeParamValues_(std::vector<double>::const_iterator it) {
+auto 
+SourceModel::setFreeParamValues_(std::vector<double>::const_iterator it) -> std::vector<double>::const_iterator {
    for (auto& [name, source] : m_sources) {
       it = source->spectrum().setFreeParamValues_(it);
    }
@@ -351,9 +351,9 @@ SourceModel::setFreeParamValues_(std::vector<double>::const_iterator it) {
    return it;
 }
 
-optimizers::Parameter SourceModel::getParam(const std::string &paramName,
+auto SourceModel::getParam(const std::string &paramName,
                                             const std::string &funcName,
-                                            const std::string &srcName) const {
+                                            const std::string &srcName) const -> optimizers::Parameter {
    if (auto srcIt = m_sources.find(srcName); srcIt != m_sources.end()) {
       if (funcName == "Spectrum") {
          return srcIt->second->spectrum().getParam(paramName);
@@ -634,11 +634,11 @@ void SourceModel::write_fluxXml(FluxBuilder& builder) {
    builder.addSourceModel(*this);   
 }
 
-bool SourceModel::hasSrcNamed(const std::string & srcName) const {
+auto SourceModel::hasSrcNamed(const std::string & srcName) const -> bool {
    return m_sources.find(srcName) != m_sources.end();
 }
 
-CountsMapBase * SourceModel::createCountsMap(const CountsMapBase & dataMap) const {
+auto SourceModel::createCountsMap(const CountsMapBase & dataMap) const -> CountsMapBase * {
    const std::vector<Pixel> & pixels = dataMap.pixels();
 
    std::vector<double> energies;

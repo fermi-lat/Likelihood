@@ -39,12 +39,12 @@ namespace Likelihood {
   namespace FitUtils {
 
     /// Integrates weights over a pixel to get the counts
-    double pixelCounts_linearQuad(double emin, double emax, double y1, double y2) {
+    auto pixelCounts_linearQuad(double emin, double emax, double y1, double y2) -> double {
       return (y1 + y2)*(emax - emin)/2.;
     }
 
     /// Integrates weights over a pixel to get the counts
-    double pixelCounts_loglogQuad(double emin, double emax, double y1, double y2, double log_ratio) {
+    auto pixelCounts_loglogQuad(double emin, double emax, double y1, double y2, double log_ratio) -> double {
       return (y1*emin + y2*emax)/2.*log_ratio;
     }
   
@@ -101,13 +101,13 @@ namespace Likelihood {
       inverse = v*w*u.T();
     }
 
-    int svd_solve(const CLHEP::HepSymMatrix& hessian,
+    auto svd_solve(const CLHEP::HepSymMatrix& hessian,
 		  const CLHEP::HepVector& gradient,
 		  CLHEP::HepMatrix& u,
 		  CLHEP::HepMatrix& v,
 		  CLHEP::HepVector& s,
 		  CLHEP::HepVector& delta,
-		  double eps) {
+		  double eps) -> int {
 
       CLHEP::HepMatrix h(hessian);
       const int nrow = hessian.num_row();
@@ -152,7 +152,7 @@ namespace Likelihood {
       return 0;
     }
     
-    gsl_vector * Vector_Hep_to_Gsl(const CLHEP::HepVector& hep) {
+    auto Vector_Hep_to_Gsl(const CLHEP::HepVector& hep) -> gsl_vector * {
 
       const int nrow = hep.num_row();
       gsl_vector * v = gsl_vector_alloc(nrow);
@@ -162,7 +162,7 @@ namespace Likelihood {
       return v;
     }
 
-    gsl_matrix * Matrix_Hep_to_Gsl(const CLHEP::HepMatrix& hep) {
+    auto Matrix_Hep_to_Gsl(const CLHEP::HepMatrix& hep) -> gsl_matrix * {
 
       const int nrow = hep.num_row();
       const int ncol = hep.num_col();
@@ -501,7 +501,7 @@ namespace Likelihood {
       }
     }
 
-    double symmetricError(double pos_err, double neg_err) {
+    auto symmetricError(double pos_err, double neg_err) -> double {
       return neg_err < 0 ? pos_err : (pos_err + neg_err) / 2.;
     }
 
@@ -555,7 +555,7 @@ namespace Likelihood {
       }
     }
     
-    double getLogLikelihood(const std::vector<float>& data,
+    auto getLogLikelihood(const std::vector<float>& data,
 			    const CLHEP::HepVector& norms,
 			    const std::vector<const std::vector<float>* >& templates,
 			    const std::vector<float>& fixed,
@@ -564,7 +564,7 @@ namespace Likelihood {
 			    std::vector<float>& model,
 			    size_t firstBin,
 			    size_t lastBin,
-			    int verbose) {
+			    int verbose) -> double {
 
       std::vector<float>::const_iterator data_start = data.begin() + firstBin;
       std::vector<float>::const_iterator data_end = lastBin == 0 ? data.end() : data.begin() + lastBin;
@@ -664,12 +664,12 @@ namespace Likelihood {
       return;
     }
 
-    int getDeltaAndCovarAndEDM(const CLHEP::HepSymMatrix& hessian,
+    auto getDeltaAndCovarAndEDM(const CLHEP::HepSymMatrix& hessian,
 			       const CLHEP::HepVector& gradient,
 			       const CLHEP::HepVector& norms,
 			       CLHEP::HepSymMatrix& covar,
 			       CLHEP::HepVector& delta,
-			       double& edm) {      
+			       double& edm) -> int {      
       covar.assign(hessian);
       int ifail(0);
       covar.invert(ifail);
@@ -714,13 +714,13 @@ namespace Likelihood {
       return 0;
     }
 
-    int getDeltaAndCovarAndEDM(const CLHEP::HepSymMatrix& hessian,
+    auto getDeltaAndCovarAndEDM(const CLHEP::HepSymMatrix& hessian,
 			       const CLHEP::HepVector& gradient,
 			       const CLHEP::HepVector& norms,
 			       CLHEP::HepSymMatrix& covar,
 			       CLHEP::HepVector& delta,
 			       double& edm,
-			       double lambda) {      
+			       double lambda) -> int {      
 
       const int npar = gradient.num_row();
       CLHEP::HepSymMatrix alpha = hessian;
@@ -784,13 +784,13 @@ namespace Likelihood {
     }
 
 
-    int getDeltaAndCovarAndEDM_STL(const std::vector<float>& hessian,
+    auto getDeltaAndCovarAndEDM_STL(const std::vector<float>& hessian,
 				   const std::vector<float>& gradient,
 				   const std::vector<float>& norms,
 				   std::vector<float>& covar,
 				   std::vector<float>& delta,
 				   std::vector<double>& edm,
-				   double lambda) {
+				   double lambda) -> int {
       CLHEP::HepSymMatrix hessian_hep;
       CLHEP::HepVector gradient_hep;
       CLHEP::HepVector norms_hep;
@@ -816,7 +816,7 @@ namespace Likelihood {
     
 
 
-    int fitNorms_newton(const std::vector<float>& data,
+    auto fitNorms_newton(const std::vector<float>& data,
 			const CLHEP::HepVector& initNorms,
 			const std::vector<const std::vector<float>* >& templates,
 			const std::vector<float>& fixed,
@@ -831,7 +831,7 @@ namespace Likelihood {
 			double& logLikeVal,
 			size_t firstBin, 
 			size_t lastBin,
-			int verbose) {
+			int verbose) -> int {
 
 
       // copy over the initial parameters
@@ -1034,7 +1034,7 @@ namespace Likelihood {
     }
 
     
-    int fitLogNorms_newton(const std::vector<float>& data,
+    auto fitLogNorms_newton(const std::vector<float>& data,
 			   const CLHEP::HepVector& initNorms,
 			   const std::vector<const std::vector<float>* >& templates,
 			   const std::vector<float>& fixed,
@@ -1049,7 +1049,7 @@ namespace Likelihood {
 			   double& logLikeVal,
 			   size_t firstBin, 
 			   size_t lastBin,
-			   int verbose) {
+			   int verbose) -> int {
 
       logLikeVal = 0.;
 
@@ -1531,9 +1531,9 @@ namespace Likelihood {
     }
 
 
-    bool extractPrior(const optimizers::Parameter& par,
+    auto extractPrior(const optimizers::Parameter& par,
 		      double& centralVal,
-		      double& uncertainty) {
+		      double& uncertainty) -> bool {
       if ( ! par.has_prior() ) return false;
       optimizers::Parameter& ncpar = const_cast<optimizers::Parameter&>(par);
       const optimizers::Function& prior = ncpar.log_prior();
@@ -1546,11 +1546,11 @@ namespace Likelihood {
       return true;
     }
 
-    bool extractPriors(const BinnedLikelihood& logLike,
+    auto extractPriors(const BinnedLikelihood& logLike,
 		       const std::vector<std::string>& freeSrcNames,
 		       CLHEP::HepVector& centralVals,
 		       CLHEP::HepVector& uncertainties,
-		       std::vector<bool>& parHasPrior) {
+		       std::vector<bool>& parHasPrior) -> bool {
       size_t npar = freeSrcNames.size();
       centralVals = CLHEP::HepVector(npar,0);
       uncertainties = CLHEP::HepVector(npar,0);
@@ -1787,10 +1787,10 @@ namespace Likelihood {
     }
 
 
-    double logLikePoisson(std::vector<float>::const_iterator data_start, 
+    auto logLikePoisson(std::vector<float>::const_iterator data_start, 
 			  std::vector<float>::const_iterator data_stop,
 			  std::vector<float>::const_iterator model_start,
-			  std::vector<float>::const_iterator model_stop) {
+			  std::vector<float>::const_iterator model_stop) -> double {
       size_t s1 = data_stop - data_start;
       size_t s2 = model_stop - model_start;
       if ( s1 != s2 ) {      
@@ -1821,12 +1821,12 @@ namespace Likelihood {
       return (logTerm-nPred);
     }
 
-    double logLikePoisson(std::vector<float>::const_iterator data_start, 
+    auto logLikePoisson(std::vector<float>::const_iterator data_start, 
 			  std::vector<float>::const_iterator data_stop,
 			  std::vector<float>::const_iterator model_start,
 			  std::vector<float>::const_iterator model_stop,
 			  std::vector<float>::const_iterator w_start,
-			  std::vector<float>::const_iterator w_stop) {
+			  std::vector<float>::const_iterator w_stop) -> double {
       size_t s1 = data_stop - data_start;
       size_t s2 = model_stop - model_start;
       size_t s3 = w_stop - w_start;
@@ -1864,7 +1864,7 @@ namespace Likelihood {
       return (logTerm-nPred);
     }
 
-    int fitModelNorms_newton(const BinnedLikelihood& logLike,
+    auto fitModelNorms_newton(const BinnedLikelihood& logLike,
 			     const std::string& test_name,
 			     double tol, int maxIter, double initLambda,
 			     CLHEP::HepVector& norms,
@@ -1873,7 +1873,7 @@ namespace Likelihood {
 			     std::vector<float>& model,
 			     double& edm,
 			     double& logLikeVal,
-			     size_t firstBin, size_t lastBin) {
+			     size_t firstBin, size_t lastBin) -> int {
 
       
       std::vector<std::vector<float> > template_master;
@@ -1980,10 +1980,10 @@ namespace Likelihood {
     }
 
 
-    double model_counts_contribution(SourceMap& srcMap,
+    auto model_counts_contribution(SourceMap& srcMap,
 				     const std::vector<std::pair<double, double> > & spec_wts,
 				     const double& xi, 
-				     size_t npix, size_t kref, size_t ipix) {    
+				     size_t npix, size_t kref, size_t ipix) -> double {    
 
       size_t jmin = kref*npix + ipix;
       size_t jmax = jmin + npix;
@@ -2009,13 +2009,13 @@ namespace Likelihood {
     }
 
 
-    double model_counts_edisp(SourceMap& srcMap,
+    auto model_counts_edisp(SourceMap& srcMap,
 			      const std::vector<std::pair<double, double> > & spec_wts,
 			      const std::vector<double> & edisp_col,
 			      size_t ipix,
 			      size_t npix, 
 			      size_t kmin,
-			      size_t kmax) {
+			      size_t kmax) -> double {
        
       size_t jmin = kmin*npix + ipix;
       size_t jmax = jmin + npix;      

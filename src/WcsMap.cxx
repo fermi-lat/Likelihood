@@ -49,7 +49,7 @@ namespace {
       }
    };
 
-   double my_round(double x) {
+   auto my_round(double x) -> double {
       int xint = static_cast<int>(x);
       if (x - xint >= 0.5) {
          return xint + 1.;
@@ -253,7 +253,7 @@ WcsMap::WcsMap(const WcsMap & rhs)
    m_proj = rhs.m_proj;
 }
 
-WcsMap & WcsMap::operator=(const WcsMap & rhs) {
+auto WcsMap::operator=(const WcsMap & rhs) -> WcsMap & {
    if (this != &rhs) {
 // astro::SkyProj copy constructor is not implemented properly so we
 // must share this pointer, ensure it is not deleted in the destructor,
@@ -279,7 +279,7 @@ WcsMap & WcsMap::operator=(const WcsMap & rhs) {
    return *this;
 }
 
-double WcsMap::operator()(const astro::SkyDir & dir) const {
+auto WcsMap::operator()(const astro::SkyDir & dir) const -> double {
 // NB: wcslib starts indexing pixels with 1, not 0.
    std::pair<double, double> pixel = dir.project(*m_proj);
 
@@ -347,9 +347,9 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
    return value;
 }
 
-WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
+auto WcsMap::convolve(double energy, const MeanPsf & psf,
                         const BinnedExposure & exposure,
-                        bool performConvolution) const {
+                        bool performConvolution) const -> WcsMap {
 // Compute unconvolved counts map by multiplying intensity image by exposure.
    ::Image counts;
    counts.resize(m_naxis2);
@@ -417,8 +417,8 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
    return my_image;
 }
 
-double WcsMap::solidAngle(const astro::SkyProj & proj, 
-                          double ilon, double ilat) {
+auto WcsMap::solidAngle(const astro::SkyProj & proj, 
+                          double ilon, double ilat) -> double {
    std::pair<double, double> center(proj.pix2sph(ilon, ilat));
    std::pair<double, double> left(proj.pix2sph(ilon - 0.5, ilat));
    std::pair<double, double> right(proj.pix2sph(ilon + 0.5, ilat));
@@ -436,11 +436,11 @@ double WcsMap::solidAngle(const astro::SkyProj & proj,
    return dOmega;
 }
 
-double WcsMap::solidAngle(double ilon, double ilat) const {
+auto WcsMap::solidAngle(double ilon, double ilat) const -> double {
    return solidAngle(*m_proj, ilon, ilat);
 }
 
-const std::vector< std::vector<double> > & WcsMap::solidAngles() const {
+auto WcsMap::solidAngles() const -> const std::vector< std::vector<double> > & {
    if (m_solidAngles.empty()) {
       for (int i(0); i < m_naxis1; i++) {
          std::vector<double> row;
@@ -453,7 +453,7 @@ const std::vector< std::vector<double> > & WcsMap::solidAngles() const {
    return m_solidAngles;
 }
 
-double WcsMap::pixelValue(double ilon, double ilat) const {
+auto WcsMap::pixelValue(double ilon, double ilat) const -> double {
 // Find the pixel in which the sky location lives and returns the value.
    int ix(static_cast<int>(::my_round(ilon)) - 1);
    int iy(static_cast<int>(::my_round(ilat)) - 1);
@@ -468,12 +468,12 @@ double WcsMap::pixelValue(double ilon, double ilat) const {
    return m_image.at(iy).at(ix);
 }
 
-astro::SkyDir WcsMap::skyDir(double ilon, double ilat) const {
+auto WcsMap::skyDir(double ilon, double ilat) const -> astro::SkyDir {
    std::pair<double, double> coords(m_proj->pix2sph(ilon, ilat));
    return astro::SkyDir(coords.first, coords.second, m_coordSys);
 }
 
-bool WcsMap::insideMap(const astro::SkyDir & dir) const {
+auto WcsMap::insideMap(const astro::SkyDir & dir) const -> bool {
    std::pair<double, double> pixel = dir.project(*m_proj);
 
    double x(pixel.first);
@@ -489,8 +489,8 @@ bool WcsMap::insideMap(const astro::SkyDir & dir) const {
    return true;
 }
 
-std::pair<astro::SkyDir, astro::SkyDir> 
-WcsMap::minMaxDistPixels(const astro::SkyDir & dir) const {
+auto 
+WcsMap::minMaxDistPixels(const astro::SkyDir & dir) const -> std::pair<astro::SkyDir, astro::SkyDir> {
    astro::SkyDir closest(skyDir(1, 1));
    double min_dist = dir.difference(closest);
    astro::SkyDir farthest(skyDir(1, 1));
@@ -557,7 +557,7 @@ void WcsMap::getCorners(std::vector<astro::SkyDir> & corners) const {
    corners.push_back(skyDir(m_naxis1, 1));
 }
 
-double WcsMap::mapIntegral() const {
+auto WcsMap::mapIntegral() const -> double {
    return m_mapIntegral;
 }
 
@@ -571,7 +571,7 @@ void WcsMap::computeMapIntegral() {
    }
 }
 
-WcsMap * WcsMap::rebin(unsigned int factor, bool average) {
+auto WcsMap::rebin(unsigned int factor, bool average) -> WcsMap * {
    WcsMap * my_map = new WcsMap(*this);
    int dnxp = factor - (m_naxis1 % factor);
    if (dnxp == factor) {

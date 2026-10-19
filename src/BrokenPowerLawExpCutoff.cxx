@@ -31,7 +31,7 @@ BrokenPowerLawExpCutoff(double Prefactor, double Index1, double Index2,
    addParam("P1", P1, true);
 }
 
-double BrokenPowerLawExpCutoff::value(const optimizers::Arg & xarg) const {
+auto BrokenPowerLawExpCutoff::value(const optimizers::Arg & xarg) const -> double {
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
 // assume a standard ordering for the parameters
@@ -59,9 +59,9 @@ double BrokenPowerLawExpCutoff::value(const optimizers::Arg & xarg) const {
    return 0;
 }
 
-double BrokenPowerLawExpCutoff::
+auto BrokenPowerLawExpCutoff::
 derivByParamImp(const optimizers::Arg & xarg,
-                const std::string & paramName) const {
+                const std::string & paramName) const -> double {
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Prefactor, Index1, Index2, BreakValue, Eabs, P1};

@@ -55,7 +55,7 @@ addParams(double indexL, double indexH,
    }
 }
 
-double PiecewisePowerLaw::value(const optimizers::Arg & xarg) const {
+auto PiecewisePowerLaw::value(const optimizers::Arg & xarg) const -> double {
    double x(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
 
    // Handle low and high end cases first.
@@ -75,8 +75,8 @@ double PiecewisePowerLaw::value(const optimizers::Arg & xarg) const {
    return value;
 }
 
-double PiecewisePowerLaw::
-derivByParamImp(const optimizers::Arg & xarg, const std::string & paramName) const {
+auto PiecewisePowerLaw::
+derivByParamImp(const optimizers::Arg & xarg, const std::string & paramName) const -> double {
    if (paramName.substr(0, 6) == "Energy") {
       throw std::runtime_error("MultipleBPL: Parameter " + paramName 
                                + " must be fixed in the xml model definition.");
@@ -144,7 +144,7 @@ derivByParamImp(const optimizers::Arg & xarg, const std::string & paramName) con
    return 0;
 }
 
-double PiecewisePowerLaw::norm_scaled(size_t k) const {
+auto PiecewisePowerLaw::norm_scaled(size_t k) const -> double {
    if (k < 0 || k >= m_dNdENames.size()) {
       throw std::out_of_range("PiecewisePowerLaw::norm_scaled");
    }
@@ -158,7 +158,7 @@ double PiecewisePowerLaw::norm_scaled(size_t k) const {
    return dNdE0*m_parameter[2 + k].getValue();
 }
 
-double PiecewisePowerLaw::norm(size_t k) const {
+auto PiecewisePowerLaw::norm(size_t k) const -> double {
    if (k < 0 || k >= m_dNdENames.size()) {
       throw std::out_of_range("PiecewisePowerLaw::norm");
    }
@@ -172,7 +172,7 @@ double PiecewisePowerLaw::norm(size_t k) const {
    return dNdE0*m_parameter[2 + k].getTrueValue();
 }
 
-double PiecewisePowerLaw::plIndex(size_t k) const {
+auto PiecewisePowerLaw::plIndex(size_t k) const -> double {
    if (k < 0 || (k+1 >= m_energies.size())) {
       throw std::out_of_range("PiecewisePowerLaw::plIndex: "
                               "out-of-range energy index.");
@@ -186,9 +186,9 @@ double PiecewisePowerLaw::plIndex(size_t k) const {
    return gamma;
 }
 
-double PiecewisePowerLaw::
+auto PiecewisePowerLaw::
 derivByParam_decoupledNormPar(const optimizers::Arg & xarg,
-                              const std::string & paramName) const {
+                              const std::string & paramName) const -> double {
    double x(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
 
    if (paramName == "IndexL") {

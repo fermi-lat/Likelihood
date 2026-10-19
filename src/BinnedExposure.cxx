@@ -101,7 +101,7 @@ BinnedExposure::BinnedExposure(const std::string & filename)
 BinnedExposure::~BinnedExposure() {
 }
 
-double BinnedExposure::operator()(double energy, double ra, double dec) const {
+auto BinnedExposure::operator()(double energy, double ra, double dec) const -> double {
 
    if ( m_proj == 0 ) {
      throw std::runtime_error("BinnedExposure::operator() "

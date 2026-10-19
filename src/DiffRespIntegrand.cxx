@@ -23,7 +23,7 @@
 #include "Likelihood/DiffRespIntegrand.h"
 
 namespace {
-   double my_acos(double mu) {
+   auto my_acos(double mu) -> double {
       if (mu > 1) {
          return 0;
       } else if (mu < -1) {
@@ -36,13 +36,13 @@ namespace {
 
 namespace Likelihood {
 
-double DiffRespIntegrand::
+auto DiffRespIntegrand::
 do2DIntegration(const Event & event,
 		const ResponseFunctions & respFuncs,
 		const DiffuseSource & src,
 		const EquinoxRotation & eqRot,
 		double mumin, double mumax, double phimin, double phimax,
-		double muerr, double phierr)
+		double muerr, double phierr) -> double
 {
   DiffRespIntegrand muIntegrand(event, respFuncs, src, eqRot,
 				phimin, phimax, phierr);
@@ -60,7 +60,7 @@ DiffRespIntegrand(const Event & event,
    : m_event(event), m_respFuncs(respFuncs), m_src(src), m_eqRot(eqRot),
      m_phimin(phimin), m_phimax(phimax), m_err(err) {}
 
-double DiffRespIntegrand::operator()(double mu) const {
+auto DiffRespIntegrand::operator()(double mu) const -> double {
    DiffRespPhiIntegrand phiIntegrand(mu, *this);
 
    double err(m_err);
@@ -90,9 +90,9 @@ getSrcDir(double mu, double phi, const EquinoxRotation & eqRot,
    eqRot.do_rotation(indir, srcDir);
 }
 
-double DiffRespIntegrand::
+auto DiffRespIntegrand::
 phiValue(double mu, const astro::SkyDir & srcDir,
-         const EquinoxRotation & eqRot) {
+         const EquinoxRotation & eqRot) -> double {
    astro::SkyDir refDir;
    getSrcDir(mu, 0, eqRot, refDir);
 
@@ -121,8 +121,8 @@ DiffRespIntegrand::DiffRespPhiIntegrand::
 DiffRespPhiIntegrand(double mu, const DiffRespIntegrand & muIntegrand) 
    : m_mu(mu), m_muIntegrand(muIntegrand) {}
 
-double DiffRespIntegrand::DiffRespPhiIntegrand::
-operator()(double phi) const {
+auto DiffRespIntegrand::DiffRespPhiIntegrand::
+operator()(double phi) const -> double {
    astro::SkyDir srcDir;
    DiffRespIntegrand::DiffRespPhiIntegrand::getSrcDir(phi, srcDir);
 

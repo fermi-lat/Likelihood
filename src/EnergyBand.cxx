@@ -59,7 +59,7 @@ EnergyBand::EnergyBand(const EnergyBand & other)
    setParRefs();
 }
 
-EnergyBand & EnergyBand::operator=(const EnergyBand & rhs) {
+auto EnergyBand::operator=(const EnergyBand & rhs) -> EnergyBand & {
    if (this != &rhs) {
       m_spectrum = rhs.m_spectrum->clone();
       setParRefs();
@@ -74,7 +74,7 @@ EnergyBand::~EnergyBand() throw() {
    }
 }
    
-double EnergyBand::value(const optimizers::Arg & xarg) const {
+auto EnergyBand::value(const optimizers::Arg & xarg) const -> double {
    double energy = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    int emin(m_spectrum->getNumParams());
    int emax(m_spectrum->getNumParams() + 1);
@@ -86,8 +86,8 @@ double EnergyBand::value(const optimizers::Arg & xarg) const {
    return m_spectrum->operator()(xarg);
 }
    
-double EnergyBand::derivByParamImp(const optimizers::Arg & xarg,
-                                   const std::string & paramName) const {
+auto EnergyBand::derivByParamImp(const optimizers::Arg & xarg,
+                                   const std::string & paramName) const -> double {
    double energy(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {

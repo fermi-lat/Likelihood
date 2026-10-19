@@ -65,8 +65,8 @@ SpatialFunction::SpatialFunction(const SpatialFunction & rhs)
   : optimizers::Function(rhs), m_dir(rhs.m_dir) {
 }
 
-SpatialFunction & 
-SpatialFunction::operator=(const SpatialFunction & rhs) {
+auto 
+SpatialFunction::operator=(const SpatialFunction & rhs) -> SpatialFunction & {
    if (this != &rhs) {
       optimizers::Function::operator=(rhs);
       m_dir = rhs.m_dir;
@@ -77,8 +77,8 @@ SpatialFunction::operator=(const SpatialFunction & rhs) {
 SpatialFunction::~SpatialFunction() {
 }
 
-double SpatialFunction::diffuseResponse(const Event & evt,
-					const ResponseFunctions & respFuncs) const {
+auto SpatialFunction::diffuseResponse(const Event & evt,
+					const ResponseFunctions & respFuncs) const -> double {
 
   astro::SkyDir yhat(evt.zAxis().cross(evt.xAxis()));
   double phi = 180./M_PI*std::atan2(yhat.dot(this->dir()), 
@@ -92,7 +92,7 @@ double SpatialFunction::diffuseResponse(const Event & evt,
   return diffuseResponse(fn,evt.getEnergy(),dtheta);
 }
 
-const astro::SkyDir& SpatialFunction::dir() const {
+auto SpatialFunction::dir() const -> const astro::SkyDir& {
   return m_dir;
 }
 

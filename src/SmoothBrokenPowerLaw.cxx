@@ -35,7 +35,7 @@ namespace Likelihood {
     addParam(std::string("Beta"), Beta, true);
   } 
   
-  double SmoothBrokenPowerLaw::value(const optimizers::Arg &xarg) const {
+  auto SmoothBrokenPowerLaw::value(const optimizers::Arg &xarg) const -> double {
     double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
     
     // assume a standard ordering for the parameters
@@ -56,8 +56,8 @@ namespace Likelihood {
   }
   
   
-  double SmoothBrokenPowerLaw::derivByParamImp(const optimizers::Arg &xarg,
-                                               const std::string &paramName) const {
+  auto SmoothBrokenPowerLaw::derivByParamImp(const optimizers::Arg &xarg,
+                                               const std::string &paramName) const -> double {
     double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
     
     enum ParamTypes {Prefactor, Index1, Scale, Index2, BreakValue, Beta};

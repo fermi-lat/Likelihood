@@ -38,7 +38,7 @@ void CompositeLikelihood::addComponent(const std::string & srcName,
    m_components[&component] = srcName;
 }
 
-double CompositeLikelihood::value() const {
+auto CompositeLikelihood::value() const -> double {
    double my_value(0);
    ComponentConstIterator_t it(m_components.begin());
    for ( ; it != m_components.end(); ++it) {
@@ -214,7 +214,7 @@ void CompositeLikelihood::syncParams() {
    m_parameter.push_back(saved_par);
 }
 
-unsigned int CompositeLikelihood::getNumFreeParams() const {
+auto CompositeLikelihood::getNumFreeParams() const -> unsigned int {
    ComponentConstIterator_t it(m_components.begin());
    unsigned int npars(0);
    for ( ; it != m_components.end(); ++it) {

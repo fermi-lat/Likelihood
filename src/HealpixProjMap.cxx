@@ -49,7 +49,7 @@ namespace {
       }
    };
 
-   double my_round(double x) {
+   auto my_round(double x) -> double {
       int xint = static_cast<int>(x);
       if (x - xint >= 0.5) {
          return xint + 1.;
@@ -350,7 +350,7 @@ HealpixProjMap::HealpixProjMap(const HealpixProjMap & rhs, const double& energy,
 
 HealpixProjMap::~HealpixProjMap(){}
 
-HealpixProjMap & HealpixProjMap::operator=(const HealpixProjMap & rhs) {
+auto HealpixProjMap::operator=(const HealpixProjMap & rhs) -> HealpixProjMap & {
    if (this != &rhs) {
       ProjMap::operator=(rhs);
       m_image = rhs.m_image;
@@ -361,7 +361,7 @@ HealpixProjMap & HealpixProjMap::operator=(const HealpixProjMap & rhs) {
    return *this;
 }
 
-double HealpixProjMap::operator()(const astro::SkyDir & dir, int k) const {
+auto HealpixProjMap::operator()(const astro::SkyDir & dir, int k) const -> double {
    check_energy_index(k);
 
    double theta = astro::degToRad ( astro::latToTheta_Deg(  m_healpixProj->isGalactic() ? dir.b() : dir.dec() ) );
@@ -381,7 +381,7 @@ double HealpixProjMap::operator()(const astro::SkyDir & dir, int k) const {
 }
  
 
-double HealpixProjMap::operator()(const astro::SkyDir & dir, double energy) const {
+auto HealpixProjMap::operator()(const astro::SkyDir & dir, double energy) const -> double {
   // I guess this is to catch default values
   if (energy < 0) {
     energy = energies().front();
@@ -426,9 +426,9 @@ double HealpixProjMap::operator()(const astro::SkyDir & dir, double energy) cons
   return value;
 }
 
-ProjMap* HealpixProjMap::convolveAll(const MeanPsf & psf,
+auto HealpixProjMap::convolveAll(const MeanPsf & psf,
 				     const BinnedExposureBase * exposure,
-				     bool performConvolution) const {
+				     bool performConvolution) const -> ProjMap* {
 
   HealpixProjMap* outMap = new HealpixProjMap(*this, false);
   int k(0);
@@ -445,10 +445,10 @@ ProjMap* HealpixProjMap::convolveAll(const MeanPsf & psf,
   return outMap;
 }
 
-ProjMap* HealpixProjMap::convolve(double energy, const MeanPsf & psf,
+auto HealpixProjMap::convolve(double energy, const MeanPsf & psf,
 				  const BinnedExposureBase * exposure,
 				  bool performConvolution,
-				  int k) const {
+				  int k) const -> ProjMap* {
    // Convolve for a single image plane.
    check_energy_index(k);
 
@@ -506,25 +506,25 @@ ProjMap* HealpixProjMap::convolve(double energy, const MeanPsf & psf,
    return my_image;
 }
 
-CountsMapBase* HealpixProjMap::makeCountsMap(const CountsMapBase& counts_map) const {
+auto HealpixProjMap::makeCountsMap(const CountsMapBase& counts_map) const -> CountsMapBase* {
   const CountsMapHealpix& hp_counts_map = static_cast<const CountsMapHealpix&>(counts_map);
   return new CountsMapHealpix(*this, hp_counts_map);
 }
 
-double HealpixProjMap::pixelValue(double ilon, double ilat, int k) const {
+auto HealpixProjMap::pixelValue(double ilon, double ilat, int k) const -> double {
   // let's say that his expects values in the local (i.e., compact) numbering 
   check_energy_index(k);
   return m_image[k][ilon];
 }
 
 
-bool HealpixProjMap::insideMap(const astro::SkyDir & dir) const {
+auto HealpixProjMap::insideMap(const astro::SkyDir & dir) const -> bool {
   // EAC_FIX, for now we have the whole sky, so this is always true
   return true;
 }
 
-std::pair<astro::SkyDir, astro::SkyDir> 
-HealpixProjMap::minMaxDistPixels(const astro::SkyDir & dir) const {
+auto 
+HealpixProjMap::minMaxDistPixels(const astro::SkyDir & dir) const -> std::pair<astro::SkyDir, astro::SkyDir> {
    astro::SkyDir closest(skyDir(1, 1));
    astro::SkyDir farthest(skyDir(1, 1));
    // EAC_FIX, HEALPIX impl of minMaxDistPixels missing throws std::runtime_error
@@ -559,7 +559,7 @@ void HealpixProjMap::computeMapIntegrals() {
   }
 }
 
-ProjMap* HealpixProjMap::rebin(unsigned int factor, bool average) {
+auto HealpixProjMap::rebin(unsigned int factor, bool average) -> ProjMap* {
   // We don't actually enforce that the nside is a power of two, 
   // so we just set the new nside to be smaller by factor
   if ( factor <= 1 ) return this;
@@ -578,17 +578,17 @@ ProjMap* HealpixProjMap::rebin(unsigned int factor, bool average) {
   return this;
 }
 
-int HealpixProjMap::globalToLocal(int glo) const {
+auto HealpixProjMap::globalToLocal(int glo) const -> int {
   // EAC_FIX, This is no-op until we implement partial sky HEALPix maps
   return glo;
 }
    
-int HealpixProjMap::localToGlobal(int loc) const {
+auto HealpixProjMap::localToGlobal(int loc) const -> int {
   // EAC_FIX, This is no-op until we implement partial sky HEALPix maps
   return loc;
 }
 
-int HealpixProjMap::nPixels() const {
+auto HealpixProjMap::nPixels() const -> int {
   // EAC_FIX, Until we implement partial sky HEALPix maps, this just gives the number of 
   // pixels in the full sky
   return m_healpixProj->healpix().Npix();

@@ -209,7 +209,7 @@ AppHelpers::~AppHelpers() {
    delete m_respFuncCuts;
 }
 
-optimizers::FunctionFactory & AppHelpers::funcFactory() {
+auto AppHelpers::funcFactory() -> optimizers::FunctionFactory & {
    return *m_funcFactory;
 }
 
@@ -367,8 +367,8 @@ void AppHelpers::setRoi(const std::string & filename,
    roiCuts.readCuts(eventFiles, evtable, strict);
 }
 
-std::string AppHelpers::responseFuncs(const std::string & file,
-                                      const std::string & respBase) {
+auto AppHelpers::responseFuncs(const std::string & file,
+                                      const std::string & respBase) -> std::string {
    static const char * respcombos[] = {"DC2", "DC2FA", "DC2BA", 
                                        "DC2FB", "DC2BB", "DC2_A"};
    if (respBase != "DC2") {
@@ -710,9 +710,9 @@ void AppHelpers::checkCuts(const std::vector<std::string> & files1,
    }
 }
 
-bool AppHelpers::checkCuts(const dataSubselector::Cuts & cuts1,
+auto AppHelpers::checkCuts(const dataSubselector::Cuts & cuts1,
                            const dataSubselector::Cuts & cuts2,
-                           bool compareGtis, bool relyOnStreams) {
+                           bool compareGtis, bool relyOnStreams) -> bool {
    bool standardTest;
    if (relyOnStreams) {
       std::ostringstream c1, c2;
@@ -814,11 +814,11 @@ void AppHelpers::checkTimeCuts(const std::vector<std::string> & files1,
    }
 }
 
-bool AppHelpers::checkTimeCuts(const dataSubselector::Cuts & cuts1,
+auto AppHelpers::checkTimeCuts(const dataSubselector::Cuts & cuts1,
                                const dataSubselector::Cuts & cuts2,
                                bool compareGtis,
                                double & gti_start_diffs,
-                               double & gti_stop_diffs) {
+                               double & gti_stop_diffs) -> bool {
 // Assume GTIs encapsulate all of the time range information, so that
 // individual time range cuts need not be checked.
 
@@ -904,8 +904,8 @@ gatherGtiCuts(const dataSubselector::Cuts & cuts,
    }
 }
 
-dataSubselector::Cuts 
-AppHelpers::gtiCuts(const dataSubselector::Cuts & cuts) {
+auto 
+AppHelpers::gtiCuts(const dataSubselector::Cuts & cuts) -> dataSubselector::Cuts {
    std::vector<const dataSubselector::CutBase *> gti_cuts;
    gatherGtiCuts(cuts, gti_cuts);
    
@@ -1014,9 +1014,9 @@ void AppHelpers::setBitMaskCuts(dataSubselector::Cuts & other_cuts) const {
 }
 
 // EAC -> Check to see if a CountsMap or exposure map is WCS or HEALPix based                 
-astro::ProjBase::Method 
+auto 
 AppHelpers::checkProjectionMethod(const std::string& filename,
-                                  const std::string& hpx_ext) {  
+                                  const std::string& hpx_ext) -> astro::ProjBase::Method {  
   // Try the primary header first
   std::unique_ptr<const tip::Image> primary(tip::IFileSvc::instance().readImage(filename,std::string("")));
   const tip::Header& header = primary->getHeader();
@@ -1055,7 +1055,7 @@ AppHelpers::checkProjectionMethod(const std::string& filename,
 }
 
 // EAC -> Open a fits file and read in the correct type of CountsMap                          
-CountsMapBase* AppHelpers::readCountsMap(const std::string& filename){
+auto AppHelpers::readCountsMap(const std::string& filename) -> CountsMapBase*{
   astro::ProjBase::Method method = checkProjectionMethod(filename,std::string("SKYMAP"));
   CountsMapBase* retMap(0);
   switch ( method ) {
@@ -1077,7 +1077,7 @@ CountsMapBase* AppHelpers::readCountsMap(const std::string& filename){
 }
 
 // EAC -> Open a fits file and read in the correct type of BinnedExposureBase                 
-BinnedExposureBase* AppHelpers::readBinnedExposure(const std::string& filename){
+auto AppHelpers::readBinnedExposure(const std::string& filename) -> BinnedExposureBase*{
   astro::ProjBase::Method method = checkProjectionMethod(filename,std::string("HPXEXPOSURES"));
   BinnedExposureBase* retMap(0);
   switch ( method ) {
@@ -1099,9 +1099,9 @@ BinnedExposureBase* AppHelpers::readBinnedExposure(const std::string& filename){
 }
 
 
-BinnedLikelihood* AppHelpers::makeBinnedLikelihood(st_app::AppParGroup& pars,
+auto AppHelpers::makeBinnedLikelihood(st_app::AppParGroup& pars,
 						   AppHelpers& helper,
-						   const std::string& cmap_par) {
+						   const std::string& cmap_par) -> BinnedLikelihood* {
 
   std::string expcube = pars["expcube"];
   std::string bexpmap = pars["bexpmap"];

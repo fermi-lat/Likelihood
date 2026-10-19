@@ -96,7 +96,7 @@ namespace Likelihood {
     }
   }
 
-  double chifunc(int ndof) {
+  auto chifunc(int ndof) -> double {
     // chi-squared value whose cumulative probability is 0.683
     if (ndof <= 0) {
       throw optimizers::Exception("chifunc invalid input < 1");

@@ -43,7 +43,7 @@ void Accumulator::add(double value) {
    }
 }
 
-double Accumulator::total() {
+auto Accumulator::total() -> double {
    if (m_first) {
       m_first = false;
       m_partialSums.resize(m_npts);
@@ -63,7 +63,7 @@ double Accumulator::total() {
    return m_total;
 }
 
-size_t Accumulator::indx(double xx) {
+auto Accumulator::indx(double xx) -> size_t {
    if (xx <= m_xmin) {
       return 0;
    } else if (xx >= m_xmax) {

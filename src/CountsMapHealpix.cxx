@@ -101,11 +101,11 @@ namespace Likelihood {
 
   CountsMapHealpix::~CountsMapHealpix() throw() {;}
 
-  ProjMap* CountsMapHealpix::makeProjMap(CountsMapBase::ConversionType cType) const {
+  auto CountsMapHealpix::makeProjMap(CountsMapBase::ConversionType cType) const -> ProjMap* {
     return new HealpixProjMap(*this, cType);
   }
 
-  CountsMapBase* CountsMapHealpix::makeBkgEffMap(const MeanPsf & psf, const float& efact) const {
+  auto CountsMapHealpix::makeBkgEffMap(const MeanPsf & psf, const float& efact) const -> CountsMapBase* {
 
     CountsMapHealpix* outMap = new CountsMapHealpix(*this);     
     ProjMap* projMap = makeProjMap();
@@ -180,8 +180,8 @@ namespace Likelihood {
     }
   }
 
-  bool CountsMapHealpix::withinBounds(const astro::SkyDir & dir, double energy,
-				      long border_size) const {
+  auto CountsMapHealpix::withinBounds(const astro::SkyDir & dir, double energy,
+				      long border_size) const -> bool {
     
     double s1 = m_proj->isGalactic() ? dir.l() : dir.ra();
     double s2 = m_proj->isGalactic() ? dir.b() : dir.dec();
@@ -339,20 +339,20 @@ void CountsMapHealpix::readImageData(const std::string & countsMapFile,
 }
 
 
-int CountsMapHealpix::globalToLocalIndex(int glo) const {
+auto CountsMapHealpix::globalToLocalIndex(int glo) const -> int {
   if ( allSky() ) return glo;
   std::map<int,int>::const_iterator itrFind = m_hpx_binner->pixGlobalToLocalMap().find(glo);
   return itrFind == m_hpx_binner->pixGlobalToLocalMap().end() ? -1 : itrFind->second;
 }
    
-int CountsMapHealpix::localToGlobalIndex(int loc) const {
+auto CountsMapHealpix::localToGlobalIndex(int loc) const -> int {
   if ( allSky() ) return loc;
   if ( loc < 0 || loc >= m_hpx_binner->pixelIndices().size() ) return -1;
   return m_hpx_binner->pixelIndices()[loc];
 }      
   
 
-const std::vector<int>& CountsMapHealpix::pixelIndices() const {
+auto CountsMapHealpix::pixelIndices() const -> const std::vector<int>& {
   return m_hpx_binner->pixelIndices();
 }
 

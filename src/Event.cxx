@@ -36,7 +36,7 @@
 #include "LogNormalMuDist.h"
 
 namespace {
-   std::string strip_evtype_qualifier(std::string respName) {
+   auto strip_evtype_qualifier(std::string respName) -> std::string {
 // Strip off ::FRONT or ::BACK qualifiers.
       size_t pos(respName.find("::"));
       if (pos != std::string::npos) {
@@ -44,7 +44,7 @@ namespace {
       }
       return respName;
    }
-   double my_acos(double mu) {
+   auto my_acos(double mu) -> double {
       if (mu > 1) {
          return 0;
       } else if (mu < -1) {
@@ -101,8 +101,8 @@ Event::Event(double ra, double dec, double energy, double time,
    }
 }
 
-double Event::diffuseResponse(double trueEnergy, 
-                              const std::string& srcName) const {
+auto Event::diffuseResponse(double trueEnergy, 
+                              const std::string& srcName) const -> double {
    const std::string & diffuseComponent(diffuseSrcName(srcName));
    int indx(0);
    if (m_useEdisp) {
@@ -138,8 +138,8 @@ double Event::diffuseResponse(double trueEnergy,
    return 0;
 }
 
-const std::vector<double> & 
-Event::diffuseResponse(const std::string& srcName) const {
+auto 
+Event::diffuseResponse(const std::string& srcName) const -> const std::vector<double> & {
    const std::string & diffuseComponent(diffuseSrcName(srcName));
    std::map<std::string, diffuse_response>::const_iterator it;
    if ((it = m_respDiffuseSrcs.find(diffuseComponent))
@@ -452,7 +452,7 @@ void Event::toLower(std::string & name) {
    }
 }
 
-const std::string & Event::diffuseSrcName(const std::string & srcName) const {
+auto Event::diffuseSrcName(const std::string & srcName) const -> const std::string & {
    std::map<std::string, std::string>::iterator it =
       m_diffSrcNames.find(srcName);
    if (it == m_diffSrcNames.end()) {

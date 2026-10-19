@@ -18,7 +18,7 @@
 #include "LogNormalMuDist.h"
 
 namespace {
-   double erf(double x) {
+   auto erf(double x) -> double {
       double z = std::fabs(x);
       double t = 1.0/(1. + 0.5*z);
       double ans = t*std::exp(-z*z-1.26551223+t*(1.00002368+t*(0.37409196+
@@ -36,7 +36,7 @@ namespace Likelihood {
 
 LogNormalMuDist * LogNormalMuDist::s_instance(0);
 
-LogNormalMuDist * LogNormalMuDist::instance() {
+auto LogNormalMuDist::instance() -> LogNormalMuDist * {
    if (!s_instance) {
       s_instance = new LogNormalMuDist();
    }
@@ -62,11 +62,11 @@ LogNormalMuDist(double muSlope, double muIntercept, double sigma,
    }
 }
 
-double LogNormalMuDist::muValue(double energy) const {
+auto LogNormalMuDist::muValue(double energy) const -> double {
    return std::log(energy)*m_muSlope + m_muIntercept;
 }
 
-const std::vector<double> & LogNormalMuDist::muPoints(double energy) const {
+auto LogNormalMuDist::muPoints(double energy) const -> const std::vector<double> & {
    return m_muPoints.at(energyIndex(energy));
 }
 
@@ -104,7 +104,7 @@ void LogNormalMuDist::createSample(double mu, std::vector<double> & mus) {
    std::stable_sort(mus.begin(), mus.end());
 }
 
-size_t LogNormalMuDist::energyIndex(double energy) const {
+auto LogNormalMuDist::energyIndex(double energy) const -> size_t {
    double logE(std::log(energy));
    if (logE <= m_logEmin) {
       return 1;

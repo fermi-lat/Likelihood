@@ -53,8 +53,8 @@ namespace Likelihood {
 
     }
 
-    double bilinear_on_grid(double x, double y,
-			    const std::vector< std::vector<double> > &z) {
+    auto bilinear_on_grid(double x, double y,
+			    const std::vector< std::vector<double> > &z) -> double {
       // Get the grid size from the vector dimensions
       size_t nx = z.size();
       size_t ny = z[0].size();
@@ -83,8 +83,8 @@ namespace Likelihood {
    }    
    
 
-    double test_bilinear(double x, double y,
-			 const std::vector< std::vector<double> > &z) {
+    auto test_bilinear(double x, double y,
+			 const std::vector< std::vector<double> > &z) -> double {
       size_t nx = z.size();
       size_t ny = z[0].size();
       std::vector<double> xx(nx);
@@ -99,8 +99,8 @@ namespace Likelihood {
     } 
 
 
-    double maxRadius(const std::vector<Likelihood::Pixel> & pixels,
-		     const astro::SkyDir & dir) {
+    auto maxRadius(const std::vector<Likelihood::Pixel> & pixels,
+		     const astro::SkyDir & dir) -> double {
       std::vector<Likelihood::Pixel>::const_iterator pixel = pixels.begin();
       double maxValue(0);
       for ( ; pixel != pixels.end(); ++pixel) {
@@ -112,7 +112,7 @@ namespace Likelihood {
       return maxValue*180./M_PI;
     }
     
-    double maxPsfRadius(const PointSource& src, const CountsMap& dataMap) {
+    auto maxPsfRadius(const PointSource& src, const CountsMap& dataMap) -> double {
       std::vector<astro::SkyDir> pixelDirs;
       dataMap.getBoundaryPixelDirs(pixelDirs);
       
@@ -128,7 +128,7 @@ namespace Likelihood {
     }
 
 
-    double neededMapSize(const DiffuseSource& src,const CountsMapBase& dataMap) {
+    auto neededMapSize(const DiffuseSource& src,const CountsMapBase& dataMap) -> double {
       double src_size = src.mapRadius();
       double map_size = dataMap.mapRadius();
       return src_size < map_size ? src_size : map_size;
@@ -177,17 +177,17 @@ namespace Likelihood {
       }
     }
 
-    MeanPsf* build_psf(const Source& src, 
+    auto build_psf(const Source& src, 
 		       const CountsMapBase& dataMap,
 		       const std::vector<double>& energies,
-		       const Observation& obs) {
+		       const Observation& obs) -> MeanPsf* {
       const PointSource& pointSrc = dynamic_cast<const PointSource&>(src);
       const astro::SkyDir & dir(pointSrc.getDir());
       MeanPsf* meanPsf = new MeanPsf(dir.ra(), dir.dec(), energies, obs);
       return meanPsf; 
     } 
 
-    bool haveMapCubeFunction(DiffuseSource& src) {
+    auto haveMapCubeFunction(DiffuseSource& src) -> bool {
       Source::FuncMap & srcFuncs = src.getSrcFuncs();
       return srcFuncs["SpatialDist"]->genericName() == "MapCubeFunction";
     }
@@ -211,9 +211,9 @@ namespace Likelihood {
       }
     }
    
-    double computeResampFactor(const DiffuseSource & src,
+    auto computeResampFactor(const DiffuseSource & src,
 			       const CountsMapBase & dataMap,
-			       const PsfIntegConfig& config) {
+			       const PsfIntegConfig& config) -> double {
 
       if(!config.resample()) 
 	return 1.0;
@@ -272,7 +272,7 @@ namespace Likelihood {
     }
 
     
-    int makeModelMap(const Source& src, 
+    auto makeModelMap(const Source& src, 
 		     const BinnedCountsCache& dataCache,
 		     const std::vector<double>& energies,
 		     const MeanPsf& meanpsf,
@@ -283,7 +283,7 @@ namespace Likelihood {
 		     st_stream::StreamFormatter& formatter,
 		     std::vector<float>& modelmap,
 		     FileUtils::SrcMapType& mapType,
-		     int kmin, int kmax) {
+		     int kmin, int kmax) -> int {
 
       int status(0);
       switch ( src.srcType() ) {
@@ -315,7 +315,7 @@ namespace Likelihood {
     }
 
 
-    int makeDiffuseMap(const DiffuseSource& diffuseSrc, 
+    auto makeDiffuseMap(const DiffuseSource& diffuseSrc, 
 		       const CountsMapBase& dataMap,
 		       const std::vector<double>& energies,
 		       const MeanPsf& meanpsf,
@@ -324,7 +324,7 @@ namespace Likelihood {
 		       st_stream::StreamFormatter& formatter,
 		       std::vector<float>& modelmap,
 		       FileUtils::SrcMapType& mapType,
-		       int kmin, int kmax) {
+		       int kmin, int kmax) -> int {
 
       if ( config.verbose() ) {
 	formatter.warn() << "Generating SourceMap for " << diffuseSrc.getName() << ' ' << energies.size();
@@ -363,7 +363,7 @@ namespace Likelihood {
       return status;
     }
     
-    int makeDiffuseMap_wcs(const DiffuseSource& diffuseSrc, 
+    auto makeDiffuseMap_wcs(const DiffuseSource& diffuseSrc, 
 			   const CountsMap& dataMap,
 			   const std::vector<double>& energies,
 			   const MeanPsf& meanpsf,
@@ -372,7 +372,7 @@ namespace Likelihood {
 			   st_stream::StreamFormatter& formatter,
 			   std::vector<float>& modelmap,
 			   FileUtils::SrcMapType& mapType,
-			   int kmin, int kmax) {
+			   int kmin, int kmax) -> int {
 
       bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist()) != 0;
       bool do_psf_convolution = config.performConvolution() && diffuseSrc.use_psf();
@@ -538,7 +538,7 @@ namespace Likelihood {
       return 0;
     }
     
-    int makeDiffuseMap_healpix(const DiffuseSource& diffuseSrc, 
+    auto makeDiffuseMap_healpix(const DiffuseSource& diffuseSrc, 
 			       const CountsMapHealpix& dataMap,
 			       const std::vector<double>& energies,
 			       const MeanPsf& meanpsf,
@@ -547,7 +547,7 @@ namespace Likelihood {
 			       st_stream::StreamFormatter& formatter,			       
 			       std::vector<float>& modelmap,
 			       FileUtils::SrcMapType& mapType,
-			       int kmin, int kmax) {
+			       int kmin, int kmax) -> int {
 
       bool do_psf_convolution = config.performConvolution() && diffuseSrc.use_psf();
       const BinnedExposureBase* bexpmap_use = diffuseSrc.use_exposure() ? bexpmap : 0;
@@ -621,7 +621,7 @@ namespace Likelihood {
     }
     
    
-    int makeDiffuseMap_native(const DiffuseSource& diffuseSrc, 
+    auto makeDiffuseMap_native(const DiffuseSource& diffuseSrc, 
 			      const CountsMapHealpix& dataMap,
 			      const std::vector<double>& energies,
 			      const MeanPsf& meanpsf,
@@ -630,7 +630,7 @@ namespace Likelihood {
 			      st_stream::StreamFormatter& formatter,
 			      std::vector<float>& modelmap,
 			      FileUtils::SrcMapType& mapType,
-			      int kmin, int kmax) {
+			      int kmin, int kmax) -> int {
 
 
       bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist()) != 0;
@@ -842,7 +842,7 @@ namespace Likelihood {
       return 0;
     }
 
-	int makePointSourceMap(const PointSource &pointSrc,
+	auto makePointSourceMap(const PointSource &pointSrc,
 						   const CountsMapBase &dataMap,
 						   const std::vector<double> &energies,
 						   const PsfIntegConfig &config,
@@ -851,7 +851,7 @@ namespace Likelihood {
 						   st_stream::StreamFormatter &formatter,
 						   std::vector<float> &modelmap,
 						   FileUtils::SrcMapType &mapType,
-						   int kmin, int kmax)
+						   int kmin, int kmax) -> int
 	{
 
 		if (config.verbose())
@@ -884,7 +884,7 @@ namespace Likelihood {
 		return status;
 	}
 
-	int makePointSourceMap_wcs(const PointSource& pointSrc, 
+	auto makePointSourceMap_wcs(const PointSource& pointSrc, 
 			       const CountsMap& dataMap,
 			       const std::vector<double>& energies,
 			       const PsfIntegConfig& config,
@@ -893,7 +893,7 @@ namespace Likelihood {
 			       st_stream::StreamFormatter& formatter,
 			       std::vector<float>& modelmap,
 			       FileUtils::SrcMapType& mapType,
-			       int kmin, int kmax) {
+			       int kmin, int kmax) -> int {
 
       bool do_psf_convolution = config.performConvolution() && pointSrc.use_psf();
       bool do_exposure = pointSrc.use_exposure();
@@ -1046,7 +1046,7 @@ namespace Likelihood {
 
     }
     
-    int makePointSourceMap_healpix(const PointSource& pointSrc,
+    auto makePointSourceMap_healpix(const PointSource& pointSrc,
 				   const CountsMapHealpix& dataMap,
 				   const std::vector<double>& energies,
 				   const PsfIntegConfig& config,
@@ -1055,7 +1055,7 @@ namespace Likelihood {
 				   st_stream::StreamFormatter& formatter,
 				   std::vector<float>& modelmap,
 				   FileUtils::SrcMapType& mapType,
-				   int kmin, int kmax) {
+				   int kmin, int kmax) -> int {
 
       bool do_psf_convolution = config.performConvolution() && pointSrc.use_psf();
       bool do_exposure = pointSrc.use_exposure();
@@ -1116,7 +1116,7 @@ namespace Likelihood {
       return 0;
     }
 
-    int makeCompositeMap(const CompositeSource& compSrc, 
+    auto makeCompositeMap(const CompositeSource& compSrc, 
 			 const BinnedCountsCache& dataCache,
 			 const std::vector<double>& energies,
 			 const std::string & srcMapsFile,
@@ -1124,7 +1124,7 @@ namespace Likelihood {
 			 st_stream::StreamFormatter& formatter,
 			 std::vector<float>& modelmap,
 			 FileUtils::SrcMapType& mapType,
-			 int kmin, int kmax) {
+			 int kmin, int kmax) -> int {
 
       if ( compSrc.config().psf_integ_config().verbose() ) {
 	formatter.warn() << "Generating SourceMap for " << compSrc.getName() << "{ " << std::endl;
@@ -1152,14 +1152,14 @@ namespace Likelihood {
       return 0;
     }
 
-    double psfValueEstimate(const MeanPsf & meanPsf, double energy, 
+    auto psfValueEstimate(const MeanPsf & meanPsf, double energy, 
 			    const astro::SkyDir & srcDir, 
 			    const Pixel & pixel,
 			    const std::pair<double, double>& srcCoord,
 			    const std::pair<double, double>& pixCoord,
 			    const std::vector< std::vector< double > >& pixelOffsets,
 			    double ref_pixel_size,
-			    const PsfIntegConfig& config) {
+			    const PsfIntegConfig& config) -> double {
    
       switch ( config.integ_type() ) {
       case PsfIntegConfig::adaptive:
@@ -1175,18 +1175,18 @@ namespace Likelihood {
       throw std::runtime_error(" PSFUtils::psfValueEstimate: Unknown PSF estimator: ");
     }
 
-    double psfValue_pixelCenter(const MeanPsf & meanPsf, double energy, 
+    auto psfValue_pixelCenter(const MeanPsf & meanPsf, double energy, 
 				const astro::SkyDir & srcDir, 
-				const Pixel & pixel) {
+				const Pixel & pixel) -> double {
       double offset(srcDir.difference(pixel.dir())*180./M_PI);
       double pixelSolidAngle(pixel.solidAngle());
       // FIXME, should there be a solid angle correction here?
       return meanPsf(energy, offset);
     }
 
-    double psfValue_annular(const MeanPsf & meanPsf, double energy, 
+    auto psfValue_annular(const MeanPsf & meanPsf, double energy, 
 			    const astro::SkyDir & srcDir, 
-			    const Pixel & pixel) {
+			    const Pixel & pixel) -> double {
       
       double offset(srcDir.difference(pixel.dir())*180./M_PI);
       double pixelSolidAngle(pixel.solidAngle());
@@ -1218,7 +1218,7 @@ namespace Likelihood {
       return pixel_value;
     }
 
-    double integrate_psf_adaptive(const MeanPsf & meanPsf, 
+    auto integrate_psf_adaptive(const MeanPsf & meanPsf, 
 				  double energy, 
 				  const astro::SkyDir & srcDir, 
 				  const Pixel & pixel, 
@@ -1226,7 +1226,7 @@ namespace Likelihood {
 				  const std::pair<double, double>& pixCoord,
 				  const std::vector< std::vector< double > >& pixelOffsets,
 				  double ref_pixel_size,
-				  const PsfIntegConfig& config) {
+				  const PsfIntegConfig& config) -> double {
       
       double offset(srcDir.difference(pixel.dir())*180./M_PI);
       const int max_npts = 64;
@@ -1263,14 +1263,14 @@ namespace Likelihood {
       return v1;
     }
 
-    double integrate_psf_fast(const MeanPsf & meanPsf, double energy, 
+    auto integrate_psf_fast(const MeanPsf & meanPsf, double energy, 
 			      const astro::SkyDir & srcDir, 
 			      const Pixel & pixel, 
 			      const std::pair<double, double>& srcCoord,
 			      const std::pair<double, double>& pixCoord, 
 			      const std::vector< std::vector< double > >& pixelOffsets,
 			      double ref_pixel_size,
-			      size_t npts)  {
+			      size_t npts) -> double  {
       
       double psf_value(0);
       double dstep(1./static_cast<double>(npts));
@@ -1290,8 +1290,8 @@ namespace Likelihood {
       return psf_value/static_cast<double>(npts*npts);
     }
 
-    double integrate_psf(const MeanPsf & meanPsf, double energy,
-			 const astro::SkyDir & srcDir, const Pixel & pixel, size_t npts) {
+    auto integrate_psf(const MeanPsf & meanPsf, double energy,
+			 const astro::SkyDir & srcDir, const Pixel & pixel, size_t npts) -> double {
 
       bool galactic(pixel.proj().isGalactic());
       

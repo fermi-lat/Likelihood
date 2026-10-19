@@ -33,7 +33,7 @@
 
 namespace {
 
-  double disk(double x,double sigma) {
+  auto disk(double x,double sigma) -> double {
     if(x/sigma < 1.0) 
       return std::pow(sigma*sigma*M_PI,-1);
     else 
@@ -43,7 +43,7 @@ namespace {
 
 namespace Likelihood {
 
-double RadialDisk::RadialIntegrand::operator()(double xp) const {
+auto RadialDisk::RadialIntegrand::operator()(double xp) const -> double {
 
   const double s2 = std::pow(m_sigma,2);
   double dphi = 2.0*M_PI;
@@ -53,9 +53,9 @@ double RadialDisk::RadialIntegrand::operator()(double xp) const {
   return xp*m_fn(m_energy,xp)*dphi/(M_PI*s2);
 }
 
-double RadialDisk::convolve(const ResponseFunctor& fn, 
+auto RadialDisk::convolve(const ResponseFunctor& fn, 
 			     double energy, double x, 
-			     double sigma, double err) {
+			     double sigma, double err) -> double {
   
   const double xmin = std::max(x - sigma,0.0);
   const double xmax = x + sigma;
@@ -84,7 +84,7 @@ RadialDisk::RadialDisk(const RadialDisk & rhs)
   : SpatialFunction(rhs), m_radius(rhs.m_radius) {
 }
 
-RadialDisk & RadialDisk::operator=(const RadialDisk & rhs) {
+auto RadialDisk::operator=(const RadialDisk & rhs) -> RadialDisk & {
    if (this != &rhs) {
       SpatialFunction::operator=(rhs);
       m_radius = rhs.m_radius;
@@ -95,32 +95,32 @@ RadialDisk & RadialDisk::operator=(const RadialDisk & rhs) {
 RadialDisk::~RadialDisk() {
 }
 
-double RadialDisk::value(const astro::SkyDir & dir) const {
+auto RadialDisk::value(const astro::SkyDir & dir) const -> double {
    double delta = this->dir().difference(dir)*180./M_PI;
    return disk(delta,m_radius)*std::pow(M_PI/180.,-2);
 }
 
-double RadialDisk::value(double delta, double radius) const {
+auto RadialDisk::value(double delta, double radius) const -> double {
    return disk(delta,radius)*std::pow(M_PI/180.,-2);
 }
 
-double RadialDisk::spatialResponse(const astro::SkyDir & dir, double energy, const MeanPsf& psf) const {
+auto RadialDisk::spatialResponse(const astro::SkyDir & dir, double energy, const MeanPsf& psf) const -> double {
   double delta = dir.difference(this->dir())*180./M_PI;
   return RadialDisk::convolve(BinnedResponseFunctor(psf),energy,delta,m_radius);
 }
 
-double RadialDisk::spatialResponse(double delta, double energy, const MeanPsf& psf) const {
+auto RadialDisk::spatialResponse(double delta, double energy, const MeanPsf& psf) const -> double {
   return RadialDisk::convolve(BinnedResponseFunctor(psf),energy,delta,m_radius);
 }
 
-double RadialDisk::diffuseResponse(const ResponseFunctor& fn, double energy,
-				    double separation) const {
+auto RadialDisk::diffuseResponse(const ResponseFunctor& fn, double energy,
+				    double separation) const -> double {
   return convolve(fn,energy,separation,m_radius);
 }
 
-double RadialDisk::getDiffRespLimits(const astro::SkyDir & dir, 
+auto RadialDisk::getDiffRespLimits(const astro::SkyDir & dir, 
 				      double & mumin, double & mumax,
-				      double & phimin, double & phimax) const {
+				      double & phimin, double & phimax) const -> double {
    mumin = std::cos(dir.difference(this->dir()) + 3.*m_radius*M_PI/180.);
    mumax = 1;
    phimin = 0;
@@ -133,14 +133,14 @@ void RadialDisk::update() {
   m_radius = radius;
 }
 
-double RadialDisk::value(const optimizers::Arg & x) const {
+auto RadialDisk::value(const optimizers::Arg & x) const -> double {
    const SkyDirArg & dir = dynamic_cast<const SkyDirArg &>(x);
    double offset = dir().difference(this->dir())*180./M_PI;
    return value(offset,m_radius);
 }
 
-double RadialDisk::derivByParamImp(const optimizers::Arg & x, 
-                                      const std::string & parName) const {
+auto RadialDisk::derivByParamImp(const optimizers::Arg & x, 
+                                      const std::string & parName) const -> double {
 
    std::ostringstream message;
    message << "RadialDisk: cannot take derivative wrt "

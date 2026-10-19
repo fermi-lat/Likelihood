@@ -38,7 +38,7 @@ namespace Likelihood {
     m_epsf = e;
   }
 
-  double OneSourceFunc::value(const optimizers::Arg& ) const {
+  auto OneSourceFunc::value(const optimizers::Arg& ) const -> double {
 
     double val = 0.;
     //    double wtot = 0.;
@@ -62,8 +62,8 @@ namespace Likelihood {
     return foo;
   }
 
-  double OneSourceFunc::derivByParamImp(const optimizers::Arg &, 
-                                        const std::string & paramName) const {
+  auto OneSourceFunc::derivByParamImp(const optimizers::Arg &, 
+                                        const std::string & paramName) const -> double {
 
     double deriv = 0;
     //    double wtot = 0.;
@@ -96,8 +96,8 @@ namespace Likelihood {
     }
   }
 
-  std::vector<double>::const_iterator 
-  OneSourceFunc::setFreeParamValues_(std::vector<double>::const_iterator it) {
+  auto 
+  OneSourceFunc::setFreeParamValues_(std::vector<double>::const_iterator it) -> std::vector<double>::const_iterator {
     syncParams();
     Likelihood::Source::FuncMap srcFuncs = m_src->getSrcFuncs();
     Likelihood::Source::FuncMap::iterator func_it = srcFuncs.begin();
@@ -108,8 +108,8 @@ namespace Likelihood {
     return it;
   }
 
-  std::vector<double>::const_iterator 
-  OneSourceFunc::setParamValues_(std::vector<double>::const_iterator it) {
+  auto 
+  OneSourceFunc::setParamValues_(std::vector<double>::const_iterator it) -> std::vector<double>::const_iterator {
     syncParams();
     Likelihood::Source::FuncMap srcFuncs = m_src->getSrcFuncs();
     Likelihood::Source::FuncMap::iterator func_it = srcFuncs.begin();

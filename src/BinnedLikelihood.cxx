@@ -157,8 +157,8 @@ void BinnedLikelihood::setWeightsMap(const ProjMap* wmap) {
     buildFixedModelWts();
 }
 
-double BinnedLikelihood::value(const optimizers::Arg& dummy,
-                               bool include_priors) const {
+auto BinnedLikelihood::value(const optimizers::Arg& dummy,
+                               bool include_priors) const -> double {
     (void)(dummy);
 
     // Here we want the weighted verison of the nPred
@@ -291,19 +291,19 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg& dummy,
     }
 }
 
-std::vector<double>::const_iterator
-BinnedLikelihood::setParamValues_(std::vector<double>::const_iterator it) {
+auto
+BinnedLikelihood::setParamValues_(std::vector<double>::const_iterator it) -> std::vector<double>::const_iterator {
     m_modelIsCurrent = false;
     return SourceModel::setParamValues_(it);
 }
 
-std::vector<double>::const_iterator
-BinnedLikelihood::setFreeParamValues_(std::vector<double>::const_iterator it) {
+auto
+BinnedLikelihood::setFreeParamValues_(std::vector<double>::const_iterator it) -> std::vector<double>::const_iterator {
     m_modelIsCurrent = false;
     return SourceModel::setFreeParamValues_(it);
 }
 
-CountsMapBase* BinnedLikelihood::createCountsMap() const {
+auto BinnedLikelihood::createCountsMap() const -> CountsMapBase* {
     CountsMapBase* modelMap = m_dataCache.countsMap().clone();
     std::vector<float> map;
     computeModelMap(map);
@@ -349,7 +349,7 @@ void BinnedLikelihood::addSource(Source* src, BinnedLikeConfig* config, bool fro
     }
 }
 
-Source* BinnedLikelihood::deleteSource(const std::string& srcName) {
+auto BinnedLikelihood::deleteSource(const std::string& srcName) -> Source* {
     m_bestValueSoFar = -1e38;
     // Check if this is a fixed source, and if so, remove it from the fixed model.
     std::vector<std::string>::iterator srcIt =
@@ -381,42 +381,42 @@ void BinnedLikelihood::syncSrcParams(const std::string& srcName) {
     m_modelIsCurrent = false;
 }
 
-double BinnedLikelihood::NpredValue(const std::string& srcName, bool weighted) const {
+auto BinnedLikelihood::NpredValue(const std::string& srcName, bool weighted) const -> double {
     // call the other version of NpredValue
     return NpredValue(srcName, sourceMap(srcName), weighted);
 }
 
 // This version forces the recalculation of Npred, whether the source is
 // fixed or not. It is also called from buildFixedModelWts.
-double BinnedLikelihood::NpredValue(const std::string& srcName,
+auto BinnedLikelihood::NpredValue(const std::string& srcName,
                                     SourceMap& sourceMap,
-                                    bool weighted) const {
+                                    bool weighted) const -> double {
     const Source& src = source(srcName);
     return m_srcMapCache.NpredValue(src, sourceMap, m_kmin, m_kmax, weighted);
 }
 
-bool BinnedLikelihood::hasSourceMap(const std::string& name) const {
+auto BinnedLikelihood::hasSourceMap(const std::string& name) const -> bool {
     return m_srcMapCache.hasSourceMap(name);
 }
 
-SourceMap& BinnedLikelihood::sourceMap(const std::string& name) const {
+auto BinnedLikelihood::sourceMap(const std::string& name) const -> SourceMap& {
     const Source& src = source(name);
     SourceMap* srcMap = m_srcMapCache.getSourceMap(src);
     return *srcMap;
 }
 
-SourceMap* BinnedLikelihood::getSourceMap(const std::string& srcName,
-                                          bool verbose) const {
+auto BinnedLikelihood::getSourceMap(const std::string& srcName,
+                                          bool verbose) const -> SourceMap* {
     const Source& src = source(srcName);
     return m_srcMapCache.getSourceMap(src, verbose);
 }
 
-SourceMap* BinnedLikelihood::createSourceMap(const std::string& srcName) {
+auto BinnedLikelihood::createSourceMap(const std::string& srcName) -> SourceMap* {
     Source* src = getSource(srcName);
     return m_srcMapCache.createSourceMap(*src);
 }
 
-SourceMap* BinnedLikelihood::createExternalSourceMap(Source& aSrc) {
+auto BinnedLikelihood::createExternalSourceMap(Source& aSrc) -> SourceMap* {
     return m_srcMapCache.createSourceMap(aSrc);
 }
 
@@ -496,7 +496,7 @@ void BinnedLikelihood::saveSourceMap_partial(const std::string& filename,
     m_srcMapCache.saveSourceMap_partial(filename, source, kmin, kmax, replace);
 }
 
-tip::Extension* BinnedLikelihood::saveTotalFixedSourceMap(bool replace) {
+auto BinnedLikelihood::saveTotalFixedSourceMap(bool replace) -> tip::Extension* {
     // FIXME
 
     std::vector<float> srcMap(source_map_size(), 0.);
@@ -531,7 +531,7 @@ tip::Extension* BinnedLikelihood::saveTotalFixedSourceMap(bool replace) {
     return ext;
 }
 
-double BinnedLikelihood::computeModelMap_internal(bool weighted) const {
+auto BinnedLikelihood::computeModelMap_internal(bool weighted) const -> double {
     using namespace std;
     std::vector<double> modelCounts;
     modelCounts.resize(m_dataCache.nFilled(), 0.);
@@ -633,9 +633,9 @@ void BinnedLikelihood::getNpreds(const std::string& srcName,
     m_srcMapCache.getNpreds(src, npreds);
 }
 
-const std::vector<double>&
+auto
 BinnedLikelihood::modelCountsSpectrum(const std::string& srcName,
-                                      bool weighted) const {
+                                      bool weighted) const -> const std::vector<double>& {
     const Source& src = source(srcName);
     return m_srcMapCache.modelCountsSpectrum(src, weighted);
 }
@@ -729,7 +729,7 @@ void BinnedLikelihood::buildFixedModelWts(bool process_all) {
 
 // new versions
 
-bool BinnedLikelihood::fixedModelUpdated() const {
+auto BinnedLikelihood::fixedModelUpdated() const -> bool {
     // Check if the fixed list has changed.
 
     // Check to see if we have build the m_fixed_counts_spec yet
@@ -932,9 +932,9 @@ void BinnedLikelihood::deleteFixedSource(const std::string& srcName) {
     m_fixedSources.erase(it);
 }
 
-std::vector<double>
+auto
 BinnedLikelihood::countsSpectrum(const std::string& srcName,
-                                 bool use_klims) const {
+                                 bool use_klims) const -> std::vector<double> {
     size_t kmin(0);
     size_t kmax(m_dataCache.num_ebins());
     if (use_klims) {
@@ -965,7 +965,7 @@ BinnedLikelihood::countsSpectrum(const std::string& srcName,
     return counts_spectrum;
 }
 
-int BinnedLikelihood::edisp_val(const std::string& srcname) const {
+auto BinnedLikelihood::edisp_val(const std::string& srcname) const -> int {
     int src_edisp_val = m_config.edisp_val();
     if (src_edisp_val == 0) return src_edisp_val;
     if (srcname != "") {
@@ -982,7 +982,7 @@ int BinnedLikelihood::edisp_val(const std::string& srcname) const {
     return src_edisp_val;
 }
 
-Drm& BinnedLikelihood::drm() {
+auto BinnedLikelihood::drm() -> Drm& {
     if (m_drm == 0) {
         m_drm = new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(),
                         observation(), m_dataCache.countsMap().energies());
@@ -994,11 +994,11 @@ void BinnedLikelihood::initialize_composite(CompositeSource& comp) const {
     comp.buildSourceMapCache(m_dataCache, m_srcMapsFile, m_drm);
 }
 
-tip::Extension* BinnedLikelihood::saveWeightsMap(bool replace) const {
+auto BinnedLikelihood::saveWeightsMap(bool replace) const -> tip::Extension* {
     return m_dataCache.saveWeightsMap(m_srcMapsFile, replace);
 }
 
-double BinnedLikelihood::spectrum(const Source* src, double energy) {
+auto BinnedLikelihood::spectrum(const Source* src, double energy) -> double {
     const optimizers::Function& spectrum(src->spectrum());
     optimizers::dArg eArg(energy);
     return spectrum(eArg);
@@ -1062,8 +1062,8 @@ void BinnedLikelihood::addFixedNpreds(const std::string& srcName,
                              *srcMap, m_dataCache, subtract);
 }
 
-float BinnedLikelihood::npred_explicit(const BinnedLikelihood& like,
-                                       bool weighted) {
+auto BinnedLikelihood::npred_explicit(const BinnedLikelihood& like,
+                                       bool weighted) -> float {
     std::vector<float> model(like.dataCache().data_map_size());
     like.computeModelMap(model);
     float retVal(0.);
@@ -1094,9 +1094,9 @@ float BinnedLikelihood::npred_explicit(const BinnedLikelihood& like,
     return retVal;
 }
 
-float BinnedLikelihood::npred_explicit_src(const BinnedLikelihood& like,
+auto BinnedLikelihood::npred_explicit_src(const BinnedLikelihood& like,
                                            const std::string& srcName,
-                                           bool weighted) {
+                                           bool weighted) -> float {
     std::vector<float> model(like.dataCache().data_map_size());
     like.computeModelMap(srcName, model);
     float retVal(0.);
@@ -1114,8 +1114,8 @@ float BinnedLikelihood::npred_explicit_src(const BinnedLikelihood& like,
     return retVal;
 }
 
-double BinnedLikelihood::nll_explict(const BinnedLikelihood& like,
-                                     bool weighted) {
+auto BinnedLikelihood::nll_explict(const BinnedLikelihood& like,
+                                     bool weighted) -> double {
     std::vector<float> model(like.dataCache().data_map_size());
     like.computeModelMap(model);
     const std::vector<float>& data = like.countsMap().data();

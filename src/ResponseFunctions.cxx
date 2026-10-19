@@ -31,12 +31,12 @@ ResponseFunctions::~ResponseFunctions() {
    }
 }
 
-double ResponseFunctions::totalResponse(double energy, double appEnergy,
+auto ResponseFunctions::totalResponse(double energy, double appEnergy,
                                         const astro::SkyDir & zAxis,
                                         const astro::SkyDir & xAxis,
                                         const astro::SkyDir & srcDir,
                                         const astro::SkyDir & appDir, 
-                                        int type, double time) const {
+                                        int type, double time) const -> double {
    double myResponse;
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
@@ -64,10 +64,10 @@ double ResponseFunctions::totalResponse(double energy, double appEnergy,
    return myResponse;
 }
 
-double ResponseFunctions::totalResponse(double inclination, double phi,
+auto ResponseFunctions::totalResponse(double inclination, double phi,
                                         double energy, double appEnergy,
                                         double separation, int type,
-                                        double time) const {
+                                        double time) const -> double {
    double myResponse;
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
@@ -95,7 +95,7 @@ double ResponseFunctions::totalResponse(double inclination, double phi,
    return myResponse;
 }   
 
-irfInterface::Irfs * ResponseFunctions::respPtr(unsigned int i) const {
+auto ResponseFunctions::respPtr(unsigned int i) const -> irfInterface::Irfs * {
    typedef std::map<unsigned int, irfInterface::Irfs *> IrfMap_t;
    IrfMap_t::const_iterator irfs(m_respPtrs.find(i));
    if (irfs != m_respPtrs.end()) {
@@ -157,7 +157,7 @@ void ResponseFunctions::load(const std::string & respFuncs,
    formatter.info() << std::endl;
 }
 
-irfInterface::IEdisp & ResponseFunctions::edisp(int type) const {
+auto ResponseFunctions::edisp(int type) const -> irfInterface::IEdisp & {
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
@@ -169,7 +169,7 @@ irfInterface::IEdisp & ResponseFunctions::edisp(int type) const {
    return *irfs->edisp();
 }
 
-irfInterface::IPsf & ResponseFunctions::psf(int type) const {
+auto ResponseFunctions::psf(int type) const -> irfInterface::IPsf & {
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
@@ -181,7 +181,7 @@ irfInterface::IPsf & ResponseFunctions::psf(int type) const {
    return *irfs->psf();
 }
 
-irfInterface::IAeff & ResponseFunctions::aeff(int type) const {
+auto ResponseFunctions::aeff(int type) const -> irfInterface::IAeff & {
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
@@ -193,11 +193,11 @@ irfInterface::IAeff & ResponseFunctions::aeff(int type) const {
    return *irfs->aeff();
 }
 
-double ResponseFunctions::edisp(double emeas, double etrue, 
+auto ResponseFunctions::edisp(double emeas, double etrue, 
                                 const astro::SkyDir & appDir,
                                 const astro::SkyDir & zAxis,
                                 const astro::SkyDir & xAxis,
-                                int type, double time) const {
+                                int type, double time) const -> double {
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
@@ -210,9 +210,9 @@ double ResponseFunctions::edisp(double emeas, double etrue,
    return edisp->value(emeas, etrue, appDir, zAxis, xAxis, time);
 }
 
-double ResponseFunctions::edisp(double emeas, double etrue, 
+auto ResponseFunctions::edisp(double emeas, double etrue, 
                                 double theta, double phi, 
-                                int type, double time) const {
+                                int type, double time) const -> double {
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
@@ -225,11 +225,11 @@ double ResponseFunctions::edisp(double emeas, double etrue,
    return edisp->value(emeas, etrue, theta, phi, time);
 }
 
-double ResponseFunctions::aeff(double etrue, 
+auto ResponseFunctions::aeff(double etrue, 
                                const astro::SkyDir & appDir,
                                const astro::SkyDir & zAxis,
                                const astro::SkyDir & xAxis,
-                               int type, double time) const {
+                               int type, double time) const -> double {
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
@@ -242,8 +242,8 @@ double ResponseFunctions::aeff(double etrue,
    return aeff->value(etrue, appDir, zAxis, xAxis, time);
 }
 
-double ResponseFunctions::aeff(double etrue, double theta, double phi,
-                               int type, double time) const {
+auto ResponseFunctions::aeff(double etrue, double theta, double phi,
+                               int type, double time) const -> double {
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;

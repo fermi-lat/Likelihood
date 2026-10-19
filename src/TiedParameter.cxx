@@ -24,7 +24,7 @@ TiedParameter::~TiedParameter() throw() {
    // nothing to delete.
 }
 
-TiedParameter & TiedParameter::operator=(const TiedParameter & rhs) {
+auto TiedParameter::operator=(const TiedParameter & rhs) -> TiedParameter & {
    if (this != &rhs) {
       optimizers::Parameter::operator=(rhs);
       m_pars = rhs.m_pars;
@@ -50,7 +50,7 @@ void TiedParameter::removeParam(LogLike & like, size_t i) {
    }
 }
 
-bool TiedParameter::has_member(const LogLike & like, size_t i) const {
+auto TiedParameter::has_member(const LogLike & like, size_t i) const -> bool {
    for (ParVectorConstIterator_t it = m_pars.begin();
         it != m_pars.end(); ++it) {
       if (it->first == &like && it->second == i) {
@@ -117,8 +117,8 @@ void TiedParameter::setError(double error) {
    }
 }
 
-bool TiedParameter::
-containsIndex(const LogLike & like, size_t par_index) const {
+auto TiedParameter::
+containsIndex(const LogLike & like, size_t par_index) const -> bool {
    ParVectorConstIterator_t it(m_pars.begin());
    for ( ; it != m_pars.end(); ++it) {
       if (it->first == &like && it->second == par_index) {

@@ -84,7 +84,7 @@ void BinnedCountsCache::deleteOriginalWeightMap(){
   m_weightMap_orig = nullptr;
 }
 
-tip::Extension* BinnedCountsCache::saveWeightsMap(const std::string& srcMapsFile, bool replace) const {
+auto BinnedCountsCache::saveWeightsMap(const std::string& srcMapsFile, bool replace) const -> tip::Extension* {
     if (m_weightMap == 0) return 0;
     bool has_weights = FileUtils::fileHasExtension(srcMapsFile, "__weights__");
     if (has_weights) {

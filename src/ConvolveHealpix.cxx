@@ -257,7 +257,7 @@ namespace Likelihood {
       }
     }
 
-    double psfMinPixSize(double energy) {
+    auto psfMinPixSize(double energy) -> double {
       // This is the point beyond which it doesn't really
       // make sense to make smaller pixels
       static double min_angle(0.05*M_PI/180.);

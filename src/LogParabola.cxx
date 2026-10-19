@@ -23,15 +23,15 @@ namespace {
          : m_params(params) {}
 
       /// @return The true value of the parameter
-      double operator[](unsigned int i) {
+      auto operator[](unsigned int i) -> double {
          return m_params[i].getTrueValue();
       }
 
-      unsigned int size() const {
+      auto size() const -> unsigned int {
          return m_params.size();
       }
 
-      const optimizers::Parameter & operator()(unsigned int i) const {
+      auto operator()(unsigned int i) const -> const optimizers::Parameter & {
          return m_params[i];
       }
    private:
@@ -50,7 +50,7 @@ LogParabola(double norm, double alpha, double beta, double Eb)
    addParam("Eb", Eb, true);
 }
 
-double LogParabola::value(const optimizers::Arg & xarg) const {
+auto LogParabola::value(const optimizers::Arg & xarg) const -> double {
    ::Pars pars(m_parameter);
 
    double energy = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
@@ -59,8 +59,8 @@ double LogParabola::value(const optimizers::Arg & xarg) const {
    return my_value;
 }
 
-double LogParabola::derivByParamImp(const optimizers::Arg & xarg,
-                                    const std::string & paramName) const {
+auto LogParabola::derivByParamImp(const optimizers::Arg & xarg,
+                                    const std::string & paramName) const -> double {
    ::Pars pars(m_parameter);
 
    double energy = dynamic_cast<const optimizers::dArg &>(xarg).getValue();

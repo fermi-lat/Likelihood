@@ -61,8 +61,8 @@ namespace Likelihood {
     FitUtils::extractModelFromSource(source,logLike,m_refModel,true);
   }
     
-  int TestSourceModelCache::translateMap(const astro::SkyDir& newRef,
-					 std::vector<float>& out_model) const {
+  auto TestSourceModelCache::translateMap(const astro::SkyDir& newRef,
+					 std::vector<float>& out_model) const -> int {
     
     /*
       if ( m_proj.method() == astro::ProjBase::HEALPIX ) {
@@ -103,7 +103,7 @@ namespace Likelihood {
     delete image;    
   }   
   
-  int TestSourceModelCache::translateMap_Wcs(double dx, double dy, std::vector<float>& out_model) const {
+  auto TestSourceModelCache::translateMap_Wcs(double dx, double dy, std::vector<float>& out_model) const -> int {
 
     // First fill the output map with 1e-9 everywhere
     // We don't use 0 to avoid failed matrix inversions 
@@ -200,9 +200,9 @@ namespace Likelihood {
     }
   }
   
-  const TestSourceModelCache* TestSourceModelCacheVector::buildCache(size_t icomp, 
+  auto TestSourceModelCacheVector::buildCache(size_t icomp, 
 								     const BinnedLikelihood& binnedLike, 
-								     Source& src) {
+								     Source& src) -> const TestSourceModelCache* {
     TestSourceModelCache* to_del = m_vector[icomp];
     if ( to_del != 0 ) {
       m_vector[icomp] = 0;    
@@ -284,7 +284,7 @@ namespace Likelihood {
     }
   }
 
-  int FitScanMVPrior::latchReducedMatrix() {
+  auto FitScanMVPrior::latchReducedMatrix() -> int {
     // FIXME, invert then reduce, or reduce then invert?
     std::vector<int> idx_red;
     
@@ -331,7 +331,7 @@ namespace Likelihood {
   }
 
 
-  int FitScanMVPrior::latchReducedDiagonal() {
+  auto FitScanMVPrior::latchReducedDiagonal() -> int {
     std::vector<int> idx_red;
     
     int idx(0);
@@ -383,16 +383,16 @@ namespace Likelihood {
   }
   
 
-  bool FitScanModelWrapper::extractPriors(const std::vector<std::string>& freeSrcNames,
+  auto FitScanModelWrapper::extractPriors(const std::vector<std::string>& freeSrcNames,
 					  CLHEP::HepVector& centralVals,
 					  CLHEP::HepVector& uncertainties,
-					  std::vector<bool>& parHasPrior) const {
+					  std::vector<bool>& parHasPrior) const -> bool {
     return FitUtils::extractPriors(getMasterComponent(),freeSrcNames,centralVals,uncertainties,parHasPrior);    
   }
 
 
-  bool FitScanModelWrapper::fixed_changed(const std::vector<std::string>& freeSrcNames,
-					  const std::vector<bool>& currentFree) const {
+  auto FitScanModelWrapper::fixed_changed(const std::vector<std::string>& freeSrcNames,
+					  const std::vector<bool>& currentFree) const -> bool {
     const BinnedLikelihood& bl = getMasterComponent();
     size_t idx(0);
     for ( std::vector<std::string>::const_iterator itr = freeSrcNames.begin();
@@ -427,7 +427,7 @@ namespace Likelihood {
     FitUtils::extractSpectralVals(aSrc,m_ref_energies,m_ref_dndes);    
   }
   
-  int FitScanModelWrapper::writeFits_EnergyBins(const std::string& fitsFile) const {
+  auto FitScanModelWrapper::writeFits_EnergyBins(const std::string& fitsFile) const -> int {
     // Open EBOUNDS extension of output PHA1 file. Use an unique_ptr so that the table object
     // will for sure be deleted, even if an exception is thrown.
     std::unique_ptr<tip::Table> output_table(tip::IFileSvc::instance().editTable(fitsFile, "EBOUNDS"));
@@ -451,7 +451,7 @@ namespace Likelihood {
     return 0;
   }
   
-  int FitScanModelWrapper::writeFits_FluxTable(const std::string& fitsFile) const {
+  auto FitScanModelWrapper::writeFits_FluxTable(const std::string& fitsFile) const -> int {
 
     std::unique_ptr<tip::Table> output_table(tip::IFileSvc::instance().editTable(fitsFile, "EBOUNDS"));
 
@@ -511,7 +511,7 @@ namespace Likelihood {
     m_binnedLike.setVerbose(false);
   }
 
-  const std::vector<float>& FitScanModelWrapper_Binned::data() const {
+  auto FitScanModelWrapper_Binned::data() const -> const std::vector<float>& {
     return m_binnedLike.countsMap().data();
   }
   
@@ -533,7 +533,7 @@ namespace Likelihood {
     FitUtils::extractModels(m_binnedLike,test_name,freeSrcNames,templates,fixed,test_source_model,refPars,weights,useUnitRefVals);
   }
   
-  double FitScanModelWrapper_Binned::value() const {
+  auto FitScanModelWrapper_Binned::value() const -> double {
     return m_binnedLike.value();
   }
 
@@ -557,18 +557,18 @@ namespace Likelihood {
     delete delSrc;
   } 
   
-  int FitScanModelWrapper_Binned::writeFits_GTIs(const std::string& fitsFile) const {
+  auto FitScanModelWrapper_Binned::writeFits_GTIs(const std::string& fitsFile) const -> int {
     m_binnedLike.countsMap().writeGti(fitsFile);
     return 0;
   }
 
-  const std::vector<double>& FitScanModelWrapper_Binned::energies() const {
+  auto FitScanModelWrapper_Binned::energies() const -> const std::vector<double>& {
     return m_binnedLike.energies();
   }
 
-  int FitScanModelWrapper_Binned::shiftTestSource(const TestSourceModelCacheVector& modelCaches,
+  auto FitScanModelWrapper_Binned::shiftTestSource(const TestSourceModelCacheVector& modelCaches,
 						  const astro::SkyDir& newDir,
-						  std::vector<float>& targetModel) const {
+						  std::vector<float>& targetModel) const -> int {
     if ( modelCaches.size() != 1 ) {
       throw std::runtime_error("FitScanModelWrapper_Binned should only have a single modelCache");
       return -1;
@@ -582,10 +582,10 @@ namespace Likelihood {
   }
   
 
-  double FitScanModelWrapper_Summed::findMinAndMatches(const std::vector< const std::vector<double>* >& energyBins,
+  auto FitScanModelWrapper_Summed::findMinAndMatches(const std::vector< const std::vector<double>* >& energyBins,
 						       std::vector<size_t>& localIdx,
 						       std::vector<int>& matches,
-						       float tol) {
+						       float tol) -> double {
     // First find the vector with the lowest current value;
     int best_idx(-1);
     double lowestValue(1.0e32);
@@ -831,7 +831,7 @@ namespace Likelihood {
     }
   }
 
-  double FitScanModelWrapper_Summed::value() const {
+  auto FitScanModelWrapper_Summed::value() const -> double {
     return m_summedLike.value();
   }
 
@@ -863,23 +863,23 @@ namespace Likelihood {
     }
   }
 
-  int FitScanModelWrapper_Summed::writeFits_GTIs(const std::string& fitsFile) const {
+  auto FitScanModelWrapper_Summed::writeFits_GTIs(const std::string& fitsFile) const -> int {
     m_master->countsMap().writeGti(fitsFile);
     return 0;
   } 
 
-  const size_t FitScanModelWrapper_Summed::numComponents() const {
+  auto FitScanModelWrapper_Summed::numComponents() const -> const size_t {
     return m_summedLike.numComponents();
   }
   
-  const BinnedLikelihood* FitScanModelWrapper_Summed::getComponent(size_t idx) const {
+  auto FitScanModelWrapper_Summed::getComponent(size_t idx) const -> const BinnedLikelihood* {
     return dynamic_cast<const BinnedLikelihood*>(m_summedLike.getComponent(idx));
   }
 
   
-  int FitScanModelWrapper_Summed::shiftTestSource(const TestSourceModelCacheVector& modelCaches,
+  auto FitScanModelWrapper_Summed::shiftTestSource(const TestSourceModelCacheVector& modelCaches,
 						  const astro::SkyDir& newDir,
-						  std::vector<float>& targetModel) const {
+						  std::vector<float>& targetModel) const -> int {
     if ( modelCaches.size() != m_summedLike.numComponents() ) {
       throw std::runtime_error("FitScanModelWrapper_Summed number of modelCaches should equal number of Likelihood components");
       return -1;
@@ -994,10 +994,10 @@ namespace Likelihood {
     m_snapshot->latch_model(m_modelWrapper.getMasterComponent(),true);
   }
 
-  unsigned FitScanCache::find_action_needed(std::vector<std::string>& changed_latched, 
+  auto FitScanCache::find_action_needed(std::vector<std::string>& changed_latched, 
 					    std::vector<std::string>& changed_unlatched,
 					    std::vector<std::string>& new_free, 
-					    std::vector<std::string>& new_fixed) const {
+					    std::vector<std::string>& new_fixed) const -> unsigned {
     Snapshot_Status latched_status;
     Snapshot_Status unlatched_status;
     m_snapshot->compare_latched(m_modelWrapper.getMasterComponent(),m_templateSourceNames,
@@ -1195,8 +1195,8 @@ namespace Likelihood {
     addTestSourceToCurrent(0.0);
   } 
   
-  int FitScanCache::shiftTestSource(const TestSourceModelCacheVector& modelCaches,
-				    const astro::SkyDir& newDir) {
+  auto FitScanCache::shiftTestSource(const TestSourceModelCacheVector& modelCaches,
+				    const astro::SkyDir& newDir) -> int {
     // First remove the current version of the source
     removeTestSourceFromCurrent();
     
@@ -1331,7 +1331,7 @@ namespace Likelihood {
   }
   
 
-  int FitScanCache::fitCurrent(Prior_Version whichPrior, int verbose) {
+  auto FitScanCache::fitCurrent(Prior_Version whichPrior, int verbose) -> int {
     // This just passes the cached data along to the FitUtils function
     // and latches the output into the internal cache
 
@@ -1360,8 +1360,8 @@ namespace Likelihood {
   
   
   /* Calculate the log-likelihood for the currently cached values */
-  int FitScanCache::calculateLoglikeCurrent(double& logLike,
-					    Prior_Version whichPrior) {
+  auto FitScanCache::calculateLoglikeCurrent(double& logLike,
+					    Prior_Version whichPrior) -> int {
 
     FitUtils::sumModel(m_currentPars,m_currentModels,m_currentFixed,m_currentBestModel,
 		       m_firstBin,m_lastBin);
@@ -1435,10 +1435,10 @@ namespace Likelihood {
   }
 
 
-  int FitScanCache::scanNormalization(int nnorm, double normSigma,
+  auto FitScanCache::scanNormalization(int nnorm, double normSigma,
 				      double posErr, double negErr,
 				      std::vector<double>& norms,				      
-				      std::vector<double>& logLikes) {
+				      std::vector<double>& logLikes) -> int {
     
     // If there is no current test source we can't scan its normalization
     if ( m_currentTestSourceIndex < 0 ) {
@@ -1539,9 +1539,9 @@ namespace Likelihood {
     return 0;
   }  
   
-  int FitScanCache::signalUncertainty_quad(double deltaLogLike,
+  auto FitScanCache::signalUncertainty_quad(double deltaLogLike,
 					   double& posErr,
-					   double& negErr) {
+					   double& negErr) -> int {
     // If there is no current test source we can't return its errors
     if ( m_currentTestSourceIndex < 0 ) {
       posErr = -1.;
@@ -1576,7 +1576,7 @@ namespace Likelihood {
   }
 
 
-  int FitScanCache::getTemplateIndex(const std::string& srcName) const {
+  auto FitScanCache::getTemplateIndex(const std::string& srcName) const -> int {
     int retVal(0);
     for ( std::vector<std::string>::const_iterator itrFind = m_templateSourceNames.begin();
 	  itrFind != m_templateSourceNames.end(); itrFind++, retVal++ ) {
@@ -1586,7 +1586,7 @@ namespace Likelihood {
   }
 
 
-  int FitScanCache::updateTemplateForSource(const std::string& srcName) {
+  auto FitScanCache::updateTemplateForSource(const std::string& srcName) -> int {
     int srcIdx = update_template_for_source(srcName);
     setCache();
     refactor_from_model();
@@ -1594,7 +1594,7 @@ namespace Likelihood {
   }
 
 
-  int FitScanCache::update_template_for_source(const std::string& srcName) {
+  auto FitScanCache::update_template_for_source(const std::string& srcName) -> int {
     int srcIdx = getTemplateIndex(srcName);
     if ( srcIdx < 0 ) {
       throw std::runtime_error("FitScanCache::update_template_for_source called for source that does not have a template.");
@@ -1613,8 +1613,8 @@ namespace Likelihood {
   }
 
 
-  const FitScanMVPrior* FitScanCache::getPrior(Prior_Version whichPrior, 
-					       bool include_test_source) const {
+  auto FitScanCache::getPrior(Prior_Version whichPrior, 
+					       bool include_test_source) const -> const FitScanMVPrior* {
     const FitScanMVPrior* prior(0);
     switch ( whichPrior ) {
     case Full_Prior:
@@ -1925,7 +1925,7 @@ namespace Likelihood {
     m_snapshot = 0;
   }
    
-  evtbin::Binner* FitScanner::buildEnergyBinner(const std::vector<double>& energies) {
+  auto FitScanner::buildEnergyBinner(const std::vector<double>& energies) -> evtbin::Binner* {
     std::vector<evtbin::Binner::Interval> energy_intervals;
     for (unsigned int i = 0; i < energies.size()-1; i++) {
       energy_intervals.push_back(evtbin::Binner::Interval(energies[i], 
@@ -1936,10 +1936,10 @@ namespace Likelihood {
     return binner;
   }
   
-  astro::SkyProj* FitScanner::buildSkyProj(const std::string &projName,
+  auto FitScanner::buildSkyProj(const std::string &projName,
 					   const astro::SkyDir& dir,
 					   double pixSize,
-					   int nPix, bool galactic) {
+					   int nPix, bool galactic) -> astro::SkyProj* {
     double crpix[] = {nPix/2. + 0.5, nPix/2. + 0.5};
     double xref = galactic ? dir.l() : dir.ra();
     double yref = galactic ? dir.b() : dir.dec();
@@ -2119,11 +2119,11 @@ namespace Likelihood {
   /* Build a TS map.
      This scans over the directions and calculates the Test Statistics w.r.t. the null 
      hypothesis for each */  
-  int FitScanner::run_tsmap(double covScale_bb,
+  auto FitScanner::run_tsmap(double covScale_bb,
 			    double tol, int tolType, 
 			    int maxIter, bool remakeTestSource,
 			    int ST_scan_level, std::string src_model_out,
-			    double initLambda, bool useWeights) {
+			    double initLambda, bool useWeights) -> int {
     return run_tscube(true,false,0,0.0,
 		      covScale_bb,-1.0,
 		      tol,tolType,maxIter,remakeTestSource,ST_scan_level,src_model_out,
@@ -2133,12 +2133,12 @@ namespace Likelihood {
   /* Build an SED.
      This calculates the spectrum as a function of energy
      and can also scan over the normalization. */
-  int FitScanner::run_SED(int nNorm, double normSigma, 
+  auto FitScanner::run_SED(int nNorm, double normSigma, 
 			  double covScale_bb, double covScale,
 			  double tol, int maxIter, int tolType, 
 			  bool remakeTestSource,
 			  int ST_scan_level,std::string src_model_out,
-			  double initLambda, bool useWeights) {
+			  double initLambda, bool useWeights) -> int {
     return run_tscube(false,true,nNorm,normSigma,
 		      covScale_bb,covScale,
 		      tol,maxIter,tolType,remakeTestSource,
@@ -2150,14 +2150,14 @@ namespace Likelihood {
      For each point in a TS Map this also calculate the spectrum as a function of energy
      and can also scan over the normalization
   */  
-  int FitScanner::run_tscube(bool doTSMap, bool doSED, int nNorm, double normSigma, 
+  auto FitScanner::run_tscube(bool doTSMap, bool doSED, int nNorm, double normSigma, 
 			     double covScale_bb, double covScale,
 			     double tol, int maxIter, int tolType, 
 			     bool remakeTestSource,
 			     int ST_scan_level,
 			     std::string src_model_out,
 			     double initLambda, 
-			     bool useWeights) {
+			     bool useWeights) -> int {
 
     if ( ! m_quiet ) {
       if ( doSED ) {
@@ -2596,11 +2596,11 @@ namespace Likelihood {
 
 
   /* Write the stored data to a FITS file */
-  int FitScanner::writeFitsFile(const std::string& fitsFile,
+  auto FitScanner::writeFitsFile(const std::string& fitsFile,
 				const std::string& creator,
 				std::string fits_template,
 				bool copyGTIs,
-				int writeMask) const {
+				int writeMask) const -> int {
 
     int status(0);
 
@@ -2704,7 +2704,7 @@ namespace Likelihood {
   }
   
   // The number of pixels we are scanning over
-  int FitScanner::nPixels() const {
+  auto FitScanner::nPixels() const -> int {
     int retVal(1);
     retVal *= m_dir1_binner->getNumBins();
     // HEALPix only uses a single index
@@ -2715,18 +2715,18 @@ namespace Likelihood {
   }
   
   // The number of energy bins we are scanning over
-  int FitScanner::nEBins() const {
+  auto FitScanner::nEBins() const -> int {
     return m_energy_binner ? m_energy_binner->getNumBins() : 0;
   }
   
   // The number of normalization values we are scanning over
-  int FitScanner::nNorms() const {
+  auto FitScanner::nNorms() const -> int {
     return m_norm_binner ? m_norm_binner->getNumBins() : 0;
   }  
   
   /* Use a powerlaw point source */ 
-  int FitScanner::setPowerlawPointTestSource(optimizers::FunctionFactory& factory, 					     
-					     double index) {
+  auto FitScanner::setPowerlawPointTestSource(optimizers::FunctionFactory& factory, 					     
+					     double index) -> int {
 
     std::map<std::string, Source *>::const_iterator itrFind = 
       m_modelWrapper->getMasterComponent().sources().find(m_testSourceName);
@@ -2777,7 +2777,7 @@ namespace Likelihood {
   }
 
   /* Use a source with a premade spectrum */ 
-  int FitScanner::setPointTestSource(optimizers::Function& spectrum) {
+  auto FitScanner::setPointTestSource(optimizers::Function& spectrum) -> int {
     
     double pix_x(0.); 
     double pix_y(0.);
@@ -2807,8 +2807,8 @@ namespace Likelihood {
 
 
   /* Use a source from the model */
-  int FitScanner::setTestSourceByName(const std::string& sourceName,
-				      bool shiftToPixelCenter) {
+  auto FitScanner::setTestSourceByName(const std::string& sourceName,
+				      bool shiftToPixelCenter) -> int {
     
     // Protect against the case that the sourceName is the same as the m_testSourceName
     std::map<std::string, Source *>::const_iterator itrFind;
@@ -2866,7 +2866,7 @@ namespace Likelihood {
 
 
   /* Use a generic source */
-  int FitScanner::setTestSource(Source& source, bool owned) {
+  auto FitScanner::setTestSource(Source& source, bool owned) -> int {
 
     // Protect against the case that the sourceName is the same as the m_testSourceName
     std::map<std::string, Source *>::const_iterator itrFind;
@@ -2899,7 +2899,7 @@ namespace Likelihood {
  
 
   /* This adds the test source to the source model */
-  int FitScanner::addTestSourceToModel() {
+  auto FitScanner::addTestSourceToModel() -> int {
     removeTestSourceFromModel();
 
     if ( ! m_testSource->isMoveable() ) {
@@ -2924,7 +2924,7 @@ namespace Likelihood {
   }
 
   /* Set the direction of the test source, based on the loop parameters */
-  int FitScanner::setTestSourceDir(int ix, int iy) {
+  auto FitScanner::setTestSourceDir(int ix, int iy) -> int {
     // No projection means we are not looping over direction
     if ( m_proj == 0 ) { 
       if ( ix != 0 ||
@@ -2954,7 +2954,7 @@ namespace Likelihood {
 
   /* This does the baseline fit
      i.e., the fit without the test source */
-  int FitScanner::baselineFit(double tol, int tolType) {
+  auto FitScanner::baselineFit(double tol, int tolType) -> int {
     int status = m_opt->find_min(false,tol,tolType);
     // FIXME, we should save the fit here, and come back to it
     // m_logLike->saveCurrentFit();
@@ -2964,7 +2964,7 @@ namespace Likelihood {
 
   /* This does the baseline fit with Newton's Method,
      for the normalization parameters only */
-  int FitScanner::baselineFit_Newton(double tol,int maxIter,double initLambda) {
+  auto FitScanner::baselineFit_Newton(double tol,int maxIter,double initLambda) -> int {
     static const bool useReduced(true);
     if ( m_cache == 0 ) {
       // Build the cache
@@ -2982,7 +2982,7 @@ namespace Likelihood {
 
   /* This does the broadband fit
      i.e., the fit with the source across the entire energy range */  
-  int FitScanner::fitTestSourceBroadband(double tol, int tolType) {
+  auto FitScanner::fitTestSourceBroadband(double tol, int tolType) -> int {
     // Just pass it along to the optimizer
     int status = m_opt->find_min_only(false,tol,tolType); 
     return status;
@@ -2991,7 +2991,7 @@ namespace Likelihood {
 
   /* This does the sed fitting with Newton's method,                                                       
      for the normalization paramters only */  
-  int FitScanner::sed_binned_newton(int nnorm, double normSigma, 
+  auto FitScanner::sed_binned_newton(int nnorm, double normSigma, 
 				    double constrainScale,
 				    std::vector<double>& norm_mles,
 				    std::vector<double>& pos_errs,
@@ -3000,7 +3000,7 @@ namespace Likelihood {
 				    std::vector<double>& uls,
 				    std::vector<int>& sed_fit_status,
 				    std::vector<std::vector<double> >& norms,
-				    std::vector<std::vector<double> >& logLikes) {
+				    std::vector<std::vector<double> >& logLikes) -> int {
 
 
     static const bool redoFailedVerbose(false);
@@ -3090,7 +3090,7 @@ namespace Likelihood {
   } 
 
   /* Build and cache an image of the test source */
-  int FitScanner::buildTestModelCache() {
+  auto FitScanner::buildTestModelCache() -> int {
     if ( m_testSource == 0 ) {
       throw std::runtime_error("FitScanner needs a test source to build a test source cache.");
       return -1;
@@ -3118,10 +3118,10 @@ namespace Likelihood {
   }
 
   /* Build an n-dimensional histogram based on the loop parameters */
-  HistND* FitScanner::buildHist(const std::string& name, 
+  auto FitScanner::buildHist(const std::string& name, 
 				bool do_pix,
 				bool do_energy,
-				bool do_norm) {
+				bool do_norm) -> HistND* {
 
     // We use this to keep track of the axes of the histograms by name
     std::string dimString;
@@ -3162,9 +3162,9 @@ namespace Likelihood {
   }
 
   /* Write a histogram as a FITS image */
-  int FitScanner::writeFitsImage(const std::string& fitsFile,
+  auto FitScanner::writeFitsImage(const std::string& fitsFile,
 				 const std::string& extName,
-				 const HistND& hist) const {
+				 const HistND& hist) const -> int {
     
     // Get the image axes
     long nxbins = m_dir1_binner->getNumBins();
@@ -3233,9 +3233,9 @@ namespace Likelihood {
   
 
   /* Write a histogram as a FITS table */
-  int FitScanner::writeFitsTable_byPixel(const std::string& fitsFile,
+  auto FitScanner::writeFitsTable_byPixel(const std::string& fitsFile,
 					 const std::string& extName,
-					 const std::vector<std::pair<std::string,std::pair<HistND*,std::string> > >& colData) const {
+					 const std::vector<std::pair<std::string,std::pair<HistND*,std::string> > >& colData) const -> int {
 
 
     // We need to know the size of the table
@@ -3293,7 +3293,7 @@ namespace Likelihood {
   }
 
   /* write the energy bins */
-  int FitScanner::writeFits_EnergyBins(const std::string& fitsFile) const {
+  auto FitScanner::writeFits_EnergyBins(const std::string& fitsFile) const -> int {
     if ( m_energy_binner == 0 ) {
       return 0;
     }
@@ -3301,12 +3301,12 @@ namespace Likelihood {
   }
 
   /* write the Good time intervals */
-  int FitScanner::writeFits_GTIs(const std::string& fitsFile) const {  
+  auto FitScanner::writeFits_GTIs(const std::string& fitsFile) const -> int {  
     return m_modelWrapper->writeFits_GTIs(fitsFile);
   }
 
   /* write the baseline fit info */
-  int FitScanner::writeFits_Baseline(const std::string& fitsFile) const {
+  auto FitScanner::writeFits_Baseline(const std::string& fitsFile) const -> int {
     // Protect against Matt Wood being clever.
     if ( m_baselinePars.num_row() == 0 ) {
       return 0;
@@ -3359,11 +3359,11 @@ namespace Likelihood {
 
 
   /* Convert the dimension string to the format expected by FITS */
-  bool FitScanner::convertDimString(const std::string& inString,
+  auto FitScanner::convertDimString(const std::string& inString,
 				    std::string& outString, 
 				    bool do_pix,
 				    bool do_energy,
-				    bool do_norm) const {
+				    bool do_norm) const -> bool {
     std::vector<std::string> tokens;
     outString.clear();
     static const std::string delims(":");

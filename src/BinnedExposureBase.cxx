@@ -36,8 +36,8 @@
 namespace Likelihood {
 
 
-std::vector<double>::const_iterator
-BinnedExposureBase::findNearest(const std::vector<double> & xx, double x, double tol) {
+auto
+BinnedExposureBase::findNearest(const std::vector<double> & xx, double x, double tol) -> std::vector<double>::const_iterator {
   std::vector<double>::const_iterator ix = std::find(xx.begin(),
 						     xx.end(), x);
   if (ix == xx.end()) { // no exact match, so look for nearest                                                       
@@ -116,7 +116,7 @@ void BinnedExposureBase::setCosThetaBounds(const st_app::AppParGroup & pars) {
    }
 }
 
-double BinnedExposureBase::Aeff::value(double cosTheta, double phi) const {
+auto BinnedExposureBase::Aeff::value(double cosTheta, double phi) const -> double {
    if (cosTheta < m_costhmin || cosTheta > m_costhmax) {
       return 0;
    }

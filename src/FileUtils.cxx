@@ -45,8 +45,8 @@ namespace Likelihood {
       filepath = facilities::commonUtilities::joinPath(data_dir,basename);      
     }
 
-    bool fileHasExtension(const std::string& filename, 
-			  const std::string& extension) {
+    auto fileHasExtension(const std::string& filename, 
+			  const std::string& extension) -> bool {
       try {
 	std::unique_ptr<const tip::Extension> ext(tip::IFileSvc::instance().readExtension(filename,extension));
       } catch (tip::TipException &) {
@@ -73,10 +73,10 @@ namespace Likelihood {
       energies.back() = emax / 1000.;
     }
 
-    int read_fits_image_to_float_vector(const std::string& filename, 
+    auto read_fits_image_to_float_vector(const std::string& filename, 
 					const std::string& extension ,
 					std::vector<float>& vect,
-					int& nEvals) {
+					int& nEvals) -> int {
       std::unique_ptr<const tip::Image>
 	image(tip::IFileSvc::instance().readImage(filename,extension));
       const tip::Header& header = image->getHeader();
@@ -86,10 +86,10 @@ namespace Likelihood {
       return 0;
     }
     
-    int read_healpix_table_to_float_vector(const std::string& filename, 
+    auto read_healpix_table_to_float_vector(const std::string& filename, 
 					   const std::string& extension,
 					   std::vector<float>& vect,
-					   int& nEvals) {
+					   int& nEvals) -> int {
       std::unique_ptr<const tip::Table> 
 	table(tip::IFileSvc::instance().readTable(filename,extension));
       
@@ -125,11 +125,11 @@ namespace Likelihood {
       return 0;
     }
 
-    int read_healpix_table_to_sparse_vector(const std::string& filename, 
+    auto read_healpix_table_to_sparse_vector(const std::string& filename, 
 					    const std::string& extension,
 					    size_t npix, 
 					    SparseVector<float>& vect,
-					    int& nEvals) {
+					    int& nEvals) -> int {
       vect.clear_data();
       std::unique_ptr<const tip::Table> 
 	table(tip::IFileSvc::instance().readTable(filename,extension));
@@ -188,8 +188,8 @@ namespace Likelihood {
     }
 
 
-    SrcMapType get_src_map_type(const std::string& filename, 
-				const std::string& extension) {
+    auto get_src_map_type(const std::string& filename, 
+				const std::string& extension) -> SrcMapType {
 
       try {
 	std::unique_ptr<const tip::Image>
@@ -237,9 +237,9 @@ namespace Likelihood {
       return FileUtils::Unknown;
     }
 
-    tip::Extension* replace_energies(const std::string& filename, 
+    auto replace_energies(const std::string& filename, 
 				     const std::string& extension,
-				     const std::vector<double>& energies) {
+				     const std::vector<double>& energies) -> tip::Extension* {
       
       tip::Table* table = tip::IFileSvc::instance().editTable(filename, extension);
       
@@ -342,12 +342,12 @@ namespace Likelihood {
       //std::cout << '!' << std::endl;    
     }
 
-    tip::Extension* replace_image_from_float_vector(const std::string& filename, 
+    auto replace_image_from_float_vector(const std::string& filename, 
 						    const std::string& extension,
 						    const CountsMapBase& dataMap,
 						    const std::vector<float>& imageData,
 						    bool is_src_map, 
-						    int kmin, int kmax) {
+						    int kmin, int kmax) -> tip::Extension* {
       tip::Extension* ptr(0);
       switch ( dataMap.projection().method() ) {
       case astro::ProjBase::WCS:
@@ -369,12 +369,12 @@ namespace Likelihood {
       return ptr;
     }
     
-    tip::Extension* replace_image_from_float_vector_wcs(const std::string& filename, 
+    auto replace_image_from_float_vector_wcs(const std::string& filename, 
 							const std::string& extension,
 							const CountsMap& dataMap,
 							const std::vector<float>& imageData,
 							bool is_src_map, 
-							int kmin, int kmax) {
+							int kmin, int kmax) -> tip::Extension* {
       tip::Image* image = tip::IFileSvc::instance().editImage(filename, extension);  
       long nEBins_data = is_src_map ? dataMap.num_energies() : dataMap.num_ebins();
       kmax = kmax < 0 ? nEBins_data : kmax;
@@ -396,12 +396,12 @@ namespace Likelihood {
       return image;
     }
 
-    tip::Extension* replace_image_from_float_vector_healpix(const std::string& filename, 
+    auto replace_image_from_float_vector_healpix(const std::string& filename, 
 							    const std::string& extension,
 							    const CountsMapHealpix& dataMap,
 							    const std::vector<float>& imageData,
 							    bool is_src_map, 
-							    int kmin, int kmax) {
+							    int kmin, int kmax) -> tip::Extension* {
       tip::Table* table =tip::IFileSvc::instance().editTable(filename, extension);
       tip::Header& header = table->getHeader();
       dataMap.setKeywords(header);
@@ -460,12 +460,12 @@ namespace Likelihood {
     }
 
 
-    tip::Extension* replace_image_from_sparse_vector_healpix(const std::string& filename, 
+    auto replace_image_from_sparse_vector_healpix(const std::string& filename, 
 							     const std::string& extension,
 							     const CountsMapHealpix& dataMap,
 							     const SparseVector<float>& imageData,
 							     bool is_src_map, 
-							     int kmin, int kmax) {
+							     int kmin, int kmax) -> tip::Extension* {
       
       tip::Table* table = tip::IFileSvc::instance().editTable(filename, extension);
       tip::Header& header = table->getHeader();
@@ -546,12 +546,12 @@ namespace Likelihood {
       return table;
     }
 
-    tip::Extension* append_image_from_float_vector(const std::string& filename, 
+    auto append_image_from_float_vector(const std::string& filename, 
 						   const std::string& extension,
 						   const CountsMapBase& dataMap,
 						   const std::vector<float>& imageData,
 						   bool is_src_map, 
-						   int kmin, int kmax) {
+						   int kmin, int kmax) -> tip::Extension* {
       tip::Extension* ptr(0);
       switch ( dataMap.projection().method() ) {
       case astro::ProjBase::WCS:
@@ -573,12 +573,12 @@ namespace Likelihood {
       return ptr;
     }
     
-    tip::Extension* append_image_from_float_vector_wcs(const std::string& filename, 
+    auto append_image_from_float_vector_wcs(const std::string& filename, 
 						       const std::string& extension,
 						       const CountsMap& dataMap,
 						       const std::vector<float>& imageData,
 						       bool is_src_map, 
-						       int kmin, int kmax) {
+						       int kmin, int kmax) -> tip::Extension* {
       std::vector<long> naxes;
       naxes.push_back(dataMap.imageDimension(0));
       naxes.push_back(dataMap.imageDimension(1));
@@ -591,23 +591,23 @@ namespace Likelihood {
       return FileUtils::replace_image_from_float_vector_wcs(filename, extension,dataMap,imageData,is_src_map,kmin,kmax);
     }
 
-    tip::Extension* append_image_from_float_vector_healpix(const std::string& filename, 
+    auto append_image_from_float_vector_healpix(const std::string& filename, 
 							   const std::string& extension,
 							   const CountsMapHealpix& dataMap,
 							   const std::vector<float>& imageData,
 							   bool is_src_map, 
-							   int kmin, int kmax) {
+							   int kmin, int kmax) -> tip::Extension* {
       tip::IFileSvc::instance().appendTable(filename,extension);
       return FileUtils::replace_image_from_float_vector_healpix(filename,extension,
 								dataMap,imageData,is_src_map,kmin,kmax);
     }
 
-    tip::Extension* append_image_from_sparse_vector_healpix(const std::string& filename, 
+    auto append_image_from_sparse_vector_healpix(const std::string& filename, 
 							    const std::string& extension,
 							    const CountsMapHealpix& dataMap,
 							    const SparseVector<float>& imageData,
 							    bool is_src_map, 
-							    int kmin, int kmax) {
+							    int kmin, int kmax) -> tip::Extension* {
       /* Add the table by hand to avoid lots of overhead from tip */
       // This causes memory corruption, so lets' not use it
       // append_table_only(filename,extension);
@@ -634,9 +634,9 @@ namespace Likelihood {
     }
 
     /* Write parameters to a tip::Table */
-    tip::Extension* write_model_parameters_to_table(const std::string& filename,
+    auto write_model_parameters_to_table(const std::string& filename,
 						    const std::string& extension,
-						    const std::vector<const Source*>& sources) {
+						    const std::vector<const Source*>& sources) -> tip::Extension* {
 
       tip::IFileSvc::instance().appendTable(filename,extension);
       tip::Table* table = tip::IFileSvc::instance().editTable(filename, extension);
@@ -724,9 +724,9 @@ namespace Likelihood {
       par_free_col.set(irec,param.isFree());
     }
 
-    tip::IColumn& append_column(tip::Table& table,
+    auto append_column(tip::Table& table,
 				const std::string& colName,
-				const std::string& colFormat) {
+				const std::string& colFormat) -> tip::IColumn& {
       table.appendField(colName,colFormat);
       tip::FieldIndex_t field = table.getFieldIndex(colName);
       tip::IColumn* col = table.getColumn(field);
@@ -734,8 +734,8 @@ namespace Likelihood {
     }
 
     /* Append a column to a FITs table */
-    const tip::IColumn& get_column(const tip::Table& table,
-				   const std::string& colName) {
+    auto get_column(const tip::Table& table,
+				   const std::string& colName) -> const tip::IColumn& {
       tip::FieldIndex_t field = table.getFieldIndex(colName);
       const tip::IColumn* col = table.getColumn(field);
       return *col;
@@ -784,9 +784,9 @@ namespace Likelihood {
     }
   
 
-    tip::Extension* write_drm_to_table(const std::string& file_name,
+    auto write_drm_to_table(const std::string& file_name,
 				       const std::string& table_name,
-				       const Drm& drm) {
+				       const Drm& drm) -> tip::Extension* {
 
       const std::vector<double>& energies = drm.full_energies();
       long true_num_elem = drm.ntrue();
@@ -840,8 +840,8 @@ namespace Likelihood {
       return drm_table;
     }
 
-    Drm* read_drm_from_table(const std::string& file_name,
-			     const std::string& table_name) {
+    auto read_drm_from_table(const std::string& file_name,
+			     const std::string& table_name) -> Drm* {
 
       std::unique_ptr<const tip::Table> 
 	table(tip::IFileSvc::instance().readTable(file_name,table_name));

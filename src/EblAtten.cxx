@@ -34,7 +34,7 @@ EblAtten::EblAtten(const optimizers::Function & spectrum,
    init(tau_norm, redshift, ebl_model);
 }
 
-optimizers::Function * EblAtten::clone() const {
+auto EblAtten::clone() const -> optimizers::Function * {
   // First make sure the underlying spectrum has the same state as this
   for (size_t i(0); i < m_spectrum->getNumParams(); i++) {
     const optimizers::Parameter& param =  m_parameter.at(i);
@@ -81,7 +81,7 @@ EblAtten::EblAtten(const EblAtten & other)
    setParRefs();
 }
 
-EblAtten & EblAtten::operator=(const EblAtten & rhs) {
+auto EblAtten::operator=(const EblAtten & rhs) -> EblAtten & {
    if (this != &rhs) {
       delete m_spectrum;
       delete m_tau;
@@ -100,13 +100,13 @@ EblAtten::~EblAtten() throw() {
    }
 }
 
-double EblAtten::value(const optimizers::Arg & xarg) const {
+auto EblAtten::value(const optimizers::Arg & xarg) const -> double {
    double energy = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    return m_spectrum->operator()(xarg)*attenuation(energy);
 }
 
-double EblAtten::derivByParamImp(const optimizers::Arg & xarg,
-                                 const std::string & paramName) const {
+auto EblAtten::derivByParamImp(const optimizers::Arg & xarg,
+                                 const std::string & paramName) const -> double {
    double energy(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
@@ -148,7 +148,7 @@ void EblAtten::setParam(const optimizers::Parameter & param) {
    my_par.setError(param.error());
 }
 
-double EblAtten::attenuation(double energy) const {
+auto EblAtten::attenuation(double energy) const -> double {
    int tau_norm(m_spectrum->getNumParams());
    int redshift(tau_norm + 1);
    int ebl_model(redshift + 1);

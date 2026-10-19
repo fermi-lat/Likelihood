@@ -50,7 +50,7 @@ namespace Likelihood {
     delete m_srcMapCache;
   }
 
-  Source * CompositeSource::clone() const {
+  auto CompositeSource::clone() const -> Source * {
     return new CompositeSource(*this);
   }
 
@@ -69,8 +69,8 @@ namespace Likelihood {
   }
         
 
-  Source* CompositeSource::deleteSource(const std::string &srcName,
-					SourceMap*& srcMap) {
+  auto CompositeSource::deleteSource(const std::string &srcName,
+					SourceMap*& srcMap) -> Source* {
     srcMap = 0;
     if ( m_srcMapCache != 0 && m_srcMapCache->hasSourceMap(srcName) ) {
       srcMap = m_srcMapCache->removeSourceMap(srcName);
@@ -85,8 +85,8 @@ namespace Likelihood {
     m_srcMapCache = 0;
   }
 
-  double CompositeSource::fluxDensity(const Event & evt, 
-				      CachedResponse* cResp) const {
+  auto CompositeSource::fluxDensity(const Event & evt, 
+				      CachedResponse* cResp) const -> double {
     optimizers::dArg energy_arg(evt.getEnergy() );
     double spec_factor = (*m_spectrum)(energy_arg);
     Kahan_Accumulator accum;
@@ -99,10 +99,10 @@ namespace Likelihood {
     return retVal;
   }
  
-  double CompositeSource::fluxDensity(double inclination, double phi, double energy, 
+  auto CompositeSource::fluxDensity(double inclination, double phi, double energy, 
 				      const astro::SkyDir & appDir, 
 				      int evtType, double time, 
-				      CachedResponse* cResp) const {
+				      CachedResponse* cResp) const -> double {
     optimizers::dArg energy_arg(energy);
     double spec_factor = (*m_spectrum)(energy_arg);
     Kahan_Accumulator accum;
@@ -115,9 +115,9 @@ namespace Likelihood {
     return retVal;
   }
  
-  double CompositeSource::fluxDensityDeriv(const Event & evt, 
+  auto CompositeSource::fluxDensityDeriv(const Event & evt, 
 					   const std::string & paramName,
-					   CachedResponse* cResp) const {
+					   CachedResponse* cResp) const -> double {
     optimizers::dArg energy_arg(evt.getEnergy() );
     double spec_factor = (*m_spectrum)(energy_arg);
     Kahan_Accumulator accum_pos;
@@ -134,11 +134,11 @@ namespace Likelihood {
     return retVal;
   }
   
-  double CompositeSource::fluxDensityDeriv(double inclination, double phi, 
+  auto CompositeSource::fluxDensityDeriv(double inclination, double phi, 
 					   double energy, const astro::SkyDir & appDir,
 					   int evtType, double time, 
 					   const std::string & paramName,
-					   CachedResponse* cResp) const {
+					   CachedResponse* cResp) const -> double {
     optimizers::dArg energy_arg(energy);
     double spec_factor = (*m_spectrum)(energy_arg);
     Kahan_Accumulator accum_pos;
@@ -161,62 +161,62 @@ namespace Likelihood {
     throw std::runtime_error("CompositeSource::computeExposure not implemented");
   }
   
-  double CompositeSource::flux() const {
+  auto CompositeSource::flux() const -> double {
     return computeEnergyIntegral(*m_spectrum, m_energies);
   }
     
-  double CompositeSource::fluxDeriv(const std::string & parName) const {
+  auto CompositeSource::fluxDeriv(const std::string & parName) const -> double {
     FluxDeriv my_functor(*m_spectrum, parName);
     return computeEnergyIntegral(my_functor, m_energies);
   }
   
   /// @return Photon flux integrated over the given energy range.
   /// Units are #/cm^2/s
-  double CompositeSource::flux(double emin, double emax, size_t npts) const {
+  auto CompositeSource::flux(double emin, double emax, size_t npts) const -> double {
     return computeEnergyIntegral(*m_spectrum, emin, emax, npts);
   }
   
   /// @return Derivative of integrated photon flux wrt the named parameter
   /// over the given energy range.
-  double CompositeSource::fluxDeriv(const std::string & parName, double emin,
-				    double emax, size_t npts) const {
+  auto CompositeSource::fluxDeriv(const std::string & parName, double emin,
+				    double emax, size_t npts) const -> double {
     FluxDeriv my_functor(*m_spectrum, parName);
     return computeEnergyIntegral(my_functor, emin, emax, npts);
   }
   
   /// @return Energy flux integrated over the ROI energy bounds. 
   /// Units are MeV/cm^2/s
-  double CompositeSource::energyFlux() const {
+  auto CompositeSource::energyFlux() const -> double {
     EnergyFlux my_functor(*m_spectrum);
     return computeEnergyIntegral(my_functor, m_energies);
   }
   
   /// @return Derivative of integrated energy flux wrt the named parameter
-  double CompositeSource::energyFluxDeriv(const std::string & parName) const {
+  auto CompositeSource::energyFluxDeriv(const std::string & parName) const -> double {
     EnergyFluxDeriv my_functor(*m_spectrum, parName);
     return computeEnergyIntegral(my_functor, m_energies); 
   }
   
   /// @return Energy flux integrated over the given energy range.
   /// Units are MeV/cm^2/s
-  double CompositeSource::energyFlux(double emin, double emax,
-				     size_t npts) const {
+  auto CompositeSource::energyFlux(double emin, double emax,
+				     size_t npts) const -> double {
     EnergyFlux my_functor(*m_spectrum);
     return computeEnergyIntegral(my_functor, emin, emax, npts);
   }
   
   /// @return Derivative of integrated energy flux wrt the named parameter
   /// over the given energy range.
-  double CompositeSource::energyFluxDeriv(const std::string & parName, double emin,
-					  double emax, size_t npts) const {
+  auto CompositeSource::energyFluxDeriv(const std::string & parName, double emin,
+					  double emax, size_t npts) const -> double {
     EnergyFluxDeriv my_functor(*m_spectrum, parName);
     return computeEnergyIntegral(my_functor, emin, emax, npts);
   }
 
   
   
-  Source* CompositeSource::steal_source(SourceModel& other,
-					const std::string& srcName) {
+  auto CompositeSource::steal_source(SourceModel& other,
+					const std::string& srcName) -> Source* {
     
     Source* src = other.deleteSource(srcName);
     BinnedLikelihood* bl = dynamic_cast<BinnedLikelihood*>(&other);
@@ -228,8 +228,8 @@ namespace Likelihood {
     return src;
   }
   
-  Source* CompositeSource::give_source(SourceModel& other,
-				       const std::string& srcName) {
+  auto CompositeSource::give_source(SourceModel& other,
+				       const std::string& srcName) -> Source* {
     SourceMap* srcMap(0);
     if ( m_srcMapCache != 0 ) {
       srcMap = m_srcMapCache->removeSourceMap(srcName);
@@ -244,9 +244,9 @@ namespace Likelihood {
   }
  
 
-  SourceMapCache* CompositeSource::buildSourceMapCache(const BinnedCountsCache& dataCache,
+  auto CompositeSource::buildSourceMapCache(const BinnedCountsCache& dataCache,
 						       const std::string & srcMapsFile,
-						       const Drm* drm) {
+						       const Drm* drm) -> SourceMapCache* {
     if ( m_srcMapCache != 0 ) {
       std::cout << "WARNING, deleting existing SourceMapCache from CompositeSource::" << getName() << std::endl;
       delete m_srcMapCache;

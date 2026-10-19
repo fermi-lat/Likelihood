@@ -68,7 +68,7 @@ void ScaleFactor::check_complement_usage() const {
    }
 }
 
-double ScaleFactor::prefactor() const {
+auto ScaleFactor::prefactor() const -> double {
    int scale_factor(m_spectrum->getNumParams());
    if (m_use_complement) {
       return 1. - m_parameter[scale_factor].getTrueValue();
@@ -91,7 +91,7 @@ ScaleFactor::ScaleFactor(const ScaleFactor & other)
    setParRefs();
 }
 
-ScaleFactor & ScaleFactor::operator=(const ScaleFactor & rhs) {
+auto ScaleFactor::operator=(const ScaleFactor & rhs) -> ScaleFactor & {
    if (this != &rhs) {
       m_spectrum = rhs.m_spectrum->clone();
       m_use_complement = rhs.m_use_complement;
@@ -107,13 +107,13 @@ ScaleFactor::~ScaleFactor() throw() {
    }
 }
    
-double ScaleFactor::value(const optimizers::Arg & xarg) const {
+auto ScaleFactor::value(const optimizers::Arg & xarg) const -> double {
    double energy = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    return prefactor()*m_spectrum->operator()(xarg);
 }
    
-double ScaleFactor::derivByParamImp(const optimizers::Arg & xarg,
-                                    const std::string & paramName) const {
+auto ScaleFactor::derivByParamImp(const optimizers::Arg & xarg,
+                                    const std::string & paramName) const -> double {
    double energy(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {

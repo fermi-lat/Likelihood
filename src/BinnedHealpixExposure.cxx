@@ -121,7 +121,7 @@ BinnedHealpixExposure::BinnedHealpixExposure(const std::string& filename)
 BinnedHealpixExposure::~BinnedHealpixExposure() {
 }
 
-double BinnedHealpixExposure::operator()(double energy, double ra, double dec) const {
+auto BinnedHealpixExposure::operator()(double energy, double ra, double dec) const -> double {
   std::vector<double>::const_iterator ie = BinnedExposureBase::findNearest(m_energies, energy);
   unsigned int k = ie - m_energies.begin();
   std::pair<double, double> pixel;

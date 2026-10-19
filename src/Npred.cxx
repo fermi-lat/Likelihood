@@ -18,13 +18,13 @@ namespace Likelihood {
 Npred::Npred() : optimizers::Function("Npred", 0, "") {
 }
 
-double Npred::value(const optimizers::Arg &x) const {
+auto Npred::value(const optimizers::Arg &x) const -> double {
    const Source * src = dynamic_cast<const SrcArg &>(x).getValue();
    return const_cast<Source *>(src)->Npred();
 }
 
-double Npred::derivByParamImp(const optimizers::Arg & x, 
-                              const std::string & paramName) const {
+auto Npred::derivByParamImp(const optimizers::Arg & x, 
+                              const std::string & paramName) const -> double {
    const Source * src = dynamic_cast<const SrcArg &>(x).getValue();
    return const_cast<Source *>(src)->NpredDeriv(paramName);
 }

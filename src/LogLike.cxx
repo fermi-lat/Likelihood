@@ -33,8 +33,8 @@ LogLike::LogLike(const Observation & observation)
    deleteAllSources();
 }
 
-double LogLike::value(const optimizers::Arg& dummy, 
-		      bool include_prior) const {
+auto LogLike::value(const optimizers::Arg& dummy, 
+		      bool include_prior) const -> double {
    std::clock_t start = std::clock();
    if (m_use_ebounds) {
       std::pair<double, double> ebounds
@@ -109,8 +109,8 @@ double LogLike::value(const optimizers::Arg& dummy,
    return my_total;
 }
 
-double LogLike::logSourceModel(const Event & event,
-			       ResponseCache::EventRef* srcRespCache) const {
+auto LogLike::logSourceModel(const Event & event,
+			       ResponseCache::EventRef* srcRespCache) const -> double {
    double my_value(0);
 // This part was commented out in v15r8p2 (Feb 8, 2010), either for
 // accuracy reasons or because there was some problem related to the
@@ -305,7 +305,7 @@ void LogLike::addSource(Source * src, bool fromClone, SourceMap* /* srcMap */, b
    m_bestValueSoFar = -1e38;
 }
 
-Source * LogLike::deleteSource(const std::string & srcName) {
+auto LogLike::deleteSource(const std::string & srcName) -> Source * {
    const std::vector<Event> & events = m_observation.eventCont().events();
    for (size_t j = 0; j < events.size(); j++) {
       const_cast<std::vector<Event> &>(events).at(j).deleteSource(srcName);
@@ -397,7 +397,7 @@ void LogLike::update_npreds() {
    }
 }
 
-double LogLike::NpredValue(const std::string & srcName, bool /* weighted */) const {
+auto LogLike::NpredValue(const std::string & srcName, bool /* weighted */) const -> double {
    return const_cast<Source &>(source(srcName)).Npred();
 }
 

@@ -63,21 +63,21 @@ PointSource::PointSource(const PointSource & rhs)
 PointSource::~PointSource() {
 }
 
-double PointSource::fluxDensity(double energy, double time,
+auto PointSource::fluxDensity(double energy, double time,
                                 const astro::SkyDir & dir,
                                 int eventType, 
-				CachedResponse* cResp) const {
+				CachedResponse* cResp) const -> double {
    const ScData & scData = m_observation->scData();
    astro::SkyDir zAxis = scData.zAxis(time);
    astro::SkyDir xAxis = scData.xAxis(time);
    return fluxDensity(energy, zAxis, xAxis, dir, eventType, time, cResp);
 }
 
-double PointSource::fluxDensity(double energy, const astro::SkyDir & zAxis,
+auto PointSource::fluxDensity(double energy, const astro::SkyDir & zAxis,
                                 const astro::SkyDir & xAxis,
                                 const astro::SkyDir & dir,
                                 int eventType, double time,
-				CachedResponse* cResp) const {
+				CachedResponse* cResp) const -> double {
 // Scale the energy spectrum by the psf value and the effective area
 // and convolve with the energy dispersion, if appropriate, all of
 // which are functions of time and spacecraft attitude and orbital
@@ -117,10 +117,10 @@ double PointSource::fluxDensity(double energy, const astro::SkyDir & zAxis,
    }
 }
 
-double PointSource::fluxDensity(double inclination, double phi, double energy, 
+auto PointSource::fluxDensity(double inclination, double phi, double energy, 
                                 const astro::SkyDir & appDir, 
                                 int evtType, double time,
-				CachedResponse* cResp) const {
+				CachedResponse* cResp) const -> double {
    optimizers::dArg energy_arg(energy);
    double spectrum = (*m_spectrum)(energy_arg);
    double separation = appDir.difference(getDir())*180./M_PI;
@@ -139,11 +139,11 @@ double PointSource::fluxDensity(double inclination, double phi, double energy,
    return spectrum*resp;
 }
 
-double PointSource::fluxDensityDeriv(double energy, double time,
+auto PointSource::fluxDensityDeriv(double energy, double time,
                                      const astro::SkyDir &dir,
                                      int eventType,
                                      const std::string &paramName,
-				     CachedResponse* cResp) const {
+				     CachedResponse* cResp) const -> double {
    const ScData & scData = m_observation->scData();
    astro::SkyDir zAxis = scData.zAxis(time);
    astro::SkyDir xAxis = scData.xAxis(time);
@@ -151,13 +151,13 @@ double PointSource::fluxDensityDeriv(double energy, double time,
 			   time, paramName, cResp);
 }
 
-double PointSource::fluxDensityDeriv(double energy, 
+auto PointSource::fluxDensityDeriv(double energy, 
                                      const astro::SkyDir & zAxis,
                                      const astro::SkyDir & xAxis,
                                      const astro::SkyDir & dir,
                                      int eventType, double time,
                                      const std::string &paramName,
-				     CachedResponse* cResp) const {
+				     CachedResponse* cResp) const -> double {
    const ResponseFunctions & respFuncs = m_observation->respFuncs();
 // For now, just implement for spectral Parameters and neglect
 // the spatial ones, "longitude" and "latitude"
@@ -203,12 +203,12 @@ double PointSource::fluxDensityDeriv(double energy,
    }
 }
 
-double PointSource::
+auto PointSource::
 fluxDensityDeriv(double inclination, double phi, double energy,
                  const astro::SkyDir & appDir, int evtType, 
                  double time, 
                  const std::string & paramName,
-		 CachedResponse* cResp) const {
+		 CachedResponse* cResp) const -> double {
    const ResponseFunctions & respFuncs = m_observation->respFuncs();
    double separation = appDir.difference(getDir())*180./M_PI;
 // For now, just implement for spectral Parameters and neglect
@@ -266,14 +266,14 @@ void PointSource::computeExposure(const std::vector<double> & energies,
    }
 }
 
-double PointSource::flux() const {
+auto PointSource::flux() const -> double {
    const std::vector<double> & energies(m_energies);
    bool useLog;
    TrapQuad fluxIntegral(m_spectrum, useLog=true);
    return fluxIntegral.integral(energies);
 }
 
-double PointSource::fluxDeriv(const std::string & parName) const {
+auto PointSource::fluxDeriv(const std::string & parName) const -> double {
    const std::vector<double> & energies(m_energies);
    FluxDeriv my_functor(*m_spectrum, parName);
    bool useLog;
@@ -281,7 +281,7 @@ double PointSource::fluxDeriv(const std::string & parName) const {
    return fluxIntegral.integral(energies);
 }
 
-double PointSource::flux(double emin, double emax, size_t npts) const {
+auto PointSource::flux(double emin, double emax, size_t npts) const -> double {
    std::vector<double> energies;
    energies.reserve(npts);
    double estep(std::log(emax/emin)/float(npts-1));
@@ -293,8 +293,8 @@ double PointSource::flux(double emin, double emax, size_t npts) const {
    return fluxIntegral.integral(energies);
 }
 
-double PointSource::fluxDeriv(const std::string & parName,
-                              double emin, double emax, size_t npts) const {
+auto PointSource::fluxDeriv(const std::string & parName,
+                              double emin, double emax, size_t npts) const -> double {
    std::vector<double> energies;
    energies.reserve(npts);
    double estep(std::log(emax/emin)/float(npts-1));
@@ -307,7 +307,7 @@ double PointSource::fluxDeriv(const std::string & parName,
    return fluxIntegral.integral(energies);
 }
 
-double PointSource::energyFlux() const {
+auto PointSource::energyFlux() const -> double {
    const std::vector<double> & energies(m_energies);
    EnergyFlux my_functor(*m_spectrum);
    bool useLog;
@@ -315,7 +315,7 @@ double PointSource::energyFlux() const {
    return fluxIntegral.integral(energies);
 }
 
-double PointSource::energyFluxDeriv(const std::string & parName) const {
+auto PointSource::energyFluxDeriv(const std::string & parName) const -> double {
    const std::vector<double> & energies(m_energies);
    EnergyFluxDeriv my_functor(*m_spectrum, parName);
    bool useLog;
@@ -323,7 +323,7 @@ double PointSource::energyFluxDeriv(const std::string & parName) const {
    return fluxIntegral.integral(energies);
 }
 
-double PointSource::energyFlux(double emin, double emax, size_t npts) const {
+auto PointSource::energyFlux(double emin, double emax, size_t npts) const -> double {
    std::vector<double> energies;
    energies.reserve(npts);
    double estep(std::log(emax/emin)/float(npts-1));
@@ -336,9 +336,9 @@ double PointSource::energyFlux(double emin, double emax, size_t npts) const {
    return fluxIntegral.integral(energies);
 }
 
-double PointSource::energyFluxDeriv(const std::string & parName,
+auto PointSource::energyFluxDeriv(const std::string & parName,
                                     double emin, double emax, 
-                                    size_t npts) const {
+                                    size_t npts) const -> double {
    std::vector<double> energies;
    energies.reserve(npts);
    double estep(std::log(emax/emin)/float(npts-1));
@@ -470,11 +470,11 @@ void PointSource::makeEnergyVector(int nee) {
    }
 }
 
-double PointSource::sourceEffArea(const astro::SkyDir & srcDir, 
+auto PointSource::sourceEffArea(const astro::SkyDir & srcDir, 
                                   double energy, double time,
                                   const ScData & scData,
                                   const RoiCuts & roiCuts,
-                                  const ResponseFunctions & respFuncs) {
+                                  const ResponseFunctions & respFuncs) -> double {
    astro::SkyDir zAxis = scData.zAxis(time);
    astro::SkyDir xAxis = scData.xAxis(time);
 
@@ -504,7 +504,7 @@ PointSource::Aeff::Aeff(double energy, const astro::SkyDir &srcDir,
 //    m_emax = roiCuts.getEnergyCuts().second;
 }
 
-double PointSource::Aeff::value(double cos_theta, double phi) const {
+auto PointSource::Aeff::value(double cos_theta, double phi) const -> double {
    double theta = acos(cos_theta)*180./M_PI;
 
    double myEffArea = 0;

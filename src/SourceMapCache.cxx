@@ -67,15 +67,15 @@ namespace Likelihood {
     }
   }
 
-  CountsMapBase * SourceMapCache::createCountsMap(const std::vector<const Source*>& srcs, 
-						  CountsMapBase & dataMap) const {
+  auto SourceMapCache::createCountsMap(const std::vector<const Source*>& srcs, 
+						  CountsMapBase & dataMap) const -> CountsMapBase * {
     std::vector<float> map;
     computeModelMap(srcs,map);
     dataMap.setImage(map);
     return &dataMap;
   } 
 
-  CountsMapBase * SourceMapCache::createCountsMap(const std::vector<const Source*>& srcs) const {
+  auto SourceMapCache::createCountsMap(const std::vector<const Source*>& srcs) const -> CountsMapBase * {
     std::vector<float> map;
     computeModelMap(srcs,map);
     CountsMapBase * modelMap = m_dataCache.countsMap().clone();         
@@ -83,7 +83,7 @@ namespace Likelihood {
     return modelMap;
   }
 
-  double SourceMapCache::NpredValue(const Source& src, size_t kmin, size_t kmax, bool weighted) const {
+  auto SourceMapCache::NpredValue(const Source& src, size_t kmin, size_t kmax, bool weighted) const -> double {
     // call the other version of NpredValue
     SourceMap* srcMap = getSourceMap(src,false);
     return NpredValue(src, *srcMap, kmin, kmax, weighted);
@@ -91,10 +91,10 @@ namespace Likelihood {
 
   // This version forces the recalculation of Npred, whether the source is
   // fixed or not. It is also called from buildFixedModelWts.
-  double SourceMapCache::NpredValue(const Source& src,
+  auto SourceMapCache::NpredValue(const Source& src,
 				    SourceMap & sourceMap,
 				    size_t kmin, size_t kmax,
-				    bool weighted) const {
+				    bool weighted) const -> double {
 
     sourceMap.setSpectralValues();
     updateCorrectionFactors(src,sourceMap);
@@ -102,16 +102,16 @@ namespace Likelihood {
     return sourceMap.summed_counts(kmin,kmax,edisp_flag,weighted);
   }
 
-  bool SourceMapCache::hasSourceMap(const std::string & name) const {
+  auto SourceMapCache::hasSourceMap(const std::string & name) const -> bool {
     if (m_srcMaps.find(name) == m_srcMaps.end())
       return false;
     else
       return true;
   }
 
-  SourceMap * SourceMapCache::getSourceMap(const Source& src,
+  auto SourceMapCache::getSourceMap(const Source& src,
 					   bool verbose,
-					   const BinnedLikeConfig* config) const {
+					   const BinnedLikeConfig* config) const -> SourceMap * {
     const std::string& srcName = src.getName();
     SourceMap* srcMap(0);
  
@@ -148,7 +148,7 @@ namespace Likelihood {
   }
 
 
-  SourceMap * SourceMapCache::createSourceMap(const Source& src, const BinnedLikeConfig* config) const {
+  auto SourceMapCache::createSourceMap(const Source& src, const BinnedLikeConfig* config) const -> SourceMap * {
     const BinnedLikeConfig& the_config = config == 0 ? m_config : *config;
     return new SourceMap(src, &m_dataCache, m_observation, the_config, 
 			 *m_drm, m_dataCache.weightMap(), the_config.save_all_srcmaps() );
@@ -172,7 +172,7 @@ namespace Likelihood {
     }
   }
 
-  SourceMap* SourceMapCache::removeSourceMap(const std::string & srcName) {
+  auto SourceMapCache::removeSourceMap(const std::string & srcName) -> SourceMap* {
     if ( ! hasSourceMap(srcName) ) {
       throw std::runtime_error("SourceMapCache does not have " + srcName + " in cache");
     }
@@ -398,8 +398,8 @@ namespace Likelihood {
   }
 
 
-  const std::vector<double>& SourceMapCache::modelCountsSpectrum(const Source& src,
-								 bool weighted) const {
+  auto SourceMapCache::modelCountsSpectrum(const Source& src,
+								 bool weighted) const -> const std::vector<double>& {
     SourceMap * srcMap = getSourceMap(src, false);
     // This forces updating the source map if needed
     const Drm_Cache* drm_cache = srcMap->drm_cache(true);
@@ -456,7 +456,7 @@ namespace Likelihood {
     delete meanPsf;
   }
 
-  int SourceMapCache::edisp_val(const Source* src) const {
+  auto SourceMapCache::edisp_val(const Source* src) const -> int {
     int retVal = m_config.edisp_val();
     if ( src != 0 && ! src->use_edisp() ) {
       retVal = -1;
@@ -464,7 +464,7 @@ namespace Likelihood {
     return retVal;
   }
 
-  size_t SourceMapCache::memory_size() const {
+  auto SourceMapCache::memory_size() const -> size_t {
     size_t sum(0);
     for ( std::map<std::string, SourceMap *>::const_iterator itr = m_srcMaps.begin();
 	  itr != m_srcMaps.end(); itr++ ) {
@@ -474,8 +474,8 @@ namespace Likelihood {
   }
   
  
-  tip::Extension* SourceMapCache::replaceSourceMap(const Source & src,
-						   const std::string & fitsFile) const {
+  auto SourceMapCache::replaceSourceMap(const Source & src,
+						   const std::string & fitsFile) const -> tip::Extension* {
     
     SourceMap* srcMap = getSourceMap(src,false);
     if ( srcMap->cached_model().size() == 0 &&
@@ -502,8 +502,8 @@ namespace Likelihood {
     }
   }
 
-  tip::Extension* SourceMapCache::appendSourceMap(const Source & src,
-						  const std::string & fitsFile) const {
+  auto SourceMapCache::appendSourceMap(const Source & src,
+						  const std::string & fitsFile) const -> tip::Extension* {
     
     SourceMap* srcMap = getSourceMap(src,false);
     if ( srcMap->cached_model().size() == 0 &&
@@ -531,9 +531,9 @@ namespace Likelihood {
 
   
 
-  tip::Extension* SourceMapCache::replaceSourceMap_partial(const Source & src,
+  auto SourceMapCache::replaceSourceMap_partial(const Source & src,
 							   const std::string & fitsFile,
-							   int kmin, int kmax) const {
+							   int kmin, int kmax) const -> tip::Extension* {
     
     std::vector<float> model;
     FileUtils::SrcMapType mapType = FileUtils::Unknown;
@@ -558,9 +558,9 @@ namespace Likelihood {
     }
   }
 
-  tip::Extension* SourceMapCache::appendSourceMap_partial(const Source & src,
+  auto SourceMapCache::appendSourceMap_partial(const Source & src,
 							  const std::string & fitsFile,
-							  int kmin, int kmax) const {
+							  int kmin, int kmax) const -> tip::Extension* {
 							    
     std::vector<float> model;
     FileUtils::SrcMapType mapType = FileUtils::Unknown;

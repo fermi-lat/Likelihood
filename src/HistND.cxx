@@ -50,8 +50,8 @@ void HistND::fillBin(const std::vector<double> & values, double weight) {
    }
 }
 
-long HistND::binIndex(const std::vector<double> & values,
-                      long border_size) const {
+auto HistND::binIndex(const std::vector<double> & values,
+                      long border_size) const -> long {
    if (values.size() != m_ndims) {
       throw std::length_error("HistND::binIndex:\n"
                               "Size of values vector does match "
@@ -70,7 +70,7 @@ long HistND::binIndex(const std::vector<double> & values,
    return binIndex(ivalues);
 }
 
-long HistND::binIndex(const std::vector<long> & ivalues) const {
+auto HistND::binIndex(const std::vector<long> & ivalues) const -> long {
    if (ivalues.size() != m_ndims) {
      throw std::length_error("HistND::binIndex:\n"
 			     "Size of ivalues vector does match "
@@ -83,7 +83,7 @@ long HistND::binIndex(const std::vector<long> & ivalues) const {
    return indx;
 }
 
-double HistND::operator[](long index) const {
+auto HistND::operator[](long index) const -> double {
    return m_data[index];
 }
 
@@ -159,7 +159,7 @@ void HistND::getSlice(unsigned int idim,
 }
 
 
-HistND* HistND::sumRange(unsigned int idim, unsigned int firstBin, unsigned int lastBin) const {
+auto HistND::sumRange(unsigned int idim, unsigned int firstBin, unsigned int lastBin) const -> HistND* {
   if ( idim >= m_ndims ) {
     throw std::length_error("HistND::sumRange:\n"
                             "idim >= histogram dimension.");

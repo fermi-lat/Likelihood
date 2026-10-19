@@ -31,12 +31,12 @@
 #include "Likelihood/RoiCuts.h"
 
 namespace {
-   bool compareFirst(const std::pair<double, double> & a, 
-                     const std::pair<double, double> & b) {
+   auto compareFirst(const std::pair<double, double> & a, 
+                     const std::pair<double, double> & b) -> bool {
       return a.first < b.first;
    }
-   bool compareSecond(const std::pair<double, double> & a, 
-                      const std::pair<double, double> & b) {
+   auto compareSecond(const std::pair<double, double> & a, 
+                      const std::pair<double, double> & b) -> bool {
       return a.second < b.second;
    }
 }
@@ -265,11 +265,11 @@ void LikeExposure::setCosbinsFieldFormat(const std::string & outfile,
    fitsReportError(status, "LikeExposure::setCosbinsFieldFormat");
 }
 
-bool LikeExposure::
+auto LikeExposure::
 acceptInterval(double start, double stop, 
                const std::vector< std::pair<double, double> > & timeCuts,
                const std::vector< std::pair<double, double> > & gtis,
-               double & fraction) {
+               double & fraction) -> bool {
    if (stop < start) {
       std::ostringstream message;
       message << "FT2 files has an interval with START > STOP:\n START = "
@@ -323,9 +323,9 @@ acceptInterval(double start, double stop,
    return true;
 }
 
-bool LikeExposure::
+auto LikeExposure::
 overlaps(const std::pair<double, double> & interval1,
-         std::pair<double, double> & interval2) {
+         std::pair<double, double> & interval2) -> bool {
    double start = std::max(interval1.first, interval2.first);
    double stop = std::min(interval1.second, interval2.second);
    if (start < stop) {
@@ -336,9 +336,9 @@ overlaps(const std::pair<double, double> & interval1,
    return false;
 }
 
-double LikeExposure::
+auto LikeExposure::
 overlap(const std::pair<double, double> & interval1,
-        const std::pair<double, double> & interval2) {
+        const std::pair<double, double> & interval2) -> double {
    double start = std::max(interval1.first, interval2.first);
    double stop = std::min(interval1.second, interval2.second);
    if (start < stop) {

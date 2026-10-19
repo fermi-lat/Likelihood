@@ -48,7 +48,7 @@ SpatialMap::SpatialMap(const SpatialMap & rhs)
    : optimizers::Function(rhs), MapBase(rhs) {
 }
 
-SpatialMap & SpatialMap::operator=(const SpatialMap & rhs) {
+auto SpatialMap::operator=(const SpatialMap & rhs) -> SpatialMap & {
    if (this != &rhs) {
       optimizers::Function::operator=(rhs);
       MapBase::operator=(rhs);
@@ -59,13 +59,13 @@ SpatialMap & SpatialMap::operator=(const SpatialMap & rhs) {
 SpatialMap::~SpatialMap() {
 }
 
-double SpatialMap::value(const optimizers::Arg & arg) const {
+auto SpatialMap::value(const optimizers::Arg & arg) const -> double {
    astro::SkyDir dir;
    dynamic_cast<const SkyDirArg &>(arg).fetchValue(dir);
    return value(dir);
 }
 
-double SpatialMap::value(const astro::SkyDir & dir) const {
+auto SpatialMap::value(const astro::SkyDir & dir) const -> double {
    double pref = m_parameter[0].getTrueValue();
    return pref*projmap().operator()(dir);
 }

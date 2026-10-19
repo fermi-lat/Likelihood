@@ -236,9 +236,9 @@ void EventContainer::computeEventResponses(std::vector<DiffuseSource *> &srcs,
    m_formatter->info(3) << "!" << std::endl;
 }
 
-std::vector<double> 
+auto 
 EventContainer::nobs(const std::vector<double> & ebounds,
-                     const Source * src) const {
+                     const Source * src) const -> std::vector<double> {
    std::vector<double> my_nobs(ebounds.size()-1, 0);
    for (size_t i(0); i < m_events.size(); i++) {
       const Event & event(m_events.at(i));
@@ -307,7 +307,7 @@ get_diffuse_names(tip::Table * events,
    }
 }
    
-std::string EventContainer::sourceName(const std::string & name) const {
+auto EventContainer::sourceName(const std::string & name) const -> std::string {
 // The column name for a diffuse response has the IRF name prepended.
 // Strip the IRF name and use the underlying diffuse component name
 // in setDiffuseResponse.

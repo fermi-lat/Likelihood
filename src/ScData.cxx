@@ -99,7 +99,7 @@ void ScData::readData(const std::vector<std::string> & scFiles,
    }
 }
 
-size_t ScData::time_index(double time) const {
+auto ScData::time_index(double time) const -> size_t {
    double tmin(m_start.front());
    double tmax(m_stop.back());
    double tol(1e-5);
@@ -117,7 +117,7 @@ size_t ScData::time_index(double time) const {
    return indx;
 }
 
-double ScData::livetimefrac(double time) const {
+auto ScData::livetimefrac(double time) const -> double {
    size_t indx = time_index(time);
    if (time < m_start.at(indx) || time > m_stop.at(indx)) {
 // Desired time doesn't lie within an FT2 interval.
@@ -126,7 +126,7 @@ double ScData::livetimefrac(double time) const {
    return m_livetime.at(indx)/(m_stop.at(indx) - m_start.at(indx));
 }
 
-astro::SkyDir ScData::xAxis(double time) const {
+auto ScData::xAxis(double time) const -> astro::SkyDir {
    size_t indx = time_index(time);
    indx = std::min(indx, m_xAxis.size() - 2);
    double frac = (time - start(indx))/(start(indx+1) - start(indx));
@@ -135,7 +135,7 @@ astro::SkyDir ScData::xAxis(double time) const {
    return astro::SkyDir(zDir.unit());
 }
 
-astro::SkyDir ScData::zAxis(double time) const {
+auto ScData::zAxis(double time) const -> astro::SkyDir {
    size_t indx = time_index(time);
    indx = std::min(indx, m_zAxis.size() - 2);
    double frac = (time - start(indx))/(start(indx+1) - start(indx));

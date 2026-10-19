@@ -147,7 +147,7 @@ namespace Likelihood {
     std::cout << '!' << std::endl;
   }
 
-  CountsMapBase* CountsMapBase::makeAlphaMap(const float& epsilon2, const std::vector<CountsMapBase*>& input_maps) {
+  auto CountsMapBase::makeAlphaMap(const float& epsilon2, const std::vector<CountsMapBase*>& input_maps) -> CountsMapBase* {
     if (  input_maps.size() == 0 ) { return 0; }
     CountsMapBase* outMap = input_maps[0]->clone();
     std::vector<const std::vector<float>* > input_vects;
@@ -161,7 +161,7 @@ namespace Likelihood {
   }
 
 
-  CountsMapBase* CountsMapBase::makeAlphaMap(const float& epsilon2, const std::vector<std::string>& input_map_files) {
+  auto CountsMapBase::makeAlphaMap(const float& epsilon2, const std::vector<std::string>& input_map_files) -> CountsMapBase* {
     std::vector<Likelihood::CountsMapBase*> inputMaps;
     for ( std::vector<std::string>::const_iterator itr = input_map_files.begin();
 	 itr != input_map_files.end(); itr++ ) {
@@ -171,9 +171,9 @@ namespace Likelihood {
     return CountsMapBase::makeAlphaMap(epsilon2, inputMaps);
   }
   
-  CountsMapBase* CountsMapBase::makeWtsMap(const float& epsilon2, 
+  auto CountsMapBase::makeWtsMap(const float& epsilon2, 
 					   const CountsMapBase* alphaMap, 
-					   const CountsMapBase& beffMap) {
+					   const CountsMapBase& beffMap) -> CountsMapBase* {
     CountsMapBase* outMap = beffMap.clone();
     static const std::vector<float> nullVector;
     const std::vector<float>& alphaVector =  alphaMap != 0 ? alphaMap->data() : nullVector;
@@ -381,7 +381,7 @@ void CountsMapBase::setImage(const std::vector<double> & image) {
    m_hist->setData(image);
 }
 
-long CountsMapBase::imageDimension(int i) const {
+auto CountsMapBase::imageDimension(int i) const -> long {
    const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
    if (i < 0 || i > 2) {
       throw std::invalid_argument("CountsMapBase::imageDimension:\n"
@@ -423,7 +423,7 @@ void CountsMapBase::getEnergyBinWidths(std::vector<double>& energyBinWidths) con
   fillEnergyBinWidths(energyBinWidths, m_energies);
 }
 
-const std::vector<Pixel> & CountsMapBase::pixels() const {
+auto CountsMapBase::pixels() const -> const std::vector<Pixel> & {
    // EAC, this is not optimal for healpix, since all the pixels have the same area, 
    // but it works for now.
    if (m_pixels.empty()) {

@@ -33,7 +33,7 @@ void SummedLikelihood::addComponent(LogLike & component) {
    }
 }
 
-double SummedLikelihood::value() const {
+auto SummedLikelihood::value() const -> double {
    double my_value(0);
    ComponentConstIterator_t it(m_components.begin());
    bool include_prior(true);
@@ -101,7 +101,7 @@ void SummedLikelihood::syncParams() {
    }
 }
 
-double SummedLikelihood::NpredValue(const std::string & srcname, bool weighted) const {
+auto SummedLikelihood::NpredValue(const std::string & srcname, bool weighted) const -> double {
    double Npred(0);
    for (ComponentConstIterator_t it(m_components.begin());
         it != m_components.end(); ++it) {
@@ -110,7 +110,7 @@ double SummedLikelihood::NpredValue(const std::string & srcname, bool weighted) 
    return Npred;
 }
 
-unsigned int SummedLikelihood::getNumFreeParams() const {
+auto SummedLikelihood::getNumFreeParams() const -> unsigned int {
    unsigned int npars(0);
    const std::vector<optimizers::Parameter> & 
       pars(m_masterComponent->parameters());
@@ -225,8 +225,8 @@ setErrors(const std::vector<double> & errors) {
    syncParams();
 }
 
-int SummedLikelihood::
-findIndex(size_t par_index) const {
+auto SummedLikelihood::
+findIndex(size_t par_index) const -> int {
    int j(0);
    const std::vector<optimizers::Parameter> & 
       pars(m_masterComponent->parameters());
@@ -248,8 +248,8 @@ findIndex(size_t par_index) const {
    return -1;
 }
 
-TiedParameter & SummedLikelihood::
-getTiedParam(size_t par_index) {
+auto SummedLikelihood::
+getTiedParam(size_t par_index) -> TiedParameter & {
    throw std::runtime_error("not implemented");
    return *m_tiedPars.front();
 }

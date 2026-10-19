@@ -222,12 +222,12 @@ CountsMap::CountsMap(const WcsMap2& projMap, const CountsMap & counts_map)
 }
 
 
-ProjMap* CountsMap::makeProjMap(CountsMapBase::ConversionType cType) const {
+auto CountsMap::makeProjMap(CountsMapBase::ConversionType cType) const -> ProjMap* {
   return new WcsMap2(*this, cType);
 }
 
 
-CountsMapBase* CountsMap::makeBkgEffMap(const MeanPsf & psf, const float& efact) const {
+auto CountsMap::makeBkgEffMap(const MeanPsf & psf, const float& efact) const -> CountsMapBase* {
 
   CountsMap* outMap = new CountsMap(*this);     
   ProjMap* projMap = makeProjMap();
@@ -414,8 +414,8 @@ CountsMap::CountsMap(const CountsMap & rhs,
 
 CountsMap::~CountsMap() throw() {;}
 
-bool CountsMap::withinBounds(const astro::SkyDir & dir, double energy,
-                             long border_size) const {
+auto CountsMap::withinBounds(const astro::SkyDir & dir, double energy,
+                             long border_size) const -> bool {
    std::pair<double, double> coord = dir.project(*m_proj);
    double my_values[] = {coord.first, coord.second, energy};
    std::vector<double> values(my_values, my_values + 3);
@@ -423,7 +423,7 @@ bool CountsMap::withinBounds(const astro::SkyDir & dir, double energy,
    return indx >= 0;
 }
 
-double CountsMap::pixelSize() const {
+auto CountsMap::pixelSize() const -> double {
   return std::fabs(m_cdelt[0]) <= std::fabs(m_cdelt[1]) ? 
     std::fabs(m_cdelt[0]) : std::fabs(m_cdelt[1]);
 }
@@ -609,9 +609,9 @@ void CountsMap::getPixels(std::vector<astro::SkyDir> & pixelDirs,
    }
 }
 
-double CountsMap::computeSolidAngle(std::vector<double>::const_iterator lon,
+auto CountsMap::computeSolidAngle(std::vector<double>::const_iterator lon,
                                     std::vector<double>::const_iterator lat,
-                                    const astro::ProjBase & proj) const {
+                                    const astro::ProjBase & proj) const -> double {
 
    astro::SkyDir A(*lon, *lat, proj);
    astro::SkyDir B(*lon, *(lat+1), proj);

@@ -90,7 +90,7 @@ void DiffuseSource::computeExposure(const std::vector<double> & energies,
 }
 
 
-  bool DiffuseSource::isMoveable() const {
+  auto DiffuseSource::isMoveable() const -> bool {
     const std::string& src_type = spatialDist()->genericName();
     if ( src_type == "ConstantValue" || 
 	 src_type == "RadialGaussian" || 
@@ -130,8 +130,8 @@ DiffuseSource::DiffuseSource(const DiffuseSource & rhs)
    m_functions["Spectrum"] = m_spectrum;
 }
 
-double DiffuseSource::fluxDensity(const Event & evt,
-				  CachedResponse* cResp) const {
+auto DiffuseSource::fluxDensity(const Event & evt,
+				  CachedResponse* cResp) const -> double {
    (void)(cResp);
    double my_fluxDensity;
    // if (m_useEdisp) {
@@ -156,9 +156,9 @@ double DiffuseSource::fluxDensity(const Event & evt,
    return my_fluxDensity;
 }
 
-double DiffuseSource::fluxDensityDeriv(const Event &evt, 
+auto DiffuseSource::fluxDensityDeriv(const Event &evt, 
                                        const std::string &paramName,
-				       CachedResponse* cResp) const {
+				       CachedResponse* cResp) const -> double {
    (void)(cResp);
 // For now, just implement for spectral Parameters and neglect
 // the spatial ones, "longitude" and "latitude".
@@ -196,25 +196,25 @@ double DiffuseSource::fluxDensityDeriv(const Event &evt,
 }
 
 
-double DiffuseSource::fluxDensity(double /* inclination */, double /* phi */, double /* energy */,
+auto DiffuseSource::fluxDensity(double /* inclination */, double /* phi */, double /* energy */,
 				  const astro::SkyDir & /* appDir */, int /* evtType */,
-				  double /* time */, CachedResponse* /* cResp = 0 */) const {
+				  double /* time */, CachedResponse* /* cResp = 0 */) const -> double {
   throw std::runtime_error("This version of DiffuseSource::fluxDensity is diabled");
   return 0.;
 }
 
      
-double DiffuseSource::fluxDensityDeriv(double /* inclination */, double /* phi */, double /* energy */,
+auto DiffuseSource::fluxDensityDeriv(double /* inclination */, double /* phi */, double /* energy */,
 				       const astro::SkyDir & /* appDir */, int /* evtType */,
 				       double /* time */,
 				       const std::string & /* paramName */,
-				       CachedResponse* /* cResp = 0 */) const {
+				       CachedResponse* /* cResp = 0 */) const -> double {
   throw std::runtime_error("This version of DiffuseSource::fluxDensityDeriv is diabled");
   return 0.;
 }
 
 
-const MapBase * DiffuseSource::mapBaseObject() const {
+auto DiffuseSource::mapBaseObject() const -> const MapBase * {
    optimizers::Function * foo = 
       const_cast<optimizers::Function *>(this->spatialDist());
    const MapBase * mapBaseObject = dynamic_cast<MapBase *>(foo);
@@ -225,7 +225,7 @@ const MapBase * DiffuseSource::mapBaseObject() const {
    return mapBaseObject;
 }
 
-MapBase * DiffuseSource::mapBaseObject() {
+auto DiffuseSource::mapBaseObject() -> MapBase * {
    optimizers::Function * foo = 
       const_cast<optimizers::Function *>(this->spatialDist());
    MapBase * mapBaseObject = dynamic_cast<MapBase *>(foo);
@@ -237,7 +237,7 @@ MapBase * DiffuseSource::mapBaseObject() {
 }
 
 
-const astro::SkyDir& DiffuseSource::mapRefDir() const {
+auto DiffuseSource::mapRefDir() const -> const astro::SkyDir& {
    static const astro::SkyDir dummy(0., 0., astro::SkyDir::GALACTIC);
    if (spatialDist()->genericName() == "ConstantValue") { 
       return dummy;
@@ -252,7 +252,7 @@ const astro::SkyDir& DiffuseSource::mapRefDir() const {
    return mapBaseObject()->getRefDir();
 }
 
-double DiffuseSource::angularIntegral(double energy) const {
+auto DiffuseSource::angularIntegral(double energy) const -> double {
    if (spatialDist()->genericName() == "ConstantValue") { 
 // Here we have an isotropic source
       return 4*M_PI;
@@ -268,49 +268,49 @@ double DiffuseSource::angularIntegral(double energy) const {
    return mapBaseObject()->mapIntegral(energy);
 }
 
-double DiffuseSource::flux() const {
+auto DiffuseSource::flux() const -> double {
    return computeEnergyIntegral(*m_spectrum, m_energies);
 }
 
-double DiffuseSource::fluxDeriv(const std::string & parName) const {
+auto DiffuseSource::fluxDeriv(const std::string & parName) const -> double {
    FluxDeriv my_functor(*m_spectrum, parName);
    return computeEnergyIntegral(my_functor, m_energies);
 }
 
-double DiffuseSource::flux(double emin, double emax, size_t npts) const {
+auto DiffuseSource::flux(double emin, double emax, size_t npts) const -> double {
   return computeEnergyIntegral(*m_spectrum, emin, emax, npts);
 }
 
-double DiffuseSource::fluxDeriv(const std::string & parName,
-                                double emin, double emax, size_t npts) const {
+auto DiffuseSource::fluxDeriv(const std::string & parName,
+                                double emin, double emax, size_t npts) const -> double {
    FluxDeriv my_functor(*m_spectrum, parName);
    return computeEnergyIntegral(my_functor, emin, emax, npts);
 }
 
-double DiffuseSource::energyFlux() const {
+auto DiffuseSource::energyFlux() const -> double {
    EnergyFlux my_functor(*m_spectrum);
    return computeEnergyIntegral(my_functor, m_energies);
 }
 
-double DiffuseSource::energyFluxDeriv(const std::string & parName) const {
+auto DiffuseSource::energyFluxDeriv(const std::string & parName) const -> double {
    EnergyFluxDeriv my_functor(*m_spectrum, parName);
    return computeEnergyIntegral(my_functor, m_energies);
 }
 
-double DiffuseSource::energyFlux(double emin, double emax, size_t npts) const {
+auto DiffuseSource::energyFlux(double emin, double emax, size_t npts) const -> double {
    EnergyFlux my_functor(*m_spectrum);
    return computeEnergyIntegral(my_functor, emin, emax, npts);
 }
 
-double DiffuseSource::energyFluxDeriv(const std::string & parName,
+auto DiffuseSource::energyFluxDeriv(const std::string & parName,
                                       double emin, double emax, 
-                                      size_t npts) const {
+                                      size_t npts) const -> double {
    EnergyFluxDeriv my_functor(*m_spectrum, parName);
    return computeEnergyIntegral(my_functor, emin, emax, npts);
 }
 
 
-double DiffuseSource::diffuseResponse(const Event& evt) const {
+auto DiffuseSource::diffuseResponse(const Event& evt) const -> double {
    // EAC, switch based on projection type
    const ProjMap* projMap = &(mapBaseObject()->projmap());
    switch ( projMap->getProj()->method() ) {
@@ -327,7 +327,7 @@ double DiffuseSource::diffuseResponse(const Event& evt) const {
    return 0.;
 }
 
-double DiffuseSource::diffuseResponse_healpix(const Event& evt, const HealpixProjMap& healmap) const {
+auto DiffuseSource::diffuseResponse_healpix(const Event& evt, const HealpixProjMap& healmap) const -> double {
    double trueEnergy(evt.getEnergy());
    const ResponseFunctions & respFuncs(m_observation->respFuncs());
    const double& solidAngle = healmap.solidAngleHealpix();
@@ -349,7 +349,7 @@ double DiffuseSource::diffuseResponse_healpix(const Event& evt, const HealpixPro
    return my_value;
 }
 
-double DiffuseSource::diffuseResponse_wcs(const Event & evt, const WcsMap2& wcsmap) const {
+auto DiffuseSource::diffuseResponse_wcs(const Event & evt, const WcsMap2& wcsmap) const -> double {
    double trueEnergy(evt.getEnergy());
    const ResponseFunctions & respFuncs(m_observation->respFuncs());
    const std::vector< std::vector<float> > & solidAngles(wcsmap.solidAngles());
@@ -376,7 +376,7 @@ double DiffuseSource::diffuseResponse_wcs(const Event & evt, const WcsMap2& wcsm
 
 
 
-double DiffuseSource::computeMapRadius() const {
+auto DiffuseSource::computeMapRadius() const -> double {
   if (spatialDist()->genericName() == "ConstantValue") { 
     return 180.;
   } else if ( spatialDist()->genericName() == "RadialGaussian" ||
@@ -398,7 +398,7 @@ double DiffuseSource::computeMapRadius() const {
 }
 
 
-double DiffuseSource::psfRange(double energy) const {
+auto DiffuseSource::psfRange(double energy) const -> double {
    static double min_angle(5.*M_PI/180.);
    static double ebreak(1e4);
    if (energy > ebreak) {

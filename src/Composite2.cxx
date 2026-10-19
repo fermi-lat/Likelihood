@@ -42,7 +42,7 @@ void Composite2::tieParameters(const TiedParameter::ParVector_t & pars) {
    m_tiedPars.push_back(tiedPar);
 }
 
-double Composite2::value() const {
+auto Composite2::value() const -> double {
    double my_value(0);
    for (ComponentConstIterator_t it(m_components.begin());
         it != m_components.end(); ++it) {
@@ -173,7 +173,7 @@ void Composite2::syncParams() {
    }
 }
 
-unsigned int Composite2::getNumFreeParams() const {
+auto Composite2::getNumFreeParams() const -> unsigned int {
    unsigned int npars(0);
 // Loop over LogLike components and count free, untied parameters
    for (ComponentConstIterator_t it(m_components.begin());
@@ -235,7 +235,7 @@ void Composite2::getFreeDerivs(std::vector<double> & derivs) const {
    }
 }
 
-int Composite2::findIndex(const LogLike & like, size_t par_index) const {
+auto Composite2::findIndex(const LogLike & like, size_t par_index) const -> int {
    int j(0);
 /// Loop over components and free, untied parameters, advancing index
 /// until the desired par_index is found.
@@ -279,7 +279,7 @@ int Composite2::findIndex(const LogLike & like, size_t par_index) const {
    return -1;
 }
 
-TiedParameter & Composite2::getTiedParam(const LogLike & like, size_t i) {
+auto Composite2::getTiedParam(const LogLike & like, size_t i) -> TiedParameter & {
    std::vector<TiedParameter *>::const_iterator tp(m_tiedPars.begin());
    for (; tp != m_tiedPars.end(); ++tp) {
       if ((*tp)->has_member(like, i)) {

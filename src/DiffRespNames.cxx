@@ -22,19 +22,19 @@ namespace Likelihood {
 DiffRespNames::DiffRespNames(const std::string & rootName) 
    : m_rootName(rootName) {}
 
-size_t DiffRespNames::size() const {
+auto DiffRespNames::size() const -> size_t {
    return m_colnames.size();
 }
 
-const std::vector<std::string> & DiffRespNames::colnames() const {
+auto DiffRespNames::colnames() const -> const std::vector<std::string> & {
    return m_colnames;
 }
 
-const std::string & DiffRespNames::operator[](size_t indx) const {
+auto DiffRespNames::operator[](size_t indx) const -> const std::string & {
    return m_colnames.at(indx);
 }
 
-const std::string & DiffRespNames::operator[](const std::string & key) const {
+auto DiffRespNames::operator[](const std::string & key) const -> const std::string & {
    if (key.substr(0, m_rootName.size()) != m_rootName) {
       throw DiffRespNameError("invalid root name for "
                               "diffuse response column");
@@ -49,7 +49,7 @@ void DiffRespNames::addColumn(const std::string & diffRspName) {
    }
 }
 
-std::string DiffRespNames::key(const std::string & colname) const {
+auto DiffRespNames::key(const std::string & colname) const -> std::string {
    std::vector<std::string>::const_iterator it = 
       std::find(m_colnames.begin(), m_colnames.end(), colname);
    if (it == m_colnames.end()) {

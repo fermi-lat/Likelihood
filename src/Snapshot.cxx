@@ -36,8 +36,8 @@ namespace Likelihood {
   }
 
 
-  bool Snapshot_Source::compare_priors(const optimizers::Parameter& p1, 
-				       const optimizers::Parameter& p2){
+  auto Snapshot_Source::compare_priors(const optimizers::Parameter& p1, 
+				       const optimizers::Parameter& p2) -> bool{
 
     if ( p1.has_prior() != p2.has_prior() ) return true;
     if ( ! ( p1.has_prior() || p1.has_prior() ) ) return false;
@@ -63,8 +63,8 @@ namespace Likelihood {
     return false;
   }
   
-  unsigned Snapshot_Source::parameter_status(const optimizers::Parameter& p1, 
-					     const optimizers::Parameter& p2) {
+  auto Snapshot_Source::parameter_status(const optimizers::Parameter& p1, 
+					     const optimizers::Parameter& p2) -> unsigned {
 
     unsigned retVal(0);
     
@@ -138,9 +138,9 @@ namespace Likelihood {
   }   
 
 
-  Snapshot_Status Snapshot_Source::compare_norm(const optimizers::Parameter& par1, 
+  auto Snapshot_Source::compare_norm(const optimizers::Parameter& par1, 
 						const optimizers::Parameter& par2,
-						bool fixed) {
+						bool fixed) -> Snapshot_Status {
     unsigned norm_status = parameter_status(par1,par2);
     if ( norm_status ) {
       norm_status |= (fixed ? Snapshot_Status::Fixed_Changed :  Snapshot_Status::Free_Changed );
@@ -152,9 +152,9 @@ namespace Likelihood {
     return Snapshot_Status(norm_status);
   }
    
-  Snapshot_Status Snapshot_Source::compare_spectral(const std::string& name1, const std::string& name2,
+  auto Snapshot_Source::compare_spectral(const std::string& name1, const std::string& name2,
 						    const ParameterMap& map1, const ParameterMap& map2,
-						    bool fixed) {
+						    bool fixed) -> Snapshot_Status {
     // Spectral model name has changed,
     // Don't bother comparing parameters
     unsigned status(0);
@@ -185,9 +185,9 @@ namespace Likelihood {
     return Snapshot_Status(status << Snapshot_Status::Spec_Offset );
   }
   
-  Snapshot_Status Snapshot_Source::compare_spatial(const std::string& name1, const std::string& name2,
+  auto Snapshot_Source::compare_spatial(const std::string& name1, const std::string& name2,
 						   const ParameterMap& map1, const ParameterMap& map2,
-						   bool fixed) {
+						   bool fixed) -> Snapshot_Status {
     // Spectral model name has changed,
     // Don't bother comparing parameters
     unsigned status(0);
@@ -218,8 +218,8 @@ namespace Likelihood {
     return Snapshot_Status(status << Snapshot_Status::Spatial_Offset );
   }
   
-  Snapshot_Status Snapshot_Source::compare_ancillary(const StringMap& map1, const StringMap& map2,
-						     bool fixed) {
+  auto Snapshot_Source::compare_ancillary(const StringMap& map1, const StringMap& map2,
+						     bool fixed) -> Snapshot_Status {
     unsigned status(0);
     if ( map1.size() != map2.size() ) {
       status |= Snapshot_Status::Ancillary_Changed;
@@ -296,7 +296,7 @@ namespace Likelihood {
     m_owned = true;
   }
 
-  Snapshot_Status Snapshot_Source::compare(const Source& other) const {
+  auto Snapshot_Source::compare(const Source& other) const -> Snapshot_Status {
     Snapshot_Source other_snapshot(other);
     Snapshot_Status status;
     status |= compare_norm(*m_norm_param,*(other_snapshot.m_norm_param),m_fixed);
@@ -321,7 +321,7 @@ namespace Likelihood {
   }
 
 
-  bool Snapshot::source_free(const Source& src) {
+  auto Snapshot::source_free(const Source& src) -> bool {
     // FIXME, do we want to test all the parameters
     return src.spectrum().normPar().isFree();
   }
@@ -354,7 +354,7 @@ namespace Likelihood {
   }
 
   
-  Snapshot_Status Snapshot::compare_source(const std::string& srcName, const Source* src) const {
+  auto Snapshot::compare_source(const std::string& srcName, const Source* src) const -> Snapshot_Status {
     std::map<std::string,Snapshot_Source>::const_iterator itrFind = m_sources.find(srcName);
     if ( src == 0 ) {
       return itrFind->second.fixed() ? 
@@ -370,7 +370,7 @@ namespace Likelihood {
     return itrFind->second.compare(*src);
   }
 
-  Snapshot_Status Snapshot::compare_model(const SourceModel& model, std::vector<std::string>& changed_sources) const {
+  auto Snapshot::compare_model(const SourceModel& model, std::vector<std::string>& changed_sources) const -> Snapshot_Status {
     changed_sources.clear();
     const std::map<std::string, Source *>& sources = model.sources();
     Snapshot_Status status;

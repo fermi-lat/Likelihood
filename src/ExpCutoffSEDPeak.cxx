@@ -28,7 +28,7 @@ ExpCutoffSEDPeak(double Fpeak, double Index, double Epeak)
    addParam("Epeak", Epeak, true);
 }
 
-double ExpCutoffSEDPeak::value(const optimizers::Arg &xarg) const {
+auto ExpCutoffSEDPeak::value(const optimizers::Arg &xarg) const -> double {
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    //std::cout<<"In ::value"<<std::endl;
 
@@ -49,8 +49,8 @@ double ExpCutoffSEDPeak::value(const optimizers::Arg &xarg) const {
    return value;
 }
 
-double ExpCutoffSEDPeak::derivByParamImp(const optimizers::Arg & xarg,
-                                         const std::string & paramName) const {
+auto ExpCutoffSEDPeak::derivByParamImp(const optimizers::Arg & xarg,
+                                         const std::string & paramName) const -> double {
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Fpeak, Index, Epeak};

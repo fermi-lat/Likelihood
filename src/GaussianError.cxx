@@ -31,7 +31,7 @@ namespace Likelihood {
     addParam("Offset", offset, true);    
   }
 
-  double GaussianError::value(const optimizers::Arg & xarg) const {
+  auto GaussianError::value(const optimizers::Arg & xarg) const -> double {
     double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
     double norm = m_parameter[Norm].getTrueValue();
     double mean = m_parameter[Mean].getTrueValue();
@@ -44,8 +44,8 @@ namespace Likelihood {
     return retVal;
   }
   
-  double GaussianError::derivByParamImp(const optimizers::Arg & xarg,
-					const std::string & paramName) const {
+  auto GaussianError::derivByParamImp(const optimizers::Arg & xarg,
+					const std::string & paramName) const -> double {
     double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
     
     int iparam(-1);
@@ -86,7 +86,7 @@ namespace Likelihood {
     return 0;
   }
   
-  double GaussianError::derivative(const optimizers::Arg & xarg) const {
+  auto GaussianError::derivative(const optimizers::Arg & xarg) const -> double {
     double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
     double norm = m_parameter[Norm].getTrueValue();
     double mean = m_parameter[Mean].getTrueValue();

@@ -33,8 +33,8 @@ WcsMapLibrary::~WcsMapLibrary() throw() {
    }
 }
 
-ProjMap * WcsMapLibrary::wcsmap(const std::string & filename,
-                                const std::string & extname) {
+auto WcsMapLibrary::wcsmap(const std::string & filename,
+                                const std::string & extname) -> ProjMap * {
    std::string key(filename + "::" + extname);
    MapLibrary_t::const_iterator it(m_library.find(key));
    if (it != m_library.end()) {
@@ -91,8 +91,8 @@ void WcsMapLibrary::delete_map(const ProjMap * map){
    }
 }
 
-bool WcsMapLibrary::has_map(const std::string & filename,
-                            const std::string & extname) const {
+auto WcsMapLibrary::has_map(const std::string & filename,
+                            const std::string & extname) const -> bool {
    std::string key(filename + "::" + extname);
    return m_library.find(key) != m_library.end();
 }

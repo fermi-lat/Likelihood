@@ -33,7 +33,7 @@ namespace Likelihood {
     addParam(std::string("Index2"), Index2, true);
   } 
   
-  double PowerLawSuperExpCutoff4::value(const optimizers::Arg &xarg) const {
+  auto PowerLawSuperExpCutoff4::value(const optimizers::Arg &xarg) const -> double {
     double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
     
     // assume a standard ordering for the parameters
@@ -59,8 +59,8 @@ namespace Likelihood {
   }
   
   
-  double PowerLawSuperExpCutoff4::derivByParamImp(const optimizers::Arg &xarg,
-                                                 const std::string &paramName) const {
+  auto PowerLawSuperExpCutoff4::derivByParamImp(const optimizers::Arg &xarg,
+                                                 const std::string &paramName) const -> double {
     double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
     enum ParamTypes {Prefactor, IndexS, Scale, ExpfactorS, Index2};

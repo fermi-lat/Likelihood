@@ -74,7 +74,7 @@ void MeanPsf::computeExposure() {
    }
 }
 
-double MeanPsf::operator()(double energy, double theta, double phi) const {
+auto MeanPsf::operator()(double energy, double theta, double phi) const -> double {
    (void)(phi);
    if (m_energies.size() == 0) {
       throw std::runtime_error("MeanPsf::operator(): Cannot call a " + 
@@ -91,7 +91,7 @@ double MeanPsf::operator()(double energy, double theta, double phi) const {
                                         m_psfValues);
 }
 
-double MeanPsf::peakValue(double energy) const {
+auto MeanPsf::peakValue(double energy) const -> double {
    return st_facilities::Util::interpolate(m_energies, m_psfPeakValues, energy);
 }
 
@@ -109,7 +109,7 @@ void MeanPsf::write(const std::string & filename) const {
    output_file.close();
 }
 
-double MeanPsf::exposure(double energy) const {
+auto MeanPsf::exposure(double energy) const -> double {
    return st_facilities::Util::interpolate(m_energies, m_exposure, energy);
 }
 
@@ -146,7 +146,7 @@ void MeanPsf::computePartialIntegrals() {
    }
 }
 
-double MeanPsf::integral(double angle, double energy) const {
+auto MeanPsf::integral(double angle, double energy) const -> double {
    size_t k(std::upper_bound(m_energies.begin(), m_energies.end(),
                              energy) - m_energies.begin() - 1);
    if (k < 0 || k > static_cast<int>(m_energies.size()-1)) {
@@ -194,8 +194,8 @@ double MeanPsf::integral(double angle, double energy) const {
    return final_value;
 }
 
-double MeanPsf::containmentRadius(double energy, double frac, 
-				  double rtol) const {
+auto MeanPsf::containmentRadius(double energy, double frac, 
+				  double rtol) const -> double {
   IntegralFunctor fn = IntegralFunctor(*this,energy);
   return st_facilities::RootFinder::find_root(fn, 0.0, 180.0, frac, rtol);
 }
@@ -233,7 +233,7 @@ double MeanPsf::containmentRadius(double energy, double frac,
 //    return value;
 // }
 
-double MeanPsf::derivative(double angle, double energy) const {
+auto MeanPsf::derivative(double angle, double energy) const -> double {
    int j = std::upper_bound(s_separations.begin(), s_separations.end(),
                             angle) - s_separations.begin() - 1;
    int k = std::upper_bound(m_energies.begin(), m_energies.end(),
@@ -298,7 +298,7 @@ void MeanPsf::createLogArray(double xmin, double xmax, unsigned int npts,
    }
 }
 
-double MeanPsf::Psf::value(double cosTheta, double phi) const {
+auto MeanPsf::Psf::value(double cosTheta, double phi) const -> double {
    double inclination = acos(cosTheta)*180./M_PI;
    double epoch((m_observation.expCube().tstart() 
                  + m_observation.expCube().tstop())/2.);
@@ -326,7 +326,7 @@ double MeanPsf::Psf::value(double cosTheta, double phi) const {
    return 0;
 }
 
-double MeanPsf::IntegralFunctor::operator()(double angle) const {
+auto MeanPsf::IntegralFunctor::operator()(double angle) const -> double {
   return m_mean_psf.integral(angle,m_energy);
 }
 

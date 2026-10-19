@@ -35,7 +35,7 @@ BrokenPowerLaw2::BrokenPowerLaw2(double Integral, double Index1,
    setParamAlwaysFixed("UpperLimit");
 }
 
-double BrokenPowerLaw2::value(const optimizers::Arg & xarg) const {
+auto BrokenPowerLaw2::value(const optimizers::Arg & xarg) const -> double {
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
 // Assume a standard ordering for the parameters.
@@ -55,9 +55,9 @@ double BrokenPowerLaw2::value(const optimizers::Arg & xarg) const {
    }
 }
 
-double BrokenPowerLaw2::
+auto BrokenPowerLaw2::
 derivByParamImp(const optimizers::Arg & xarg,
-                const std::string & paramName) const {
+                const std::string & paramName) const -> double {
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    int iparam(-1);
@@ -177,8 +177,8 @@ derivByParamImp(const optimizers::Arg & xarg,
    return 0;
 }
 
-double BrokenPowerLaw2::integral(const optimizers::Arg & x_min, 
-                                 const optimizers::Arg & x_max) const {
+auto BrokenPowerLaw2::integral(const optimizers::Arg & x_min, 
+                                 const optimizers::Arg & x_max) const -> double {
    double xmin = dynamic_cast<const optimizers::dArg &>(x_min).getValue();
    double xmax = dynamic_cast<const optimizers::dArg &>(x_max).getValue();
    double prefactor(1.);
@@ -215,7 +215,7 @@ double BrokenPowerLaw2::integral(const optimizers::Arg & x_min,
    return prefactor*my_integral;
 }
 
-double BrokenPowerLaw2::N0_value() const {
+auto BrokenPowerLaw2::N0_value() const -> double {
    enum ParamTypes {Integral, Index1, Index2, BreakValue, 
                     LowerLimit, UpperLimit};
 

@@ -53,8 +53,8 @@ void ExposureCube::readExposureCube(std::string filename) {
    delete exposure;
 }
 
-double ExposureCube::livetime(const astro::SkyDir & dir,
-                              double costheta, double phi) const {
+auto ExposureCube::livetime(const astro::SkyDir & dir,
+                              double costheta, double phi) const -> double {
    size_t ci(healpix::CosineBinner::cosine_index(costheta));
    const healpix::CosineBinner & binner(m_exposure->data()[dir]);
    if (phi < 0) {
@@ -65,7 +65,7 @@ double ExposureCube::livetime(const astro::SkyDir & dir,
    return binner.at(index);
 }
 
-bool ExposureCube::phiDependence(const std::string & filename) const {
+auto ExposureCube::phiDependence(const std::string & filename) const -> bool {
    const tip::Table * table 
       = tip::IFileSvc::instance().readTable(filename, "EXPOSURE");
    const tip::Header & header(table->getHeader());
@@ -92,7 +92,7 @@ ExposureCube::Aeff::Aeff(double energy, int evtType,
    }
 }
 
-double ExposureCube::AeffBase::operator()(double cosTheta, double phi) const {
+auto ExposureCube::AeffBase::operator()(double cosTheta, double phi) const -> double {
    std::pair<double, double> key(cosTheta, phi);
    AeffCacheMap_t::const_iterator it(m_cache.find(key));
    if (it != m_cache.end()) {
@@ -103,7 +103,7 @@ double ExposureCube::AeffBase::operator()(double cosTheta, double phi) const {
    return my_value;
 }
 
-double ExposureCube::Aeff::value(double cosTheta, double phi) const {
+auto ExposureCube::Aeff::value(double cosTheta, double phi) const -> double {
    double inclination = acos(cosTheta)*180./M_PI;
    double epoch((m_observation.expCube().tstart() 
                  + m_observation.expCube().tstop())/2.);

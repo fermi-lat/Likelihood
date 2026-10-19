@@ -40,7 +40,7 @@ BrokenPowerLaw3::BrokenPowerLaw3(double Integral1, double Index1,
    setParamAlwaysFixed("UpperLimit2");
 }
 
-double BrokenPowerLaw3::value(const optimizers::Arg & xarg) const {
+auto BrokenPowerLaw3::value(const optimizers::Arg & xarg) const -> double {
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Integral1, Index1, Integral2, Index2, 
@@ -58,9 +58,9 @@ double BrokenPowerLaw3::value(const optimizers::Arg & xarg) const {
    }
 }
 
-double BrokenPowerLaw3::
+auto BrokenPowerLaw3::
 derivByParamImp(const optimizers::Arg & xarg, 
-                const std::string & paramName) const {
+                const std::string & paramName) const -> double {
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    int iparam(-1);
@@ -149,8 +149,8 @@ derivByParamImp(const optimizers::Arg & xarg,
    return 0;
 }
 
-double BrokenPowerLaw3::integral(const optimizers::Arg & x_min, 
-                                 const optimizers::Arg & x_max) const {
+auto BrokenPowerLaw3::integral(const optimizers::Arg & x_min, 
+                                 const optimizers::Arg & x_max) const -> double {
    double xmin = dynamic_cast<const optimizers::dArg &>(x_min).getValue();
    double xmax = dynamic_cast<const optimizers::dArg &>(x_max).getValue();
 
@@ -194,7 +194,7 @@ double BrokenPowerLaw3::integral(const optimizers::Arg & x_min,
    return prefactor*my_integral;
 }
 
-double BrokenPowerLaw3::N0_value(double x0) const {
+auto BrokenPowerLaw3::N0_value(double x0) const -> double {
    enum ParamTypes {Integral1, Index1, Integral2, Index2, 
                     LowerLimit1, UpperLimit1, LowerLimit2, UpperLimit2};
    double F1(m_parameter[Integral1].getTrueValue());
@@ -209,7 +209,7 @@ double BrokenPowerLaw3::N0_value(double x0) const {
    return N0;
 }
 
-double BrokenPowerLaw3::x0_value() const {
+auto BrokenPowerLaw3::x0_value() const -> double {
    enum ParamTypes {Integral1, Index1, Integral2, Index2, 
                     LowerLimit1, UpperLimit1, LowerLimit2, UpperLimit2};
    double F1(m_parameter[Integral1].getTrueValue());

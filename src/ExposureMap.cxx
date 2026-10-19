@@ -291,17 +291,17 @@ void ExposureMap::readEnergyExtension(const std::string & filename,
    }
 }
 
-double ExposureMap::operator()(const astro::SkyDir & dir,
-                               double energy) const {
+auto ExposureMap::operator()(const astro::SkyDir & dir,
+                               double energy) const -> double {
    return m_projmap->operator()(dir, energy);
 }
 
-double ExposureMap::operator()(const astro::SkyDir & dir,
-                               int k) const {
+auto ExposureMap::operator()(const astro::SkyDir & dir,
+                               int k) const -> double {
    return m_projmap->operator()(dir, k);
 }
 
-bool ExposureMap::withinMapRadius(const astro::SkyDir & dir) const {
+auto ExposureMap::withinMapRadius(const astro::SkyDir & dir) const -> bool {
    return m_projmap->withinMapRadius(dir);
 }
 

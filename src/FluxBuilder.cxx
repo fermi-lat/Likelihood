@@ -25,11 +25,11 @@ namespace Likelihood {
 
 namespace {
 
-char* allocateString(rapidxml::xml_document<>* doc, const std::string& str) {
+auto allocateString(rapidxml::xml_document<>* doc, const std::string& str) -> char* {
    return doc->allocate_string(str.c_str(), str.size() + 1);
 }
 
-rapidxml::xml_node<>* createElement(rapidxml::xml_document<>* doc, const char* name) {
+auto createElement(rapidxml::xml_document<>* doc, const char* name) -> rapidxml::xml_node<>* {
    char* nodeName = doc->allocate_string(name);
    return doc->allocate_node(rapidxml::node_element, nodeName);
 }

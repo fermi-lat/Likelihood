@@ -226,7 +226,7 @@ void RoiCuts::sortCuts(bool strict) {
    }
 }
 
-bool RoiCuts::accept(const Event &event) const {
+auto RoiCuts::accept(const Event &event) const -> bool {
    bool acceptEvent(false);
 
    std::map<std::string, double> thisEvent;

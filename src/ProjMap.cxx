@@ -92,7 +92,7 @@ ProjMap::ProjMap(const ProjMap & rhs, const double & energy)
      m_mapIntegrals(1,0.){
 }
 
-ProjMap & ProjMap::operator=(const ProjMap & rhs) {
+auto ProjMap::operator=(const ProjMap & rhs) -> ProjMap & {
    if (this != &rhs) {
       m_filename = rhs.m_filename;
       m_refDir = rhs.m_refDir;
@@ -110,7 +110,7 @@ ProjMap & ProjMap::operator=(const ProjMap & rhs) {
 }
 
 
-astro::SkyDir ProjMap::skyDir(double ilon, double ilat) const {
+auto ProjMap::skyDir(double ilon, double ilat) const -> astro::SkyDir {
    if ( m_proj == 0 ) {
      throw std::runtime_error("ProjMap: Projection is not initialized");
    }
@@ -130,7 +130,7 @@ astro::SkyDir ProjMap::skyDir(double ilon, double ilat) const {
 			m_proj->isGalactic() ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
 }
 
-bool ProjMap::withinMapRadius(const astro::SkyDir & dir) const {
+auto ProjMap::withinMapRadius(const astro::SkyDir & dir) const -> bool {
    if (dir.difference(m_refDir) <= m_mapRadius) {
       return true;
    }
@@ -139,7 +139,7 @@ bool ProjMap::withinMapRadius(const astro::SkyDir & dir) const {
 
 
 
-double ProjMap::mapIntegral(double energy) const {
+auto ProjMap::mapIntegral(double energy) const -> double {
    check_energy(energy);
 
    int k(0);
@@ -185,8 +185,8 @@ void ProjMap::check_energy(double energy) const {
    }
 }
 
-double ProjMap::interpolatePowerLaw(double x, double x1, double x2,
-                                    double y1, double y2) {
+auto ProjMap::interpolatePowerLaw(double x, double x1, double x2,
+                                    double y1, double y2) -> double {
    if (y1 == 0 && y2 == 0) {
       return 0;
    }

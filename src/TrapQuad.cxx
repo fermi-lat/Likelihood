@@ -16,7 +16,7 @@
 
 namespace Likelihood {
 
-double TrapQuad::integral() {
+auto TrapQuad::integral() -> double {
    if (m_func) {
       std::ostringstream errorMessage;
       errorMessage << "TrapQuad::integral:\n"
@@ -33,7 +33,7 @@ double TrapQuad::integral() {
    return value;
 }
 
-double TrapQuad::integral(double xmin, double xmax, int npts) {
+auto TrapQuad::integral(double xmin, double xmax, int npts) -> double {
    if (!m_func) {
       std::ostringstream errorMessage;
       errorMessage << "TrapQuad::integral:\n"
@@ -60,7 +60,7 @@ double TrapQuad::integral(double xmin, double xmax, int npts) {
    return value;
 }
 
-double TrapQuad::integral(const std::vector<double> &xvals) {
+auto TrapQuad::integral(const std::vector<double> &xvals) -> double {
    if (!m_func) {
       std::ostringstream errorMessage;
       errorMessage << "TrapQuad::integral:\n"
@@ -85,7 +85,7 @@ double TrapQuad::integral(const std::vector<double> &xvals) {
    return value;
 }
 
-double TrapQuad::compute_integral() {
+auto TrapQuad::compute_integral() -> double {
    int n = m_y.size();
    double sum = m_y[0]*(m_x[1] - m_x[0])/2. 
       + m_y[n-1]*(m_x[n-1] - m_x[n-2])/2.;
@@ -94,7 +94,7 @@ double TrapQuad::compute_integral() {
    return sum;
 }
 
-double TrapQuad::compute_log_integral() {
+auto TrapQuad::compute_log_integral() -> double {
 //    double sum(0);
 //    for (unsigned int i = 0; i < m_x.size()-1; i++) {
 //       if (m_y[i+1] > 0 && m_y[i] > 0) {

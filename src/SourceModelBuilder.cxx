@@ -32,12 +32,12 @@ namespace Likelihood {
 namespace {
 
 // Helper function to allocate a string in the document's memory pool
-char* allocateString(rapidxml::xml_document<>* doc, const std::string& str) {
+auto allocateString(rapidxml::xml_document<>* doc, const std::string& str) -> char* {
    return doc->allocate_string(str.c_str(), str.size() + 1);
 }
 
 // Helper function to create an element node
-rapidxml::xml_node<>* createElement(rapidxml::xml_document<>* doc, const char* name) {
+auto createElement(rapidxml::xml_document<>* doc, const char* name) -> rapidxml::xml_node<>* {
    char* nodeName = doc->allocate_string(name);
    return doc->allocate_node(rapidxml::node_element, nodeName);
 }
@@ -178,7 +178,7 @@ void SourceModelBuilder::write(std::string xmlFile) {
    prettyPrint(outFile, m_srcLib);
 }
 
-rapidxml::xml_node<>* SourceModelBuilder::likelihoodSource(const Source & src) {
+auto SourceModelBuilder::likelihoodSource(const Source & src) -> rapidxml::xml_node<>* {
    rapidxml::xml_node<>* srcElt = createElement(m_doc, "source");
    addAttribute(m_doc, srcElt, "name", src.getName());
    appendChild(srcElt, spectralPart(src));
@@ -200,7 +200,7 @@ rapidxml::xml_node<>* SourceModelBuilder::likelihoodSource(const Source & src) {
    return srcElt;
 }
 
-rapidxml::xml_node<>* SourceModelBuilder::spectralPart(const Source & src) {
+auto SourceModelBuilder::spectralPart(const Source & src) -> rapidxml::xml_node<>* {
    const Source::FuncMap & srcFuncs = src.getSrcFuncs();
    
    Source::FuncMap::const_iterator find_spectrum = srcFuncs.find("Spectrum");

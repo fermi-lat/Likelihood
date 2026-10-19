@@ -12,7 +12,7 @@ namespace Likelihood {
 
 xml_framework::SafeXmlParser* XmlParser::s_instance(nullptr);
 
-xml_framework::SafeXmlParser* XmlParser_instance() {
+auto XmlParser_instance() -> xml_framework::SafeXmlParser* {
    return XmlParser::instance();
 }
 

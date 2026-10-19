@@ -41,7 +41,7 @@ MapCubeFunction2::MapCubeFunction2(const std::string & fitsFile)
 MapCubeFunction2::MapCubeFunction2(const MapCubeFunction2 & rhs)
    : optimizers::Function(rhs), MapBase(rhs) {}
 
-MapCubeFunction2 & MapCubeFunction2::operator=(const MapCubeFunction2 & rhs) {
+auto MapCubeFunction2::operator=(const MapCubeFunction2 & rhs) -> MapCubeFunction2 & {
    if (this != &rhs) {
       optimizers::Function::operator=(rhs);
       MapBase::operator=(rhs);
@@ -52,7 +52,7 @@ MapCubeFunction2 & MapCubeFunction2::operator=(const MapCubeFunction2 & rhs) {
 MapCubeFunction2::~MapCubeFunction2() {
 }
 
-double MapCubeFunction2::value(const optimizers::Arg & xarg) const {
+auto MapCubeFunction2::value(const optimizers::Arg & xarg) const -> double {
    const SkyDirArg & dir = dynamic_cast<const SkyDirArg &>(xarg);
    double energy = dir.energy();
    double value = projmap().operator()(dir(), energy);
@@ -60,11 +60,11 @@ double MapCubeFunction2::value(const optimizers::Arg & xarg) const {
 }
 
 
-double MapCubeFunction2::mapIntegral() const {
+auto MapCubeFunction2::mapIntegral() const -> double {
    return projmap().mapIntegral();
 }
 
-double MapCubeFunction2::mapIntegral(double energy) const {
+auto MapCubeFunction2::mapIntegral(double energy) const -> double {
    return projmap().mapIntegral(energy);
 }
 

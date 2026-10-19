@@ -22,8 +22,8 @@
 namespace Likelihood {
 
 
-const std::string&
-Source::sourceTypeName(SourceType t) {
+auto
+Source::sourceTypeName(SourceType t) -> const std::string& {
   static const std::string point_name("Point");
   static const std::string diffuse_name("Diffuse");
   static const std::string composite_name("Composite");
@@ -63,7 +63,7 @@ Source::Source(const Source & rhs)
 // The deep copy of m_functions must be handled by the subclasses.
 }
 
-double Source::Npred() {
+auto Source::Npred() -> double {
    optimizers::Function * specFunc = m_functions["Spectrum"];
 //   if (specFunc->xvalues().size() == 0) {
    if (true) {
@@ -110,7 +110,7 @@ void Source::getExposureValues(const std::vector<double> & energies,
    }
 }
 
-double Source::Npred(double emin, double emax) const {
+auto Source::Npred(double emin, double emax) const -> double {
    std::vector<double> energies;
    std::vector<double> exposure;
 
@@ -135,7 +135,7 @@ double Source::Npred(double emin, double emax) const {
    return trapQuad.integral();
 }
 
-double Source::NpredDeriv(const std::string &paramName) {
+auto Source::NpredDeriv(const std::string &paramName) -> double {
    const std::vector<double> & energies(m_energies);
    optimizers::Function *specFunc = m_functions["Spectrum"];
 
@@ -156,8 +156,8 @@ double Source::NpredDeriv(const std::string &paramName) {
    }
 }
 
-double Source::
-NpredDeriv(const std::string & paramName, double emin, double emax) const {
+auto Source::
+NpredDeriv(const std::string & paramName, double emin, double emax) const -> double {
    std::vector<double> energies;
    std::vector<double> exposures;
 //   getExposureSubArrays(emin, emax, energies, exposures);
@@ -202,12 +202,12 @@ void Source::setSpectrum(const std::string & functionName) {
    }
 }
 
-bool Source::fixedSpectrum() const {
+auto Source::fixedSpectrum() const -> bool {
    return m_spectrum->getNumFreeParams() == 0;
 }
 
-double Source::pixelCounts(double emin, double emax,
-                           double wtMin, double wtMax) const {
+auto Source::pixelCounts(double emin, double emax,
+                           double wtMin, double wtMax) const -> double {
    optimizers::Function & spectrum = *m_spectrum;
    optimizers::dArg eminArg(emin);
    optimizers::dArg emaxArg(emax);
@@ -224,9 +224,9 @@ double Source::pixelCounts(double emin, double emax,
    return (y1*emin + y2*emax)/2.*std::log(emax/emin);
 }
 
-double Source::pixelCountsDeriv(double emin, double emax,
+auto Source::pixelCountsDeriv(double emin, double emax,
                                 double wtMin, double wtMax,
-                                const std::string & paramName) const {
+                                const std::string & paramName) const -> double {
    optimizers::Function & spectrum = *m_spectrum;
    optimizers::dArg eminArg(emin);
    optimizers::dArg emaxArg(emax);

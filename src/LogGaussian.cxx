@@ -28,7 +28,7 @@ LogGaussian::LogGaussian(double norm, double mean, double sigma)
    addParam("Sigma", sigma, true);
 }
 
-double LogGaussian::value(const optimizers::Arg & xarg) const {
+auto LogGaussian::value(const optimizers::Arg & xarg) const -> double {
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    enum ParamTypes {Norm, Mean, Sigma};
    double norm = m_parameter[Norm].getTrueValue();
@@ -37,9 +37,9 @@ double LogGaussian::value(const optimizers::Arg & xarg) const {
    return norm*(-(x - mean)*(x - mean)/2./sigma/sigma - m_log_term);
 }
 
-double LogGaussian::
+auto LogGaussian::
 derivByParamImp(const optimizers::Arg & xarg,
-                const std::string & paramName) const {
+                const std::string & paramName) const -> double {
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    int iparam(-1);
@@ -78,7 +78,7 @@ derivByParamImp(const optimizers::Arg & xarg,
    return 0;
 }
 
-double LogGaussian::derivative(const optimizers::Arg & xarg) const {
+auto LogGaussian::derivative(const optimizers::Arg & xarg) const -> double {
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    enum ParamTypes {Norm, Mean, Sigma};
    double norm = m_parameter[Norm].getTrueValue();

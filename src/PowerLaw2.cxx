@@ -39,7 +39,7 @@ PowerLaw2::PowerLaw2(double Integral, double Index,
    updateCache(1.0, Index, LowerLimit, UpperLimit);
 }
 
-double PowerLaw2::value(const optimizers::Arg & xarg) const {
+auto PowerLaw2::value(const optimizers::Arg & xarg) const -> double {
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
 // Assume a standard ordering for the parameters.
@@ -58,8 +58,8 @@ double PowerLaw2::value(const optimizers::Arg & xarg) const {
      return NN*m_cGXFact*m_cPowX;
 }
 
-double PowerLaw2::
-derivByParamImp(const optimizers::Arg & xarg, const std::string & paramName) const {
+auto PowerLaw2::
+derivByParamImp(const optimizers::Arg & xarg, const std::string & paramName) const -> double {
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    int iparam(-1);
@@ -117,8 +117,8 @@ derivByParamImp(const optimizers::Arg & xarg, const std::string & paramName) con
    return 0;
 }
 
-double PowerLaw2::integral(optimizers::Arg & x_min, 
-                           optimizers::Arg & x_max) const {
+auto PowerLaw2::integral(optimizers::Arg & x_min, 
+                           optimizers::Arg & x_max) const -> double {
    double xmin = dynamic_cast<const optimizers::dArg &>(x_min).getValue();
    double xmax = dynamic_cast<const optimizers::dArg &>(x_max).getValue();
 

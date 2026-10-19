@@ -13,8 +13,8 @@
 
 namespace Likelihood {
 
-double Pixel::modelCounts(double emin, double emax, 
-                          SourceModel & srcModel) const {
+auto Pixel::modelCounts(double emin, double emax, 
+                          SourceModel & srcModel) const -> double {
    std::vector<std::string> srcNames;
    srcModel.getSrcNames(srcNames);
 
@@ -92,7 +92,7 @@ Pixel::Aeff::Aeff(Source * src, const astro::SkyDir & appDir,
    }
 }
 
-double Pixel::Aeff::value(double costheta, double phi) const {
+auto Pixel::Aeff::value(double costheta, double phi) const -> double {
    if (m_separation < 90.) {
       double inclination = acos(costheta)*180./M_PI;
       return m_src->fluxDensity(inclination, phi, m_energy, m_appDir,
@@ -114,7 +114,7 @@ Pixel::AeffDeriv::AeffDeriv(Source * src, const std::string & paramName,
    }
 }
 
-double Pixel::AeffDeriv::value(double costheta, double phi) const {
+auto Pixel::AeffDeriv::value(double costheta, double phi) const -> double {
    if (m_separation < 90.) {
       double inclination = acos(costheta)*180./M_PI;
       return m_src->fluxDensityDeriv(inclination, phi, m_energy, m_appDir,

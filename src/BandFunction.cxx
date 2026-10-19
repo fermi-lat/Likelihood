@@ -25,15 +25,15 @@ namespace {
          : m_params(params) {}
 
       /// @return The true value of the parameter
-      double operator[](unsigned int i) {
+      auto operator[](unsigned int i) -> double {
          return m_params[i].getTrueValue();
       }
 
-      unsigned int size() const {
+      auto size() const -> unsigned int {
          return m_params.size();
       }
 
-      const optimizers::Parameter & operator()(unsigned int i) const {
+      auto operator()(unsigned int i) const -> const optimizers::Parameter & {
          return m_params[i];
       }
    private:
@@ -53,7 +53,7 @@ BandFunction(double norm, double alpha, double beta, double Ep, double scale)
    addParam("Scale", scale, false);
 }
 
-double BandFunction::value(const optimizers::Arg &xarg) const {
+auto BandFunction::value(const optimizers::Arg &xarg) const -> double {
    ::Pars pars(m_parameter);
 
    double N0(pars[0]);
@@ -78,8 +78,8 @@ double BandFunction::value(const optimizers::Arg &xarg) const {
    return my_value;
 }
 
-double BandFunction::derivByParamImp(const optimizers::Arg & xarg,
-                                     const std::string & paramName) const {
+auto BandFunction::derivByParamImp(const optimizers::Arg & xarg,
+                                     const std::string & paramName) const -> double {
    ::Pars pars(m_parameter);
 
    double N0(pars[0]);

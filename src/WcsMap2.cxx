@@ -55,7 +55,7 @@ namespace {
       }
    };
 
-   double my_round(double x) {
+   auto my_round(double x) -> double {
       int xint = static_cast<int>(x);
       if (x - xint >= 0.5) {
          return xint + 1.;
@@ -455,7 +455,7 @@ WcsMap2::WcsMap2(const WcsMap2 & rhs,const double&energy,
 
 WcsMap2::~WcsMap2(){}
 
-WcsMap2 & WcsMap2::operator=(const WcsMap2 & rhs) {
+auto WcsMap2::operator=(const WcsMap2 & rhs) -> WcsMap2 & {
    if (this != &rhs) {
       ProjMap::operator=(rhs);
       m_image = rhs.m_image;
@@ -475,7 +475,7 @@ WcsMap2 & WcsMap2::operator=(const WcsMap2 & rhs) {
    return *this;
 }
 
-double WcsMap2::operator()(const astro::SkyDir & dir, int k) const {
+auto WcsMap2::operator()(const astro::SkyDir & dir, int k) const -> double {
    check_energy_index(k);
 // NB: wcslib starts indexing pixels with 1, not 0.
    std::pair<double, double> pixel;
@@ -546,7 +546,7 @@ double WcsMap2::operator()(const astro::SkyDir & dir, int k) const {
    return value;
 }
 
-double WcsMap2::operator()(const astro::SkyDir & dir, double energy) const {
+auto WcsMap2::operator()(const astro::SkyDir & dir, double energy) const -> double {
    if (energy < 0) {
        energy = energies().front();
    }
@@ -581,9 +581,9 @@ double WcsMap2::operator()(const astro::SkyDir & dir, double energy) const {
 }
 
 
-ProjMap* WcsMap2::convolveAll(const MeanPsf & psf,
+auto WcsMap2::convolveAll(const MeanPsf & psf,
 			      const BinnedExposureBase * exposure,
-			      bool performConvolution) const {
+			      bool performConvolution) const -> ProjMap* {
 
   WcsMap2* outMap = new WcsMap2(*this, false);
   outMap->m_image.clear();
@@ -599,10 +599,10 @@ ProjMap* WcsMap2::convolveAll(const MeanPsf & psf,
 }
 
 
-ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
+auto WcsMap2::convolve(double energy, const MeanPsf & psf,
 			   const BinnedExposureBase * exposure,
 			   bool performConvolution,
-			   int k) const {
+			   int k) const -> ProjMap* {
 
 // Convolve for a single image plane.
    check_energy_index(k);
@@ -683,11 +683,11 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
 }
 
 
-ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
+auto WcsMap2::convolve(double energy, const MeanPsf & psf,
 			   const BinnedExposureBase * exposure,
 			   const SpatialFunction& fn,
 			   bool performConvolution,
-			   int k) const {
+			   int k) const -> ProjMap* {
 
    // FIXME
    if ( ! performConvolution ) {
@@ -749,14 +749,14 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
 
 
 
-CountsMapBase* WcsMap2::makeCountsMap(const CountsMapBase& counts_map) const {
+auto WcsMap2::makeCountsMap(const CountsMapBase& counts_map) const -> CountsMapBase* {
   const CountsMap& wcs_counts_map = static_cast<const CountsMap&>(counts_map);
   return new CountsMap(*this, wcs_counts_map);
 }
 
 
-double WcsMap2::solidAngle(const astro::ProjBase & proj, 
-                           double ilon, double ilat) {
+auto WcsMap2::solidAngle(const astro::ProjBase & proj, 
+                           double ilon, double ilat) -> double {
    bool atpole(false);
    std::pair<double, double> center(proj.pix2sph(ilon, ilat));
    std::pair<double, double> left(proj.pix2sph(ilon - 0.5, ilat));
@@ -789,7 +789,7 @@ double WcsMap2::solidAngle(const astro::ProjBase & proj,
    return dOmega;
 }
 
-double WcsMap2::solidAngle(double ilon, double ilat) const {
+auto WcsMap2::solidAngle(double ilon, double ilat) const -> double {
    try {
       // EAC, watch out for WCS convention of starting at 1
       return solidAngle(*getProj(), ilon, ilat);
@@ -803,7 +803,7 @@ double WcsMap2::solidAngle(double ilon, double ilat) const {
 }
 
 //const std::vector< std::vector<double> > & WcsMap2::solidAngles() const {
-const std::vector< std::vector<float> > & WcsMap2::solidAngles() const {
+auto WcsMap2::solidAngles() const -> const std::vector< std::vector<float> > & {
    if (m_solidAngles.empty()) {
 //      m_solidAngles.resize(m_naxis1, std::vector<double>(m_naxis2, 0));
       m_solidAngles.resize(m_naxis1, std::vector<float>(m_naxis2, 0));
@@ -817,7 +817,7 @@ const std::vector< std::vector<float> > & WcsMap2::solidAngles() const {
    return m_solidAngles;
 }
 
-double WcsMap2::pixelValue(double ilon, double ilat, int k) const {
+auto WcsMap2::pixelValue(double ilon, double ilat, int k) const -> double {
    check_energy_index(k);
 
 // Find the pixel in which the sky location lives and returns the value.
@@ -835,7 +835,7 @@ double WcsMap2::pixelValue(double ilon, double ilat, int k) const {
 }
 
 
-bool WcsMap2::insideMap(const astro::SkyDir & dir) const {
+auto WcsMap2::insideMap(const astro::SkyDir & dir) const -> bool {
    std::pair<double, double> pixel = dir.project(*getProj());
 
    double x(pixel.first);
@@ -849,12 +849,12 @@ bool WcsMap2::insideMap(const astro::SkyDir & dir) const {
    return true;
 }
 
-double WcsMap2::pixelSize() const {
+auto WcsMap2::pixelSize() const -> double {
   return std::fabs(m_cdelt1) <= std::fabs(m_cdelt2) ? std::fabs(m_cdelt1) : std::fabs(m_cdelt2);
 }
 
-std::pair<astro::SkyDir, astro::SkyDir> 
-WcsMap2::minMaxDistPixels(const astro::SkyDir & dir) const {
+auto 
+WcsMap2::minMaxDistPixels(const astro::SkyDir & dir) const -> std::pair<astro::SkyDir, astro::SkyDir> {
    astro::SkyDir closest(skyDir(1, 1));
    double min_dist = dir.difference(closest);
    astro::SkyDir farthest(skyDir(1, 1));
@@ -956,7 +956,7 @@ void WcsMap2::computeMapIntegrals() {
    }
 }
 
-ProjMap* WcsMap2::rebin(unsigned int factor, bool average) {
+auto WcsMap2::rebin(unsigned int factor, bool average) -> ProjMap* {
    WcsMap2 * my_map = new WcsMap2(*this);
    int dnxp = factor - (m_naxis1 % factor);
    if (dnxp == factor) {
