@@ -57,7 +57,7 @@ private:
    void check_costheta_bounds() const;
    void get_costheta_bounds(const std::string & filename,
                             std::vector<double> & ctheta_bounds) const;
-   double zenmax(const tip::Table * table) const;
+   auto zenmax(const tip::Table * table) const -> double;
    void addTables(const std::string & tableName, bool writeGtis=true);
    void writeDateKeywords(const std::string & outfile,
                           double tstart, double tstop) const;
@@ -132,7 +132,7 @@ void AddLivetime::check_costheta_bounds() const {
    }
 }
 
-double AddLivetime::zenmax(const tip::Table * table) const {
+auto AddLivetime::zenmax(const tip::Table * table) const -> double {
    double value;
    const tip::Header & header(table->getHeader());
    try {

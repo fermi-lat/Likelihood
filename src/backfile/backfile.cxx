@@ -59,9 +59,9 @@ private:
    void getEbounds(std::vector<double> & emin,
                    std::vector<double> & emax) const;
    void updateKeywords() const;
-   double NpredError(const Likelihood::LogLike & logLike,
+   auto NpredError(const Likelihood::LogLike & logLike,
                      const std::vector<std::string> & source_names,
-                     double emin, double emax) const;
+                     double emin, double emax) const -> double;
    void writeBackFile(const std::vector<double> & bg_rate,
                       const std::vector<double> & bg_rate_err) const;
    void setHeaderKeyword(const std::string & phafile, 
@@ -173,9 +173,9 @@ void BackFile::run() {
    st_facilities::FitsUtil::writeChecksums(outfile);
 }
 
-double BackFile::NpredError(const Likelihood::LogLike & logLike,
+auto BackFile::NpredError(const Likelihood::LogLike & logLike,
                             const std::vector<std::string> & source_names,
-                            double emin, double emax) const {
+                            double emin, double emax) const -> double {
    std::string target = m_pars["target"];
    double variance(0);
    for (size_t i(0); i < source_names.size(); i++) {

@@ -64,9 +64,9 @@ XmlDiff::~XmlDiff() {
    std::remove(m_file2.c_str());
 }
 
-bool XmlDiff::loadDocument(const std::string& filename,
+auto XmlDiff::loadDocument(const std::string& filename,
                            std::unique_ptr<XmlDocument>& doc,
-                           std::vector<char>& buffer) {
+                           std::vector<char>& buffer) -> bool {
    // Open file
    std::ifstream file(filename, std::ios::binary | std::ios::ate);
    if (!file.is_open()) {
@@ -94,13 +94,13 @@ bool XmlDiff::loadDocument(const std::string& filename,
    }
 }
 
-std::string XmlDiff::getAttribute(XmlNode* node, const char* name) {
+auto XmlDiff::getAttribute(XmlNode* node, const char* name) -> std::string {
    if (!node) return "";
    XmlAttribute* attr = node->first_attribute(name);
    return attr ? std::string(attr->value(), attr->value_size()) : "";
 }
 
-std::string XmlDiff::getTagName(XmlNode* node) {
+auto XmlDiff::getTagName(XmlNode* node) -> std::string {
    if (!node || !node->name()) return "";
    return std::string(node->name(), node->name_size());
 }
@@ -226,7 +226,7 @@ void XmlDiff::readLines(const std::string& inputFile,
    }
 }
 
-bool XmlDiff::compare() {
+auto XmlDiff::compare() -> bool {
    // Read lines from both reserialized files
    std::vector<std::string> file1_lines;
    readLines(m_file1, file1_lines);
@@ -249,7 +249,7 @@ bool XmlDiff::compare() {
    return true;
 }
 
-bool XmlDiff::sameKeys() {
+auto XmlDiff::sameKeys() -> bool {
    if (m_domMap1.size() != m_domMap2.size()) {
       return false;
    }

@@ -49,7 +49,7 @@
 using namespace Likelihood;
 
 namespace {
-   std::string strip_front_back(std::string respName) {
+   auto strip_front_back(std::string respName) -> std::string {
 // Strip off ::FRONT or ::BACK qualifiers that naive users may supply.
       size_t pos(respName.find("::"));
       if (pos != std::string::npos) {
@@ -57,8 +57,8 @@ namespace {
       }
       return respName;
    }
-   std::string alt_diffuseSrcName(const std::string & srcName,
-                                  const Observation & obs) {
+   auto alt_diffuseSrcName(const std::string & srcName,
+                                  const Observation & obs) -> std::string {
       std::string name(strip_front_back(obs.respFuncs().respName()) 
                        + "::" + srcName);
       Event::toLower(name);
@@ -127,7 +127,7 @@ private:
    void readDiffRespNames(std::unique_ptr<const tip::Table> const& events,
                           std::vector<std::string> & colnames);
    void readExistingDiffRespKeys(const tip::Table * events);
-   bool haveDiffuseColumns(const std::string & eventFile);
+   auto haveDiffuseColumns(const std::string & eventFile) -> bool;
    void buildSourceModel();
    void readEventData(std::string eventFile);
    void computeEventResponses();
@@ -135,7 +135,7 @@ private:
    void getDiffuseSources();
    void setGaussianParams(const Event & event, const std::string & name,
                           tip::Table::Vector<double> & params);
-   std::string diffuseSrcName(const std::string & srcName) const;
+   auto diffuseSrcName(const std::string & srcName) const -> std::string;
 
    static std::string s_cvs_id;
 };
@@ -311,7 +311,7 @@ void diffuseResponses::readDiffuseNames(std::vector<std::string>& srcNames) {
     }
 }
 
-bool diffuseResponses::haveDiffuseColumns(const std::string & eventFile) {
+auto diffuseResponses::haveDiffuseColumns(const std::string & eventFile) -> bool {
    std::unique_ptr<const tip::Table> 
       events(tip::IFileSvc::instance().readTable(eventFile,
                                                  m_pars["evtable"]));
@@ -356,8 +356,8 @@ readDiffRespNames(std::unique_ptr<const tip::Table> const& events,
    }
 }
 
-std::string diffuseResponses::
-diffuseSrcName(const std::string & srcName) const {
+auto diffuseResponses::
+diffuseSrcName(const std::string & srcName) const -> std::string {
 /// Strip off ::FRONT or ::BACK qualifiers that naive users may supply.
    std::vector<std::string> tokens;
    std::string respName(m_helper->observation().respFuncs().respName());

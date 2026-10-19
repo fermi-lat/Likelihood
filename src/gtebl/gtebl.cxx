@@ -54,7 +54,7 @@ private:
 
    st_app::AppParGroup & m_pars;
 
-   std::string par(const std::string & key) const;
+   auto par(const std::string & key) const -> std::string;
 
    static std::string s_cvs_id;
 
@@ -71,7 +71,7 @@ void Ebl::banner() const {
    }
 }
 
-std::string Ebl::par(const std::string & key) const {
+auto Ebl::par(const std::string & key) const -> std::string {
    std::string value = m_pars[key.c_str()];
    return value;
 }

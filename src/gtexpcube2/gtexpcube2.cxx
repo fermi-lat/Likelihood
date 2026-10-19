@@ -43,7 +43,7 @@ using namespace Likelihood;
 class ExpCube : public st_app::StApp {
 
 private:
-   static bool check_cmap_null(const std::string& cmap_name);
+   static auto check_cmap_null(const std::string& cmap_name) -> bool;
 public:
    ExpCube();
    virtual ~ExpCube() throw() {
@@ -78,9 +78,9 @@ private:
    void copyGtis() const;
    void copyHeaderKeywords() const;
    void copyDssKeywords(tip::Header & header) const;
-   bool have_user_sky_geom_wcs() const;
-   bool have_user_sky_geom_hpx() const;
-   bool have_user_energies() const;
+   auto have_user_sky_geom_wcs() const -> bool;
+   auto have_user_sky_geom_hpx() const -> bool;
+   auto have_user_energies() const -> bool;
    static std::string s_cvs_id;
 };
 
@@ -88,7 +88,7 @@ st_app::StAppFactory<ExpCube> myAppFactory("gtexpcube2");
 
 std::string ExpCube::s_cvs_id("$Name:  $");
 
-bool ExpCube::check_cmap_null(const std::string& cmap_name) {
+auto ExpCube::check_cmap_null(const std::string& cmap_name) -> bool {
    if ( cmap_name == "none" ||
 	cmap_name == "hpx" ) {
       return true;
@@ -266,7 +266,7 @@ void ExpCube::run_hpx(const std::string* cmap_file, int edisp_bins) {
 
 
 
-bool ExpCube::have_user_sky_geom_wcs() const {
+auto ExpCube::have_user_sky_geom_wcs() const -> bool {
    // Check for INDEFs in m_pars.
    try {
       unsigned int nxpix = m_pars["nxpix"];
@@ -283,7 +283,7 @@ bool ExpCube::have_user_sky_geom_wcs() const {
    return true;
 }
 
-bool ExpCube::have_user_sky_geom_hpx() const {
+auto ExpCube::have_user_sky_geom_hpx() const -> bool {
    // Check for INDEFs in m_pars.
    try {
       std::string hpx_scheme = m_pars["hpx_ordering_scheme"];
@@ -300,7 +300,7 @@ bool ExpCube::have_user_sky_geom_hpx() const {
 
 
 
-bool ExpCube::have_user_energies() const {
+auto ExpCube::have_user_energies() const -> bool {
    // Check for INDEFs in m_pars.
    std::string ebinalg = m_pars["ebinalg"];
    if (ebinalg == "FILE") {

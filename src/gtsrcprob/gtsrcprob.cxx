@@ -89,7 +89,7 @@ private:
    void readEventData();
    void writeDensities() const;
    void getSourceList();
-   std::string columnName(std::string srcName) const;
+   auto columnName(std::string srcName) const -> std::string;
 
    static std::string s_cvs_id;
 };
@@ -154,7 +154,7 @@ void SourceProbs::buildSourceModel() {
                           requireExposure=false);
 }
 
-std::string SourceProbs::columnName(std::string srcName) const {
+auto SourceProbs::columnName(std::string srcName) const -> std::string {
    Event::toLower(srcName);
    return srcName;
 }

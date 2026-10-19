@@ -248,14 +248,14 @@ private:
    std::string m_srcModelXmlFile;
 
    optimizers::FunctionFactory* m_funcFactory = nullptr;
-   optimizers::FunctionFactory* funcFactoryInstance();
+   auto funcFactoryInstance() -> optimizers::FunctionFactory*;
 
    SourceFactory* m_srcFactory = nullptr;
-   SourceFactory* srcFactoryInstance(const std::string& scFile = "",
+   auto srcFactoryInstance(const std::string& scFile = "",
                                      const std::string& expMapFile = "",
                                      const std::string& sourceXmlFile = "",
                                      bool requireExposure = true,
-                                     bool verbose = true);
+                                     bool verbose = true) -> SourceFactory*;
 
    void readEventData(const std::string& eventFile,
                       const std::string& scDataFile,
@@ -263,17 +263,17 @@ private:
 
    void generate_exposureHyperCube();
 
-   CountsMap singleSrcMap(unsigned int nee,
+   auto singleSrcMap(unsigned int nee,
                           unsigned long num_x_pix = 40, 
                           unsigned long num_y_pix = 40,
-                          double pix_scale = 0.25) const;
+                          double pix_scale = 0.25) const -> CountsMap;
 
-   CountsMapHealpix healpixmap_allsky() const;
-   CountsMapHealpix healpixmap_region() const;
+   auto healpixmap_allsky() const -> CountsMapHealpix;
+   auto healpixmap_region() const -> CountsMapHealpix;
 
    void deleteExpMap();
   
-   std::string dataPath(const std::string& filename) const {
+   auto dataPath(const std::string& filename) const -> std::string {
       return facilities::commonUtilities::joinPath(m_rootPath, filename);
    }
 
@@ -1323,7 +1323,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
      // BinnedLikelihood::set_klims(...))
 }
 
-double fit(BinnedLikelihood & like, double tol=1e-5, int verbose=0) {
+auto fit(BinnedLikelihood & like, double tol=1e-5, int verbose=0) -> double {
 // Try to fit using binned model.
 #ifdef DARWIN_F2C_FAILURE
    optimizers::NewMinuit my_optimizer(like);
@@ -2013,7 +2013,7 @@ void LikelihoodTests::test_ExposureCube() {
 }
 
 // Helper method implementations
-optimizers::FunctionFactory* LikelihoodTests::funcFactoryInstance() {
+auto LikelihoodTests::funcFactoryInstance() -> optimizers::FunctionFactory* {
    if (!m_funcFactory) {
       m_funcFactory = new optimizers::FunctionFactory();
       m_funcFactory->addFunc("SkyDirFunction", new SkyDirFunction(), false);
@@ -2022,11 +2022,11 @@ optimizers::FunctionFactory* LikelihoodTests::funcFactoryInstance() {
    return m_funcFactory;
 }
 
-SourceFactory * LikelihoodTests::
+auto LikelihoodTests::
 srcFactoryInstance(const std::string & scFile,
                    const std::string & expMapFile,
                    const std::string & sourceXmlFile,
-                   bool requireExposure, bool verbose) {
+                   bool requireExposure, bool verbose) -> SourceFactory * {
    if (m_srcFactory == 0) {
       m_roiCuts->setCuts(86.404, 28.936, 25., 30., 2e5, 0., 8.64e4, -1., true);
       if (scFile == "") {
@@ -2104,10 +2104,10 @@ void LikelihoodTests::generate_exposureHyperCube() {
    exposure.writeFile(output_file);
 }
 
-CountsMap LikelihoodTests::singleSrcMap(unsigned int nee, 
+auto LikelihoodTests::singleSrcMap(unsigned int nee, 
 					unsigned long num_x_pix, 
 					unsigned long num_y_pix,
-					double pix_scale) const {
+					double pix_scale) const -> CountsMap {
    std::string eventFile = dataPath("single_src_events_0000.fits");
    double ra(83.57);
    double dec(22.01);
@@ -2125,12 +2125,12 @@ CountsMap LikelihoodTests::singleSrcMap(unsigned int nee,
    return dataMap;
 }
 
-CountsMapHealpix LikelihoodTests::healpixmap_allsky() const {
+auto LikelihoodTests::healpixmap_allsky() const -> CountsMapHealpix {
    std::string datafile = dataPath("ccube_galdiffuse_hpx.fits");
    return CountsMapHealpix(datafile);
 }
 
-CountsMapHealpix LikelihoodTests::healpixmap_region() const {
+auto LikelihoodTests::healpixmap_region() const -> CountsMapHealpix {
    std::string datafile = dataPath("ccube_single_src_events_hpx.fits");
    return CountsMapHealpix(datafile);
 }
@@ -2154,7 +2154,7 @@ void LikelihoodTests::compare_string_vector(const std::vector<std::string>& v1, 
 }
 
 // Main function
-int main(int argc, char* argv[]) {
+auto main(int argc, char* argv[]) -> int {
 #ifdef TRAP_FPE
    feenableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
 #endif

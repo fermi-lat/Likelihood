@@ -5,13 +5,13 @@
  * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/MathUtil.cxx,v 1.1 2006/09/14 20:39:40 peachey Exp $
 */
 #include "MathUtil.h"
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 
 #define RAND_ITMAX      10000//before was 1000
 #define RAND_EPS        3.0e-7
 
-double  MathUtil::gammln(double x){
+auto  MathUtil::gammln(double x) -> double{
    double tmp, sum;
    static double  cof[6] =                                        /* static data! */
          {76.18009173, -86.50532033, 24.01409822,
@@ -82,7 +82,7 @@ void  MathUtil::gcf(double *gammcf, double a, double x, double *gln) {
    }
  }
  
-double  MathUtil::gammq(double a, double x) {
+auto  MathUtil::gammq(double a, double x) -> double {
    double gamser, gammcf, gln;
  
    if (x < 0.0 || a <= 0.0)
@@ -96,7 +96,7 @@ double  MathUtil::gammq(double a, double x) {
    }
  }
  
-double MathUtil::poissonSig(double x, double mean) {
+auto MathUtil::poissonSig(double x, double mean) -> double {
    double significance;
       
    if (mean < x) {

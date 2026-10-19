@@ -24,11 +24,11 @@ typedef double doublereal;
 extern "C" {
 #endif
 
-doublereal yieldget_ (integer *zi, integer *mxi, integer *ch);
-doublereal llg_ (doublereal *x, doublereal *mx, doublereal *ml);
-integer dmfit_load__ (char *filename, ftnlen filename_len);
-doublereal dmfit_de__ (doublereal *mx, integer *ch, doublereal *ee);
-doublereal dmfit_dm__ (doublereal *mx, integer *ch, doublereal *ee);
+auto yieldget_ (integer *zi, integer *mxi, integer *ch) -> doublereal;
+auto llg_ (doublereal *x, doublereal *mx, doublereal *ml) -> doublereal;
+auto dmfit_load__ (char *filename, ftnlen filename_len) -> integer;
+auto dmfit_de__ (doublereal *mx, integer *ch, doublereal *ee) -> doublereal;
+auto dmfit_dm__ (doublereal *mx, integer *ch, doublereal *ee) -> doublereal;
 
 #ifdef __cplusplus
 }
@@ -56,7 +56,7 @@ DMFitFunction(double norm, double sigmav, double mass, double bratio,
    setParamAlwaysFixed("channel1");
 }
 
-double DMFitFunction::value(const optimizers::Arg &xarg) const {
+auto DMFitFunction::value(const optimizers::Arg &xarg) const -> double {
 
   double escale=1.e-3;//GeV
    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue()*escale;
@@ -73,8 +73,8 @@ double DMFitFunction::value(const optimizers::Arg &xarg) const {
    return my_value/m_8pi;
 }
 
-double DMFitFunction::derivByParamImp(const optimizers::Arg & xarg,
-                                      const std::string & paramName) const {
+auto DMFitFunction::derivByParamImp(const optimizers::Arg & xarg,
+                                      const std::string & paramName) const -> double {
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {

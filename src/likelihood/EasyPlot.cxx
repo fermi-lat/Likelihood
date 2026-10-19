@@ -16,7 +16,7 @@ namespace EasyPlot {
   //using FuncMap = std::map<std::string,
     
   // Helper function to get char value to properly handle colors
-  int Color::nextColor(int current_color) {
+  auto Color::nextColor(int current_color) -> int {
     // Go to the next color char representation in the sequence.
     ++current_color;
 
@@ -29,7 +29,7 @@ namespace EasyPlot {
     return current_color;
   }
 
-  char Color::getColor(int current_color) {
+  auto Color::getColor(int current_color) -> char {
     // Map the index value back to the mpl char shorthand
     char colors[8] = { 'w' /*White*/,
 		       'k' /*Black*/,
@@ -44,9 +44,9 @@ namespace EasyPlot {
   }
 
   //only put defaults in header file
-  StringMap MPLPlot::plotKeywords(const std::string & fmt,
+  auto MPLPlot::plotKeywords(const std::string & fmt,
 				  char color,
-				  const std::string & linestyle)
+				  const std::string & linestyle) -> StringMap
   {
     std::string c(1,color); 
     StringMap kwmap = {

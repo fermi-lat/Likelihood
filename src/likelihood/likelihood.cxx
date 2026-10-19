@@ -57,8 +57,8 @@
 #include "MathUtil.h"
 
 namespace {
-   double ptsrcSeparation(Likelihood::Source * src1,
-                          Likelihood::Source * src2) {
+   auto ptsrcSeparation(Likelihood::Source * src1,
+                          Likelihood::Source * src2) -> double {
       Likelihood::PointSource * 
          ptsrc1(dynamic_cast<Likelihood::PointSource *>(src1));
       Likelihood::PointSource * 
@@ -108,7 +108,7 @@ public:
    }
    virtual void run();
    virtual void banner() const;
-   double cputime() const {
+   auto cputime() const -> double {
       return static_cast<double>(std::clock() - m_cpuStart)/1e6;
    }
 
@@ -144,7 +144,7 @@ private:
    void plotCountsSpectra();
    void printFitResults(const std::vector<double> &errors);
    void printFitQuality() const;
-   bool prompt(const std::string &query);
+   auto prompt(const std::string &query) -> bool;
    void setErrors(const std::vector<double> & errors);
 
    void computeTsValues(const std::vector<std::string> & srcNames,
@@ -154,10 +154,10 @@ private:
    double m_maxdist;
    void renormModel();
    void npredValues(double &, double &) const;
-   optimizers::Parameter & normPar(Source *) const;
-   bool isDiffuseOrNearby(Source *) const;
-   double observedCounts();
-   double sourceFlux(const std::string & srcName, double & fluxError);
+   auto normPar(Source *) const -> optimizers::Parameter &;
+   auto isDiffuseOrNearby(Source *) const -> bool;
+   auto observedCounts() -> double;
+   auto sourceFlux(const std::string & srcName, double & fluxError) -> double;
 
    void getElims(double & emin, double & emax) const;
 
@@ -441,7 +441,7 @@ void likelihood::writeSourceXml() {
 class EventData {
 public:
    EventData(const std::vector<Event> & events) : m_events(events) {}
-   unsigned long nobs(double emin, double emax) const {
+   auto nobs(double emin, double emax) const -> unsigned long {
       unsigned long nevents(0);
       std::vector<Event>::const_iterator it = m_events.begin();
       for ( ; it != m_events.end(); ++it) {
@@ -586,7 +586,7 @@ void likelihood::getElims(double & emin, double & emax) const {
    }
 }
 
-double likelihood::sourceFlux(const std::string & srcName, double & fluxError) {
+auto likelihood::sourceFlux(const std::string & srcName, double & fluxError) -> double {
    double emin, emax;
    getElims(emin, emax);
 
@@ -916,7 +916,7 @@ void likelihood::renormModel() {
    }   
 }
 
-double likelihood::observedCounts() {
+auto likelihood::observedCounts() -> double {
    if (m_statistic == "BINNED") {
       double totalCounts(0);
       if (::getenv("USE_BINNED_LIKELIHOOD2")) {
@@ -949,12 +949,12 @@ void likelihood::npredValues(double & freeNpred, double & totalNpred) const {
    }
 }
 
-optimizers::Parameter & likelihood::normPar(Source * src) const {
+auto likelihood::normPar(Source * src) const -> optimizers::Parameter & {
    const optimizers::Function & spectrum(src->spectrum());
    return const_cast<optimizers::Function &>(spectrum).normPar();
 }
 
-bool likelihood::isDiffuseOrNearby(Source * src) const {
+auto likelihood::isDiffuseOrNearby(Source * src) const -> bool {
    if (src->getType() == "Diffuse" || 
        src->getType() == "Composite" ) {
       return true;
@@ -964,7 +964,7 @@ bool likelihood::isDiffuseOrNearby(Source * src) const {
    return false;
 }
 
-bool likelihood::prompt(const std::string &query) {
+auto likelihood::prompt(const std::string &query) -> bool {
    m_formatter->info(0) << query << std::endl;
    char answer[2];
    std::cin.getline(answer, 2);
