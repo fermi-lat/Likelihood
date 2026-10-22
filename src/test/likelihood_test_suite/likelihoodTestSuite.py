@@ -87,7 +87,7 @@ def flush_all():
 dirs = {}
 dirs["FERMI_DIR"] = os.environ['FERMI_DIR']
 dirs["GLOBAL_DATA_DIR"] = dirs['FERMI_DIR'] + "/refdata/fermi/"
-dirs["LOCAL_DATA"] = os.environ['CONDA_PREFIX'] + "/share/fermitools/data/test-scripts/"
+dirs["LOCAL_DATA"] = os.environ['CONDA_PREFIX'] + "/share/fermitools/data/Likelihood/outref/"
 key_path = "key_data"
 
 print("\nPerforming time calibration ... ", end="")
