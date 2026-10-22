@@ -5,7 +5,7 @@
 #define PY_SSIZE_T_CLEAN
 // Use only the Python stable ABI. The build normally defines this; keep a fallback for standalone builds.
 #ifndef Py_LIMITED_API
-#define Py_LIMITED_API 0x03080000
+#define Py_LIMITED_API 0x030A0000
 #endif
 #include <Python.h>
 
