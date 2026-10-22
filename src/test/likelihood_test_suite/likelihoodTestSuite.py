@@ -92,6 +92,7 @@ key_path = "key_data"
 
 print("\nPerforming time calibration ... ", end="")
 scale = time_calib.benchmark()/time_calib.NOMINAL
+# Experimental: more detailed calibration output, left disabled.
 # print(f"scaling factor: {time_calib.benchmark():.3f}/{time_calib.NOMINAL:.3f} = {scale:.3f}")
 print(f"scaling factor: {scale:.3f}")
 
@@ -148,6 +149,9 @@ for test in sorted(tests):
         # with redirect_stdout(f), redirect_stderr(f):
         start_time = time.time()
         try:
+            # Experimental: tracemalloc (and the commented-out maxMemory line below) is
+            # being evaluated as an alternative memory measure.  Its results are not
+            # currently used.
             tracemalloc.start()
             tracemalloc.reset_peak()
             mem_usage = memory_usage(lambda:eval(cmd), backend="psutil_uss")

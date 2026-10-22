@@ -136,6 +136,6 @@ Some source model XML files (installed in `$(CONDA_PREFIX)/share/fermitools/data
 | `srcModel_1_E1.xml-initial` | 15 | `gll_iem_v02.fit` | Used by `test_delete_src.py`. |
 | `srcModel_1_E1.xml-initial` | 26 | `IC443.fits` | Spatial map for source `EXTIC443`. Used by `test_delete_src.py`. |
 
-* `gll_iem_v02.fit` is not in `$(CONDA_PREFIX)/share/fermitools/refdata/fermi/galdiffuse/` (which has `gll_iem_v07.fits`).  A copy exists in `~/ST/testing/deleteSource/`.  The reference may be a typo for the v07 model.
-* `IC443.fits` exists in `~/ST/testing/deleteSource/` and was possibly missed when building the test data.
+* `gll_iem_v02.fit` is not in `$(CONDA_PREFIX)/share/fermitools/refdata/fermi/galdiffuse/` (which has `gll_iem_v07.fits`).  The reference may be a typo for the v07 model.
+* `IC443.fits` is not in the test data and was possibly missed when building it.
 * If either file is added to the test data, the corresponding key files will likely need to be regenerated.
