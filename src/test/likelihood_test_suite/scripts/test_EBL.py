@@ -14,7 +14,7 @@ def test_EBL(dirs):
     ltdir = dirs['LOCAL_DATA']
     refdir = dirs['LOCAL_DATA']
     refdir = dirs['LOCAL_DATA']
-    ltname = ltdir + "ltcube_8years_zmax105.fits"
+    ltname = ltdir + "ltcube_12years_zmax105.fits"
     srcmap = refdir + "srcMap" + roi + suffix + ".fits"
     bexpmap = refdir + "binned_exposure" + suffix + ".fits"
     srcmodel = dirs['LOCAL_DATA'] + "srcModel" + roi + "_testEBL.xml"

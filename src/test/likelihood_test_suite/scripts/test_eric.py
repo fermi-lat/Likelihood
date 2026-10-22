@@ -12,7 +12,7 @@ def test_eric(dirs):
 
 
     kw = dict(srcMaps=dirs['LOCAL_DATA'] + 'srcmap_00.fits',
-            expCube=dirs['LOCAL_DATA'] + 'ltcube_239557414_428903014_z100_r180_gti.fits',
+            expCube=dirs['LOCAL_DATA'] + 'ltcube_12years_zmax105.fits',
             binnedExpMap=dirs['LOCAL_DATA'] + 'bexpmap_00.fits',
             irfs='P8R3_SOURCE_V3')
 
