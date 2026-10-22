@@ -7,7 +7,7 @@ NOMINAL_TIME = 0.5
 def test_UpperLimit(dirs):
     # test data is in dirs['LOCAL_DATA']
     srcModel = dirs['LOCAL_DATA'] + "srcModel_3_2.xml-initial"
-    expCube = dirs['LOCAL_DATA'] + "ltcube_july09_pass8.fits"
+    expCube = dirs['LOCAL_DATA'] + "ltcube_12years_zmax105.fits"
     map = dirs['LOCAL_DATA'] + "srcMap_3_2.fits"
     expMap = dirs['LOCAL_DATA'] + "binned_exposure_2.fits"
 

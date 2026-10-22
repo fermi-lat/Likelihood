@@ -6,7 +6,7 @@ NOMINAL_TIME = 0.5
 def test_delete_src(dirs):
     # test data is in dirs['LOCAL_DATA']
     like = binnedAnalysis(cmap=dirs['LOCAL_DATA'] + "srcMap_1_E1.fits", 
-                          expcube=dirs['LOCAL_DATA'] + "LiveTimeCube_1.fits",
+                          expcube=dirs['LOCAL_DATA'] + "ltcube_12years_zmax105.fits",
                           bexpmap=dirs['LOCAL_DATA'] + "binned_exposure_E1.fits", 
                           irfs="CALDB",
                           optimizer="Minuit", 

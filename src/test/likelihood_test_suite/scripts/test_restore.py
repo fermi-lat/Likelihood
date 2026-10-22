@@ -17,7 +17,7 @@ def test_restore(dirs):
     summed_like = SummedLikelihood()
     myconf = BinnedConfig(edisp_bins=-1)
     obs = BinnedObs( irfs="CALDB", 
-                    expCube=dirs['LOCAL_DATA'] + "LiveTimeCube_4.fits", 
+                    expCube=dirs['LOCAL_DATA'] + "ltcube_12years_zmax105.fits", 
                     srcMaps=dirs['LOCAL_DATA'] + "srcMap_4_E1.fits", 
                     binnedExpMap=dirs['LOCAL_DATA'] + "binned_exposure_E1-restore.fits") 
     like = BinnedAnalysis(obs,dirs['LOCAL_DATA'] + "srcModel_4.xml-initial",
@@ -25,7 +25,7 @@ def test_restore(dirs):
                           config=myconf)
     summed_like.addComponent(like)
     obs = BinnedObs(irfs="CALDB", 
-                    expCube=dirs['LOCAL_DATA'] + "LiveTimeCube_4.fits", 
+                    expCube=dirs['LOCAL_DATA'] + "ltcube_12years_zmax105.fits", 
                     srcMaps=dirs['LOCAL_DATA'] + "srcMap_4_E3.fits", 
                     binnedExpMap=dirs['LOCAL_DATA'] + "binned_exposure_E3.fits") 
     like = BinnedAnalysis(obs,dirs['LOCAL_DATA'] + "srcModel_4.xml-initial",

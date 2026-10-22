@@ -10,7 +10,7 @@ def test_lhAnalysis4(dirs):
     #Test code goes here
     roi = "_4"
     bexpmap = dirs['LOCAL_DATA'] + "binned_exposure.fits"
-    ltcube = dirs['LOCAL_DATA'] + "ltcube_july09_pass8.fits"
+    ltcube = dirs['LOCAL_DATA'] + "ltcube_12years_zmax105.fits"
     srcmap = dirs['LOCAL_DATA'] + "srcMap" + roi + ".fits"
     irfs = "CALDB"
     scdata = dirs['LOCAL_DATA'] + "ft2_july09_pass8.fits"
