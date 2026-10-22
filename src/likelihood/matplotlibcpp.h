@@ -3,7 +3,10 @@
 // Python headers must be included before any system headers, since
 // they define _POSIX_C_SOURCE
 #define PY_SSIZE_T_CLEAN
+// Use only the Python stable ABI. The build normally defines this; keep a fallback for standalone builds.
+#ifndef Py_LIMITED_API
 #define Py_LIMITED_API 0x03080000
+#endif
 #include <Python.h>
 
 #include <vector>
@@ -144,8 +147,9 @@ struct _interpreter {
         if (!fn)
             throw std::runtime_error(std::string("Couldn't find required function: ") + fname);
 
-        if (!PyFunction_Check(fn))
-            throw std::runtime_error(fname + std::string(" is unexpectedly not a PyFunction."));
+        // PyFunction_Check is not in the limited API; any callable will do.
+        if (!PyCallable_Check(fn))
+            throw std::runtime_error(fname + std::string(" is unexpectedly not callable."));
 
         return fn;
     }
