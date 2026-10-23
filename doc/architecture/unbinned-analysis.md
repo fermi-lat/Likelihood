@@ -122,6 +122,16 @@ calls `set_ebounds` with the full range instead).
   names differ only in case share one response.
 - **`gtdiffrsp` modifies its input FT1 file.** Work on a copy if the
   original must stay pristine.
+- **HEALPix diffuse templates break diffuse responses.**
+  `Event::computeResponseGQ` asks map-based sources for integration
+  limits with `MapBase::getDiffRespLimits` and catches only
+  `MapBaseException`. For a HEALPix-projected template,
+  `getDiffRespLimits_healpix` throws `std::runtime_error` instead, which
+  is not caught, so `gtdiffrsp` and on-the-fly responses (`gtlike`,
+  `gtsrcprob`, pyLikelihood unbinned) abort rather than falling back to
+  full-sky limits. This happens before the `MAP_BASED_DIFFRSP` branch, so
+  that setting doesn't help. Use a WCS template for unbinned analysis
+  (from reading the code; not reproduced at runtime).
 - **`EVENT_TYPE` → index via `log2(type & mask)`** assumes exactly one bit
   of the mask is set per event. If `type & mask` is 0, the result is
   `log(0)` cast to an integer (undefined); such events should already have
