@@ -8,7 +8,7 @@ NOMINAL_TIME = 0.65
 def test_eric(dirs):
     # test data is in dirs['LOCAL_DATA']
 
-    _funcFactory = pyLike.SourceFactory_funcFactory()
+    _funcFactory = pyLike.SourceFactory.funcFactory()
 
 
     kw = dict(srcMaps=dirs['LOCAL_DATA'] + 'srcmap_00.fits',
