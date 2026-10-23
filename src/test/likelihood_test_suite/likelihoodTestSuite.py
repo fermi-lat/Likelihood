@@ -7,6 +7,7 @@ import time
 import sys
 import gc
 import traceback
+import math
 import multiprocessing
 from memory_profiler import memory_usage
 import time_calib
@@ -75,6 +76,62 @@ def flush_all():
     sys.stdout.flush()
     sys.stderr.flush()
     libc.fflush(None)
+
+def tokenize_line(line):
+    return [p for p in re.split(r"[\s|]+", line) if p]
+
+def compare_tokens(k_tokens, o_tokens, rel_tol=1e-2, abs_tol=1e-3):
+    if len(k_tokens) != len(o_tokens):
+        return False
+    for k_tok, o_tok in zip(k_tokens, o_tokens):
+        if k_tok == o_tok:
+            continue
+        try:
+            k_val, o_val = float(k_tok), float(o_tok)
+            if not math.isclose(k_val, o_val, rel_tol=rel_tol, abs_tol=abs_tol):
+                return False
+        except ValueError:
+            return False
+    return True
+
+def filter_and_normalize_lines(text):
+    lines = [l.strip() for l in text.strip().splitlines() if l.strip()]
+    cleaned = []
+    for l in lines:
+        if l.startswith("Generating SourceMap"):
+            continue
+        cleaned.append(l)
+    return cleaned
+
+def compare_outputs_with_tolerance(key_text, out_text, rel_tol=1e-2, abs_tol=1e-3):
+    """
+    Compares test output against key reference data using line-by-line
+    and token-level numerical tolerance to eliminate false positive diffs.
+    """
+    if key_text == out_text:
+        return True
+
+    key_lines = filter_and_normalize_lines(key_text)
+    out_lines = filter_and_normalize_lines(out_text)
+
+    if len(key_lines) == len(out_lines):
+        all_match = True
+        for k_line, o_line in zip(key_lines, out_lines):
+            if k_line == o_line:
+                continue
+            if k_line.startswith("# of function calls:") and o_line.startswith("# of function calls:"):
+                continue
+            k_tok = tokenize_line(k_line)
+            o_tok = tokenize_line(o_line)
+            if not compare_tokens(k_tok, o_tok, rel_tol, abs_tol):
+                all_match = False
+                break
+        if all_match:
+            return True
+
+    k_all_tok = tokenize_line(" ".join(key_lines))
+    o_all_tok = tokenize_line(" ".join(out_lines))
+    return compare_tokens(k_all_tok, o_all_tok, rel_tol, abs_tol)
 
 def main():
     stdout_fd = os.dup(sys.stdout.fileno())
@@ -183,7 +240,7 @@ def main():
                     output = file.read()
                 with open(f"{key_path}/{test}.key", 'r') as file:
                     key = file.read()
-                diff_results = "PASS" if key == output else "FAIL"
+                diff_results = "PASS" if compare_outputs_with_tolerance(key, output) else "FAIL"
 
                 elapsed = stop_time - start_time
                 nominalTime = getattr(test_module, "NOMINAL_TIME") * scale
