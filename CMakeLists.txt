@@ -55,7 +55,6 @@ target_link_libraries(
   map_tools
   GSL::gsl
   eblAtten
-  Python3::Python
   CLHEP::MatrixS
 
   PRIVATE
@@ -68,6 +67,7 @@ target_link_libraries(
   st_facilities
   st_graph
   xmlBase
+  Python3::Python
 )
 target_include_directories(
   Likelihood PUBLIC
