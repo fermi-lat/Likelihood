@@ -109,7 +109,7 @@ add_executable(gtalphabkg src/gtalphabkg/gtalphabkg.cxx)
 add_executable(gtwtsmap src/gtwtsmap/gtwtsmap.cxx)
 add_executable(gtdrm src/gtdrm/gtdrm.cxx)
 
-target_link_libraries(gtlike PRIVATE Likelihood st_graph)
+target_link_libraries(gtlike PRIVATE Likelihood st_graph Python3::Python)
 target_link_libraries(gtexpmap PRIVATE Likelihood st_stream)
 target_link_libraries(gttsmap PRIVATE Likelihood)
 target_link_libraries(gttscube PRIVATE Likelihood)
