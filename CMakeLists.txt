@@ -65,9 +65,7 @@ target_link_libraries(
   hoops
   OpenMP::OpenMP_CXX
   st_facilities
-  st_graph
   xmlBase
-  Python3::Python
 )
 target_include_directories(
   Likelihood PUBLIC
