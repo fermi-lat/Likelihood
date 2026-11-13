@@ -484,7 +484,7 @@ void SourceModel::readXml(rapidxml::xml_node<>* srcLibrary,
       if (m_verbose) {
          m_formatter->info() << "adding source " << name << std::endl;
       }
-      addSource(src, false);
+      addSource(src, false, nullptr, loadMaps);
    }
    syncParams();
 }
