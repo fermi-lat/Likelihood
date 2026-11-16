@@ -61,7 +61,7 @@ namespace Likelihood {
   }
 
   SourceMapCache::~SourceMapCache() {
-    std::map<std::string, SourceMap *>::iterator srcMap(m_srcMaps.begin());
+    auto srcMap(m_srcMaps.begin());
     for ( ; srcMap != m_srcMaps.end(); ++srcMap) {
       delete srcMap->second;
     }
@@ -113,10 +113,10 @@ namespace Likelihood {
 					   bool verbose,
 					   const BinnedLikeConfig* config) const -> SourceMap * {
     const std::string& srcName = src.getName();
-    SourceMap* srcMap(0);
+    SourceMap* srcMap(nullptr);
  
     // Check to see if we already have the map
-    std::map<std::string, SourceMap *>::iterator itrFind = m_srcMaps.find(srcName);
+    auto itrFind = m_srcMaps.find(srcName);
     if ( itrFind != m_srcMaps.end() ) {
       srcMap = itrFind->second;
       srcMap->setSource(src);
@@ -149,7 +149,7 @@ namespace Likelihood {
 
 
   auto SourceMapCache::createSourceMap(const Source& src, const BinnedLikeConfig* config) const -> SourceMap * {
-    const BinnedLikeConfig& the_config = config == 0 ? m_config : *config;
+    const BinnedLikeConfig& the_config = config == nullptr ? m_config : *config;
     return new SourceMap(src, &m_dataCache, m_observation, the_config, 
 			 *m_drm, m_dataCache.weightMap(), the_config.save_all_srcmaps() );
   }
@@ -162,7 +162,7 @@ namespace Likelihood {
 
   void SourceMapCache::insertSourceMap(const std::string & srcName,
 				       SourceMap& srcMap) {
-    std::map<std::string, SourceMap *>::iterator itr = m_srcMaps.find(srcName);
+    auto itr = m_srcMaps.find(srcName);
     if ( itr == m_srcMaps.end() ) {
       m_srcMaps[srcName] = &srcMap;
     } else {
@@ -188,7 +188,7 @@ namespace Likelihood {
  
     std::vector<tip::Extension*> hdus;
 
-    for ( std::vector<const Source*>::const_iterator itr = srcs.begin();
+    for ( auto itr = srcs.begin();
 	  itr != srcs.end(); itr++ ) {
     
       const Source* src = *itr;
@@ -198,7 +198,7 @@ namespace Likelihood {
       }
     
       if(saveMaps) {
-	tip::Extension* ptr(0);
+	tip::Extension* ptr(nullptr);
 	if (FileUtils::fileHasExtension(m_srcMapsFile,name)) {
 	  ptr = replaceSourceMap(*src, m_srcMapsFile);
 	  delete ptr;
@@ -211,7 +211,7 @@ namespace Likelihood {
       }
     }
 
-    for ( std::vector<tip::Extension*>::iterator itrDel = hdus.begin();
+    for ( auto itrDel = hdus.begin();
 	  itrDel != hdus.end(); itrDel++ ) {
       delete *itrDel;
     }
@@ -225,7 +225,7 @@ namespace Likelihood {
     if(!(src.getType() == "Diffuse" || m_config.computePointSources() ))
       return;
   
-    std::map<std::string, SourceMap *>::iterator mapIt = m_srcMaps.find(srcName);
+    auto mapIt = m_srcMaps.find(srcName);
   
     //if( mapIt != m_srcMaps.end() ) {
     //  delete m_srcMaps[srcName];
@@ -271,10 +271,10 @@ namespace Likelihood {
     unsigned int i(0);
     unsigned int ifile(0);
     std::string outFileName = m_srcMapsFile;
-    for ( std::vector<const Source*>::const_iterator itr = srcs.begin();
+    for ( auto itr = srcs.begin();
 	  itr != srcs.end(); itr++, i++ ){
       const Source* src = *itr;
-      tip::Extension* ptr(0);  
+      tip::Extension* ptr(nullptr);  
 
       if ( srcs.size() > 499 ) {
 	if ( i % 500 == 0 ) {
@@ -305,7 +305,7 @@ namespace Likelihood {
       
     }
       
-    for ( std::vector<tip::Extension*>::iterator itrDel = hdus.begin();
+    for ( auto itrDel = hdus.begin();
 	  itrDel != hdus.end(); itrDel++ ) {
       delete *itrDel;
     }     
@@ -318,7 +318,7 @@ namespace Likelihood {
 					      bool replace) {
     st_stream::StreamFormatter formatter("SourceMapCache",
 					 "saveSourceMaps_partial", 4);
-    tip::Extension* ptr(0);            
+    tip::Extension* ptr(nullptr);            
     if (FileUtils::fileHasExtension(filename, source.getName()) ) {
       if ( replace ) {	  
 	ptr = replaceSourceMap_partial(source, filename, kmin, kmax);
@@ -342,7 +342,7 @@ namespace Likelihood {
     srcMap->reloadIfCleared();
     updateModelMap_fromSrcMap(modelMap, src, srcMap, use_mask);
     if( !hasMap ) {
-      SourceMapCache* nc_this = const_cast<SourceMapCache*>(this);
+      auto* nc_this = const_cast<SourceMapCache*>(this);
       nc_this->eraseSourceMap(src.getName());
     }
   }
@@ -351,7 +351,7 @@ namespace Likelihood {
 				       std::vector<float> & modelMap,
 				       bool use_mask) const {
     modelMap.resize(m_dataCache.data_map_size(), 0);  
-    for ( std::vector<const Source*>::const_iterator itr = srcs.begin();
+    for ( auto itr = srcs.begin();
 	  itr != srcs.end(); itr++ ) {
       const Source* src = *itr;
       bool hasMap = hasSourceMap(src->getName());
@@ -361,7 +361,7 @@ namespace Likelihood {
       //updateCorrectionFactors(*src, *srcMap);
       //updateModelMap(modelMap, *src, srcMap, use_mask);
       if( !hasMap && ! m_config.save_all_srcmaps() ) {
-        SourceMapCache* nc_this = const_cast<SourceMapCache*>(this);
+        auto* nc_this = const_cast<SourceMapCache*>(this);
         nc_this->eraseSourceMap(src->getName());
       }
     }
@@ -408,10 +408,10 @@ namespace Likelihood {
 
 
   void SourceMapCache::setWeightsMap(const ProjMap* wmap) {
-    BinnedCountsCache& nc_dataCache = const_cast<BinnedCountsCache&>(m_dataCache);
+    auto& nc_dataCache = const_cast<BinnedCountsCache&>(m_dataCache);
     nc_dataCache.setWeightsMap(wmap, m_observation);
     const WeightMap* wwmap = nc_dataCache.weightMap();
-    for ( std::map<std::string, SourceMap *>::iterator itr = m_srcMaps.begin();
+    for ( auto itr = m_srcMaps.begin();
 	  itr != m_srcMaps.end(); itr++ ) {
       SourceMap* smap = itr->second;
       smap->setWeights(wwmap);
@@ -421,7 +421,7 @@ namespace Likelihood {
   void SourceMapCache::fillSummedSourceMap(const std::vector<const Source*>& sources, 
 					   std::vector<float>& model, 
 					   int kmin, int kmax) {
-    for ( std::vector<const Source*>::const_iterator srcIt = sources.begin();  
+    for ( auto srcIt = sources.begin();  
 	  srcIt != sources.end(); ++srcIt) {
       SourceMap* srcMap = getSourceMap(*(*srcIt), false);
       srcMap->addToVector(model,true,kmin,kmax);
@@ -434,7 +434,7 @@ namespace Likelihood {
 					   int kmin, int kmax) const {
     st_stream::StreamFormatter formatter("fillSingleSourceMap", "", 2);
 
-    const MeanPsf* meanPsf(0);
+    const MeanPsf* meanPsf(nullptr);
     if ( src.srcType() == Source::Point && ( ! m_config.psf_integ_config().use_single_psf() ) ) {
       std::vector<double> psf_energies(m_dataCache.energies());
       int edisp_bins = edisp_val(&src);
@@ -447,7 +447,7 @@ namespace Likelihood {
       
     PSFUtils::makeModelMap(src, m_dataCache,
 			   m_dataCache.energies(),
-			   meanPsf==0 ? m_observation.meanpsf() : *meanPsf,
+			   meanPsf==nullptr ? m_observation.meanpsf() : *meanPsf,
 			   m_observation.bexpmap_ptr(),
 			   m_config.psf_integ_config(),
 			   m_srcMapsFile,m_drm,
@@ -458,7 +458,7 @@ namespace Likelihood {
 
   auto SourceMapCache::edisp_val(const Source* src) const -> int {
     int retVal = m_config.edisp_val();
-    if ( src != 0 && ! src->use_edisp() ) {
+    if ( src != nullptr && ! src->use_edisp() ) {
       retVal = -1;
     }
     return retVal;
@@ -466,7 +466,7 @@ namespace Likelihood {
 
   auto SourceMapCache::memory_size() const -> size_t {
     size_t sum(0);
-    for ( std::map<std::string, SourceMap *>::const_iterator itr = m_srcMaps.begin();
+    for ( auto itr = m_srcMaps.begin();
 	  itr != m_srcMaps.end(); itr++ ) {
       sum += itr->second->memory_size();
     }
@@ -588,8 +588,8 @@ namespace Likelihood {
   void SourceMapCache::updateCorrectionFactors(const Source & src,
 					       SourceMap & sourceMap) const {
     
-    Drm_Cache* drm_cache = const_cast<Drm_Cache*>(sourceMap.drm_cache());
-    if ( m_drm == 0 ) {
+    auto* drm_cache = const_cast<Drm_Cache*>(sourceMap.drm_cache());
+    if ( m_drm == nullptr ) {
       throw std::runtime_error("No DRM object");
     }
     sourceMap.update_drm_cache(m_drm, true);

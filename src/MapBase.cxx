@@ -29,11 +29,11 @@
 
 namespace Likelihood {
 
-MapBase::MapBase() : m_projmap(0), m_fitsFile(""), 
+MapBase::MapBase() : m_projmap(nullptr), m_fitsFile(""), 
                      m_expandedFileName(""), m_extension("") {}
 
 MapBase::MapBase(const std::string & fitsFile, const std::string & extension) 
-   : m_projmap(0), m_fitsFile(fitsFile), m_extension(extension) {
+   : m_projmap(nullptr), m_fitsFile(fitsFile), m_extension(extension) {
 /// Comment out so that fits file is not read in by default.  Intention is
 /// to have fits file read in only when it is first needed, i.e., when
 /// wcsmap() is called from subclasses.
@@ -93,7 +93,7 @@ void MapBase::readFitsFile() {
 }
 
 auto MapBase::projmap() -> ProjMap & {
-   if (m_projmap == 0) {
+   if (m_projmap == nullptr) {
       readFitsFile();
    }
    return *m_projmap;
@@ -104,12 +104,12 @@ void MapBase::deleteMap() {
    formatter.info(4) << "MapBased::deleteMap: " << m_expandedFileName
                      << std::endl;
    WcsMapLibrary::instance()->delete_map(m_expandedFileName, m_extension);
-   m_projmap = 0;
+   m_projmap = nullptr;
 }
 
 void MapBase::update() {
    if (!WcsMapLibrary::instance()->has_map(m_expandedFileName, m_extension)) {
-      m_projmap = 0;
+      m_projmap = nullptr;
    }
 }
 
@@ -202,7 +202,7 @@ void MapBase::rebin(unsigned int factor, bool average) {
       // MapCubeFunctions.
       return;
    }
-   ProjMap * tmp = static_cast<ProjMap*>(m_projmap->rebin(factor, average));
+   auto * tmp = static_cast<ProjMap*>(m_projmap->rebin(factor, average));
    deleteMap();
    m_projmap = tmp;
 }

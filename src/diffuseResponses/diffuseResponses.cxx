@@ -101,19 +101,19 @@ public:
 
 private:
 
-   AppHelpers * m_helper;
-   SourceModel * m_srcModel;
+   AppHelpers * m_helper{nullptr};
+   SourceModel * m_srcModel{nullptr};
    st_stream::StreamFormatter * m_formatter;
    
-   double m_srRadius;
+   double m_srRadius{30.};
    st_app::AppParGroup & m_pars;
 
-   EventContainer * m_eventCont;
+   EventContainer * m_eventCont{nullptr};
    std::vector<DiffuseSource *> m_srcs;
    std::vector<std::string> m_srcNames;
 
    DiffRespNames m_columnNames;
-   size_t m_ndifrsp;
+   size_t m_ndifrsp{0};
 
    bool m_useEdisp;
 
@@ -135,7 +135,7 @@ private:
    void getDiffuseSources();
    void setGaussianParams(const Event & event, const std::string & name,
                           tip::Table::Vector<double> & params);
-   auto diffuseSrcName(const std::string & srcName) const -> std::string;
+   [[nodiscard]] auto diffuseSrcName(const std::string & srcName) const -> std::string;
 
    static std::string s_cvs_id;
 };
@@ -171,7 +171,7 @@ void diffuseResponses::run() {
    m_srcModel = new SourceModel(m_helper->observation(), true);
 //   m_useEdisp = m_pars["edisp"];
    m_useEdisp = false;
-   ResponseFunctions & respFuncs = 
+   auto & respFuncs = 
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
    respFuncs.setEdispFlag(m_useEdisp);
    std::vector<std::string> eventFiles;
@@ -320,7 +320,7 @@ auto diffuseResponses::haveDiffuseColumns(const std::string & eventFile) -> bool
 
    std::vector<std::string> srcNames;
    readDiffuseNames(srcNames);
-   for (std::vector<std::string>::iterator name = srcNames.begin();
+   for (auto name = srcNames.begin();
         name != srcNames.end(); ++name) {
       std::string altName(::alt_diffuseSrcName(*name, m_helper->observation()));
       *name = diffuseSrcName(*name);
@@ -392,7 +392,7 @@ void diffuseResponses::computeEventResponses() {
 
    bool applyClassFilter(true);
    getDiffuseSources();
-   std::vector<Event>::iterator it = events.begin();
+   auto it = events.begin();
    unsigned int classLevel_targ;
    if (m_passVer == "NONE") {
       classLevel_targ = m_pars["evclsmin"];
@@ -486,7 +486,7 @@ void diffuseResponses::writeEventResponses(std::string eventFile) {
    tip::Table::Iterator it = events->begin();
    tip::Table::Record & row = *it;
    for (int j = 0 ; it != events->end(); j++, ++it) {
-      std::vector<std::string>::iterator name = m_srcNames.begin();
+      auto name = m_srcNames.begin();
       for ( ; name != m_srcNames.end(); ++name) {
          std::string fieldName = m_columnNames.key(diffuseSrcName(*name));
          if (m_useEdisp) {
@@ -514,7 +514,7 @@ void diffuseResponses::writeEventResponses(std::string eventFile) {
       unsigned int evtype_mask = m_pars["evtype"];
       // Get the Cuts from the DSS keywords in the input evfile.
       dataSubselector::Cuts cuts(eventFile, "EVENTS");
-      dataSubselector::BitMaskCut * evtype_cut(0);
+      dataSubselector::BitMaskCut * evtype_cut(nullptr);
       // Add the event_type bit-mask cut if not already in the file.
       if (!(evtype_cut=cuts.bitMaskCut("EVENT_TYPE"))) {
          cuts.addBitMaskCut("EVENT_TYPE", evtype_mask, cuts.pass_ver());

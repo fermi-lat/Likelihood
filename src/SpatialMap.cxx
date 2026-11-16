@@ -56,8 +56,7 @@ auto SpatialMap::operator=(const SpatialMap & rhs) -> SpatialMap & {
    return *this;
 }
 
-SpatialMap::~SpatialMap() {
-}
+SpatialMap::~SpatialMap() = default;
 
 auto SpatialMap::value(const optimizers::Arg & arg) const -> double {
    astro::SkyDir dir;

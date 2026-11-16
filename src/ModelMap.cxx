@@ -61,7 +61,7 @@ namespace Likelihood {
 ModelMap::ModelMap(BinnedLikelihood & logLike,
                    const std::vector<float> * model_map) 
    : m_logLike(logLike) {
-   if (model_map == 0) {
+   if (model_map == nullptr) {
       m_logLike.computeModelMap(m_outmap);
    } else {
       m_outmap = *model_map;
@@ -156,7 +156,7 @@ void ModelMap::writeOutputMap_wcs(const std::string & outfile,
    const tip::Header & orig_header = orig_image->getHeader();
 
    std::vector<long> new_dims;
-   typedef std::vector<tip::PixOrd_t> DimCont_t;
+   using DimCont_t = std::vector<tip::PixOrd_t>;
    new_dims.push_back(cmap.naxis1());
    new_dims.push_back(cmap.naxis2());
    if (outtype == "CCUBE") {
@@ -169,7 +169,7 @@ void ModelMap::writeOutputMap_wcs(const std::string & outfile,
    tip::Header & output_header = output_image->getHeader();
    output_image->set(m_outmap);
    
-   for ( tip::Header::ConstIterator itr = orig_header.begin(); itr != orig_header.end(); itr++ ) {
+   for ( auto itr = orig_header.begin(); itr != orig_header.end(); itr++ ) {
      // Don't copy the NAXIS* keywords
      if ( itr->getName().find("NAXIS") != std::string::npos ) {
        continue;

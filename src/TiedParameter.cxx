@@ -20,6 +20,7 @@ TiedParameter::TiedParameter() : optimizers::Parameter() {}
 TiedParameter::TiedParameter(const TiedParameter & other) 
    : optimizers::Parameter(other), m_pars(other.m_pars) {}
 
+
 TiedParameter::~TiedParameter() throw() {
    // nothing to delete.
 }
@@ -43,7 +44,7 @@ void TiedParameter::addParam(LogLike & like, size_t i) {
 }
 
 void TiedParameter::removeParam(LogLike & like, size_t i) {
-   ParVector_t::iterator it = std::find(m_pars.begin(), m_pars.end(),
+   auto it = std::find(m_pars.begin(), m_pars.end(),
                                         std::make_pair(&like, i));
    if (it != m_pars.end()) {
       m_pars.erase(it);
@@ -51,7 +52,7 @@ void TiedParameter::removeParam(LogLike & like, size_t i) {
 }
 
 auto TiedParameter::has_member(const LogLike & like, size_t i) const -> bool {
-   for (ParVectorConstIterator_t it = m_pars.begin();
+   for (auto it = m_pars.begin();
         it != m_pars.end(); ++it) {
       if (it->first == &like && it->second == i) {
          return true;
@@ -62,14 +63,14 @@ auto TiedParameter::has_member(const LogLike & like, size_t i) const -> bool {
 
 void TiedParameter::setName(const std::string name) {
    optimizers::Parameter::setName(name);
-   for (ParVectorIterator_t it(m_pars.begin()); it != m_pars.end(); ++it) {
+   for (auto it(m_pars.begin()); it != m_pars.end(); ++it) {
       it->first->parameters().at(it->second).setName(name);
    }
 }
 
 void TiedParameter::setValue(double value) {
    optimizers::Parameter::setValue(value);
-   for (ParVectorIterator_t it(m_pars.begin()); it != m_pars.end(); ++it) {
+   for (auto it(m_pars.begin()); it != m_pars.end(); ++it) {
       size_t indx = it->second;
       it->first->parameters().at(indx).setValue(value);
    }
@@ -77,49 +78,49 @@ void TiedParameter::setValue(double value) {
 
 void TiedParameter::setScale(double scale) {
    optimizers::Parameter::setScale(scale);
-   for (ParVectorIterator_t it(m_pars.begin()); it != m_pars.end(); ++it) {
+   for (auto it(m_pars.begin()); it != m_pars.end(); ++it) {
       it->first->parameters().at(it->second).setScale(scale);
    }
 }
 
 void TiedParameter::setTrueValue(double trueValue) {
    optimizers::Parameter::setTrueValue(trueValue);
-   for (ParVectorIterator_t it(m_pars.begin()); it != m_pars.end(); ++it) {
+   for (auto it(m_pars.begin()); it != m_pars.end(); ++it) {
       it->first->parameters().at(it->second).setTrueValue(trueValue);
    }
 }
 
 void TiedParameter::setBounds(double minValue, double maxValue) {
    optimizers::Parameter::setBounds(minValue, maxValue);
-   for (ParVectorIterator_t it(m_pars.begin()); it != m_pars.end(); ++it) {
+   for (auto it(m_pars.begin()); it != m_pars.end(); ++it) {
       it->first->parameters().at(it->second).setBounds(minValue, maxValue);
    }
 }
 
 void TiedParameter::setFree(bool free) {
    optimizers::Parameter::setFree(free);
-   for (ParVectorIterator_t it(m_pars.begin()); it != m_pars.end(); ++it) {
+   for (auto it(m_pars.begin()); it != m_pars.end(); ++it) {
       it->first->parameters().at(it->second).setFree(free);
    }
 }
 
 void TiedParameter::setAlwaysFixed(bool flag) {
    optimizers::Parameter::setAlwaysFixed(flag);
-   for (ParVectorIterator_t it(m_pars.begin()); it != m_pars.end(); ++it) {
+   for (auto it(m_pars.begin()); it != m_pars.end(); ++it) {
       it->first->parameters().at(it->second).setAlwaysFixed(flag);
    }
 }
 
 void TiedParameter::setError(double error) {
    optimizers::Parameter::setError(error);
-   for (ParVectorIterator_t it(m_pars.begin()); it != m_pars.end(); ++it) {
+   for (auto it(m_pars.begin()); it != m_pars.end(); ++it) {
       it->first->parameters().at(it->second).setError(error);
    }
 }
 
 auto TiedParameter::
 containsIndex(const LogLike & like, size_t par_index) const -> bool {
-   ParVectorConstIterator_t it(m_pars.begin());
+   auto it(m_pars.begin());
    for ( ; it != m_pars.end(); ++it) {
       if (it->first == &like && it->second == par_index) {
          return true;

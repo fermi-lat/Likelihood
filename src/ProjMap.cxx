@@ -33,7 +33,7 @@ ProjMap::ProjMap()
   : m_filename(),
     m_refDir(0., 0.),
     m_mapRadius(0.),
-    m_proj(0),
+    m_proj(nullptr),
     m_interpolate(true),
     m_mapIntegral(0),
     m_enforceEnergyRange(false),
@@ -47,7 +47,7 @@ ProjMap::ProjMap(const std::string & filename,
   : m_filename(filename),
     m_refDir(0.,0.),
     m_mapRadius(0.),
-    m_proj(0),
+    m_proj(nullptr),
     m_interpolate(interpolate),
     m_mapIntegral(0),
     m_enforceEnergyRange(enforceEnergyRange),
@@ -70,7 +70,7 @@ ProjMap::ProjMap(const ProjMap & rhs)
   :  m_filename(rhs.m_filename),
      m_refDir(rhs.m_refDir),
      m_mapRadius(rhs.m_mapRadius),
-     m_proj(rhs.m_proj ? rhs.m_proj->clone() : 0),
+     m_proj(rhs.m_proj ? rhs.m_proj->clone() : nullptr),
      m_energies(rhs.m_energies),
      m_interpolate(rhs.m_interpolate),
      m_enforceEnergyRange(rhs.m_enforceEnergyRange),
@@ -83,7 +83,7 @@ ProjMap::ProjMap(const ProjMap & rhs, const double & energy)
   :  m_filename(rhs.m_filename),
      m_refDir(rhs.m_refDir),
      m_mapRadius(rhs.m_mapRadius),
-     m_proj(rhs.m_proj ? rhs.m_proj->clone() : 0),
+     m_proj(rhs.m_proj ? rhs.m_proj->clone() : nullptr),
      m_energies(1,energy),
      m_interpolate(rhs.m_interpolate),
      m_enforceEnergyRange(rhs.m_enforceEnergyRange),
@@ -98,7 +98,7 @@ auto ProjMap::operator=(const ProjMap & rhs) -> ProjMap & {
       m_refDir = rhs.m_refDir;
       m_mapRadius = rhs.m_mapRadius;
       delete m_proj;
-      m_proj = rhs.m_proj ? rhs.m_proj->clone() : 0;
+      m_proj = rhs.m_proj ? rhs.m_proj->clone() : nullptr;
       m_energies = rhs.m_energies;
       m_interpolate = rhs.m_interpolate;
       m_enforceEnergyRange = rhs.m_enforceEnergyRange;
@@ -111,7 +111,7 @@ auto ProjMap::operator=(const ProjMap & rhs) -> ProjMap & {
 
 
 auto ProjMap::skyDir(double ilon, double ilat) const -> astro::SkyDir {
-   if ( m_proj == 0 ) {
+   if ( m_proj == nullptr ) {
      throw std::runtime_error("ProjMap: Projection is not initialized");
    }
    // EAC -> debugging

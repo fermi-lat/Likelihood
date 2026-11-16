@@ -50,7 +50,7 @@ void DiffRespNames::addColumn(const std::string & diffRspName) {
 }
 
 auto DiffRespNames::key(const std::string & colname) const -> std::string {
-   std::vector<std::string>::const_iterator it = 
+   auto it = 
       std::find(m_colnames.begin(), m_colnames.end(), colname);
    if (it == m_colnames.end()) {
       throw DiffRespNameError("diffuse response named "

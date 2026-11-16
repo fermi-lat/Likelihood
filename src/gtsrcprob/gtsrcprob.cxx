@@ -76,8 +76,8 @@ public:
 
 private:
 
-   AppHelpers * m_helper;
-   SourceModel * m_sourceModel;
+   AppHelpers * m_helper{nullptr};
+   SourceModel * m_sourceModel{nullptr};
    st_stream::StreamFormatter * m_formatter;
 
    st_app::AppParGroup & m_pars;
@@ -89,7 +89,7 @@ private:
    void readEventData();
    void writeDensities() const;
    void getSourceList();
-   auto columnName(std::string srcName) const -> std::string;
+   [[nodiscard]] auto columnName(std::string srcName) const -> std::string;
 
    static std::string s_cvs_id;
 };
@@ -99,7 +99,7 @@ st_app::StAppFactory<SourceProbs> myAppFactory("gtsrcprob");
 std::string SourceProbs::s_cvs_id("$Name: Likelihood-18-00-04 $");
 
 SourceProbs::SourceProbs() 
-   : st_app::StApp(), m_helper(0), m_sourceModel(0), 
+   : st_app::StApp(), m_helper(0), m_sourceModel(0),
      m_formatter(new st_stream::StreamFormatter("gtsrcprob", "", 2)),
      m_pars(st_app::StApp::getParGroup("gtsrcprob")) {
    setVersion(s_cvs_id);
@@ -224,14 +224,14 @@ void SourceProbs::writeDensities() const {
        std::map<std::string, double> densities;
        double normalization(0);
        // Loop over all sources in the model to determine the normalization.
-       for (std::vector<std::string>::iterator name(srcNames.begin());
+       for (auto name(srcNames.begin());
             name != srcNames.end(); ++name) {
           const Source & src(m_sourceModel->source(*name));
           densities[*name] = src.fluxDensity(events.at(j));
           normalization += densities[*name];
        }
        // Loop over items in the desired source list.
-       for (std::vector<std::string>::const_iterator name(m_srclist.begin());
+       for (auto name(m_srclist.begin());
             name != m_srclist.end(); ++name) {
           row[*name].set(densities[*name]/normalization);
        }

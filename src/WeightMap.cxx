@@ -110,7 +110,7 @@ namespace Likelihood {
     size_t nebins = energy_centers.size();
     
     m_model.resize(nebins*pixels.size());
-    std::vector<Pixel>::const_iterator pixel(pixels.begin());
+    auto pixel(pixels.begin());
     extrapolated = false;
     for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
       bool in_map = weight_map.insideMap(pixel->dir());

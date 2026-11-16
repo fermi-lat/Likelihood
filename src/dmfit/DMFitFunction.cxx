@@ -13,7 +13,7 @@
 #include "optimizers/dArg.h"
 #include "optimizers/ParameterNotFound.h"
 #include "optimizers/f2c_types.h"
-typedef double doublereal;
+using doublereal = double;
 
 #include "Likelihood/DMFitFunction.h"
 
@@ -64,8 +64,8 @@ auto DMFitFunction::value(const optimizers::Arg &xarg) const -> double {
    double sv=m_parameter[sigmav].getTrueValue();
    double m=m_parameter[mass].getTrueValue();
    double b=m_parameter[bratio].getTrueValue();
-   integer ch0 = static_cast<integer>(m_parameter[channel0].getTrueValue());
-   integer ch1 = static_cast<integer>(m_parameter[channel1].getTrueValue());
+   auto ch0 = static_cast<integer>(m_parameter[channel0].getTrueValue());
+   auto ch1 = static_cast<integer>(m_parameter[channel1].getTrueValue());
 
 
    double my_value=n*sv/m/m*(b*dmfit_de__(&m,&ch0,&x)
@@ -93,8 +93,8 @@ auto DMFitFunction::derivByParamImp(const optimizers::Arg & xarg,
    double sv=m_parameter[sigmav].getTrueValue();
    double m=m_parameter[mass].getTrueValue();
    double b=m_parameter[bratio].getTrueValue();
-   integer ch0 = static_cast<integer>(m_parameter[channel0].getTrueValue());
-   integer ch1 = static_cast<integer>(m_parameter[channel1].getTrueValue());
+   auto ch0 = static_cast<integer>(m_parameter[channel0].getTrueValue());
+   auto ch1 = static_cast<integer>(m_parameter[channel1].getTrueValue());
    
    double m2=m*m;
    double value(0);

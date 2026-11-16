@@ -40,7 +40,7 @@ public:
 
    AlphaBkg() : st_app::StApp(),
                 m_pars(st_app::StApp::getParGroup("gtalphabkg")),
-		m_output(0) {
+                m_output(0) {
       setVersion(s_cvs_id);
    }
    virtual ~AlphaBkg() throw() {
@@ -60,7 +60,7 @@ private:
  
    std::vector<std::string> m_inputFiles;
    std::vector<Likelihood::CountsMapBase*> m_inputMaps;
-   Likelihood::CountsMapBase* m_output;
+   Likelihood::CountsMapBase* m_output{nullptr};
 
    void computeAlphaBkg();
    void updateDssKeywords();
@@ -93,7 +93,7 @@ void AlphaBkg::computeAlphaBkg() {
 
    st_facilities::Util::readLines(m_pars["inputs"], m_inputFiles);
 
-   for ( std::vector<std::string>::const_iterator itr = m_inputFiles.begin();
+   for ( auto itr = m_inputFiles.begin();
 	 itr != m_inputFiles.end(); itr++ ) {
      Likelihood::CountsMapBase* cmap = Likelihood::AppHelpers::readCountsMap(*itr); 
      m_inputMaps.push_back(cmap);

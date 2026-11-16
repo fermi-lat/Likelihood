@@ -59,12 +59,12 @@ public:
 private:
 
 
-   AppHelpers * m_helper;
+   AppHelpers * m_helper{nullptr};
    st_app::AppParGroup & m_pars;
    double m_srRadius;
 
-   astro::ProjBase::Method m_projMethod;
-   bool m_useEbounds;
+   astro::ProjBase::Method m_projMethod{astro::ProjBase::UNKNOWN};
+   bool m_useEbounds{true};
 
    void run_wcs(const std::string* cmap_file, int edisp_bins);    
    void run_hpx(const std::string* cmap_file, int edisp_bins);
@@ -78,9 +78,9 @@ private:
    void copyGtis() const;
    void copyHeaderKeywords() const;
    void copyDssKeywords(tip::Header & header) const;
-   auto have_user_sky_geom_wcs() const -> bool;
-   auto have_user_sky_geom_hpx() const -> bool;
-   auto have_user_energies() const -> bool;
+   [[nodiscard]] auto have_user_sky_geom_wcs() const -> bool;
+   [[nodiscard]] auto have_user_sky_geom_hpx() const -> bool;
+   [[nodiscard]] auto have_user_energies() const -> bool;
    static std::string s_cvs_id;
 };
 
@@ -97,8 +97,8 @@ auto ExpCube::check_cmap_null(const std::string& cmap_name) -> bool {
 }
 
 ExpCube::ExpCube() : st_app::StApp(), m_helper(0), 
-		     m_projMethod(astro::ProjBase::UNKNOWN),
-		     m_useEbounds(true),
+                     m_projMethod(astro::ProjBase::UNKNOWN),
+                     m_useEbounds(true),
                      m_pars(st_app::StApp::getParGroup("gtexpcube2")) {
    setVersion(s_cvs_id);
 }
@@ -136,7 +136,7 @@ void ExpCube::run() {
    }
    set_phi_status();
    m_helper->checkOutputFile();
-   ExposureCube & ltcube = 
+   auto & ltcube = 
       const_cast<ExposureCube &>(m_helper->observation().expCube());
    ltcube.readExposureCube(ltcube_file);
 
@@ -153,10 +153,10 @@ void ExpCube::run() {
 
    switch ( m_projMethod ) {
    case astro::ProjBase::WCS:
-     run_wcs(cmap_is_null ? 0 : &cmap_file, edisp_bins);
+     run_wcs(cmap_is_null ? nullptr : &cmap_file, edisp_bins);
      break;
    case astro::ProjBase::HEALPIX:
-     run_hpx(cmap_is_null ? 0 : &cmap_file, edisp_bins);
+     run_hpx(cmap_is_null ? nullptr : &cmap_file, edisp_bins);
      break;
    default:
      throw std::runtime_error("Unknown projection type");
@@ -178,7 +178,7 @@ void ExpCube::run_wcs(const std::string* cmap_file, int edisp_bins) {
       st_app::AppParGroup & pars(m_pars);
       // Create map for user-defined geometry.
       std::vector<double> energies;
-      generateEnergies( energies, user_energies ? 0 : cmap_file, edisp_bins);
+      generateEnergies( energies, user_energies ? nullptr : cmap_file, edisp_bins);
       if (!m_useEbounds) {
 	for (size_t k(0); k < energies.size() - 1; k++) {
 	  energies[k] = std::sqrt(energies[k]*energies[k+1]);
@@ -186,7 +186,7 @@ void ExpCube::run_wcs(const std::string* cmap_file, int edisp_bins) {
 	energies.pop_back();
       } 
       if (!user_sky_geom) {
-	if ( cmap_file == 0 ) {
+	if ( cmap_file == nullptr ) {
 	  throw std::runtime_error("Geometry not fully defined and no input counts map file");
 	}
 	// Harvest sky geometry from counts map.
@@ -207,7 +207,7 @@ void ExpCube::run_wcs(const std::string* cmap_file, int edisp_bins) {
       BinnedExposure bexpmap(energies, m_helper->observation(), &pars);
       bexpmap.writeOutput(m_pars["outfile"]);
    } else {      
-      if ( cmap_file == 0 ) {
+      if ( cmap_file == nullptr ) {
 	 throw std::runtime_error("Geometry not fully defined and no input counts map file");
       }
       CountsMap cmap(*cmap_file);
@@ -229,7 +229,7 @@ void ExpCube::run_hpx(const std::string* cmap_file, int edisp_bins) {
       st_app::AppParGroup & pars(m_pars);
       // Create map for user-defined geometry.
       std::vector<double> energies;
-      generateEnergies( energies, user_energies ? 0 : cmap_file, edisp_bins);
+      generateEnergies( energies, user_energies ? nullptr : cmap_file, edisp_bins);
       if (!m_useEbounds) {
 	for (size_t k(0); k < energies.size() - 1; k++) {
 	  energies[k] = std::sqrt(energies[k]*energies[k+1]);
@@ -238,7 +238,7 @@ void ExpCube::run_hpx(const std::string* cmap_file, int edisp_bins) {
       } 
       if (!user_sky_geom) {
          // Harvest sky geometry from counts map.
-	 if ( cmap_file == 0 ) {
+	 if ( cmap_file == nullptr ) {
 	   throw std::runtime_error("Geometry not fully defined and no input counts map file");
 	 }
          CountsMapHealpix cmap(*cmap_file);
@@ -253,7 +253,7 @@ void ExpCube::run_hpx(const std::string* cmap_file, int edisp_bins) {
       BinnedHealpixExposure bexpmap(energies, m_helper->observation(), &pars);
       bexpmap.writeOutput(m_pars["outfile"]);
    } else {
-      if ( cmap_file == 0 ) {
+      if ( cmap_file == nullptr ) {
         throw std::runtime_error("Geometry not fully defined and no input counts map file");
       }
       evtbin::HealpixMap cmap(*cmap_file);
@@ -327,7 +327,7 @@ void ExpCube::generateEnergies(std::vector<double> & energies,
 			       int edisp_bins) const {
    energies.clear();
 
-   if ( cmap_file != 0 ){
+   if ( cmap_file != nullptr ){
      // Harvest energies from the counts map.
      const tip::Table * 
        ebounds(tip::IFileSvc::instance().readTable(*cmap_file, "EBOUNDS"));
@@ -415,7 +415,7 @@ void ExpCube::set_phi_status() {
    bool ignorephi = m_pars["ignorephi"];
    if (ignorephi) {
       const Observation & observation(m_helper->observation());
-      std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
+      auto respIt 
          = observation.respFuncs().begin();
       for ( ; respIt != observation.respFuncs().end(); ++respIt) {
          respIt->second->aeff()->setPhiDependence(false);
@@ -477,7 +477,7 @@ void ExpCube::copyHeaderKeywords() const {
 
 void ExpCube::copyDssKeywords(tip::Header & header) const {
    std::string cmap_file = m_pars["cmap"];
-   dataSubselector::Cuts * irfs_cuts(0);
+   dataSubselector::Cuts * irfs_cuts(nullptr);
    
    if (check_cmap_null(cmap_file)) {
       // No DSS keywords to copy from counts map file, so

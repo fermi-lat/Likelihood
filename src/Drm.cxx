@@ -80,7 +80,7 @@ Drm::Drm(double ra, double dec,
 	 const std::vector< std::vector<double> >& values, 
 	 size_t edisp_bins)
   : m_dir(ra, dec), 
-    m_observation(0), 
+    m_observation(nullptr), 
     m_energies(energies),
     m_full_energies(energies),
     m_ntrue(energies.size() + 2*edisp_bins - 1),
@@ -145,7 +145,7 @@ void Drm::convolve(const std::vector<double> & true_counts,
 
 
 void Drm::compute_drm() {
-   if ( m_observation == 0 ) {
+   if ( m_observation == nullptr ) {
      throw std::runtime_error("Called compute_drm on a Drm that was build from a FITs table and does not have obsrvation data");
    }
    m_drm.clear();
@@ -193,7 +193,7 @@ void Drm::compute_livetime() {
   m_livetime.resize(nmu, 0);
 
   size_t j(0);
-  for ( std::vector<float>::const_iterator itrcos = cos_binner.begin(); 
+  for ( auto itrcos = cos_binner.begin(); 
 	itrcos != cos_binner.end_costh(); itrcos++, j++) {
     double cos_theta = cos_binner.costheta(itrcos);
     m_costheta_vals[j] = cos_theta;
@@ -346,7 +346,7 @@ void Drm_Cache::update(const Drm& drm,
 
   // These are the weights to be applied to the measured counts.
   size_t k(0);
-  bool has_weights = sourceMap.weights() != 0;
+  bool has_weights = sourceMap.weights() != nullptr;
 
   std::vector<double> edisp_col;
 

@@ -101,7 +101,7 @@ derivByParamImp(const optimizers::Arg & xarg, const std::string & paramName) con
          return 0;
       }
    }
-   std::vector<std::string>::const_iterator it
+   auto it
       = std::find(m_dNdENames.begin(), m_dNdENames.end(), paramName);
    if (it == m_dNdENames.end()) {
       std::ostringstream what;
@@ -205,7 +205,7 @@ derivByParam_decoupledNormPar(const optimizers::Arg & xarg,
          return 0;
       }
    }
-   std::vector<std::string>::const_iterator it
+   auto it
       = std::find(m_dNdENames.begin(), m_dNdENames.end(), paramName);
    if (it == m_dNdENames.end()) {
       std::ostringstream what;

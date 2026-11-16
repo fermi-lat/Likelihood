@@ -107,13 +107,13 @@ void DiffuseSource::computeExposure(const std::vector<double> & energies,
       return;
     } else if ( src_type == "RadialGaussian" || 
 		src_type == "RadialDisk" ) {
-      const SpatialFunction * spatial_func = dynamic_cast<const SpatialFunction *>(m_spatialDist);
-      SpatialFunction* ncsf = const_cast<SpatialFunction*>(spatial_func);
+      const auto * spatial_func = dynamic_cast<const SpatialFunction *>(m_spatialDist);
+      auto* ncsf = const_cast<SpatialFunction*>(spatial_func);
       ncsf->setCenter(newDir.ra(), newDir.dec());     
       return;
     } else if ( src_type == "RadialProfile" ) {
       const RadialProfile * profile = dynamic_cast<RadialProfile *>(m_spatialDist);
-      RadialProfile* ncrp = const_cast<RadialProfile*>(profile);
+      auto* ncrp = const_cast<RadialProfile*>(profile);
       ncrp->setCenter(newDir.ra(), newDir.dec());
       return;
     }
@@ -215,7 +215,7 @@ auto DiffuseSource::fluxDensityDeriv(double /* inclination */, double /* phi */,
 
 
 auto DiffuseSource::mapBaseObject() const -> const MapBase * {
-   optimizers::Function * foo = 
+   auto * foo = 
       const_cast<optimizers::Function *>(this->spatialDist());
    const MapBase * mapBaseObject = dynamic_cast<MapBase *>(foo);
    if (!mapBaseObject) {
@@ -226,9 +226,9 @@ auto DiffuseSource::mapBaseObject() const -> const MapBase * {
 }
 
 auto DiffuseSource::mapBaseObject() -> MapBase * {
-   optimizers::Function * foo = 
+   auto * foo = 
       const_cast<optimizers::Function *>(this->spatialDist());
-   MapBase * mapBaseObject = dynamic_cast<MapBase *>(foo);
+   auto * mapBaseObject = dynamic_cast<MapBase *>(foo);
    if (!mapBaseObject) {
       throw MapBaseException("MapBase object not found for this "
                              + ("diffuse source: " + getName()));
@@ -243,7 +243,7 @@ auto DiffuseSource::mapRefDir() const -> const astro::SkyDir& {
       return dummy;
    } else if (spatialDist()->genericName() == "RadialGaussian" ||
 	      spatialDist()->genericName() == "RadialDisk") { 
-      const SpatialFunction * spatial_func = dynamic_cast<const SpatialFunction *>(m_spatialDist);
+      const auto * spatial_func = dynamic_cast<const SpatialFunction *>(m_spatialDist);
       return spatial_func->dir();
    } else if (spatialDist()->genericName() == "RadialProfile") {
       const RadialProfile * profile = dynamic_cast<RadialProfile *>(m_spatialDist);
@@ -260,7 +260,7 @@ auto DiffuseSource::angularIntegral(double energy) const -> double {
 	      spatialDist()->genericName() == "RadialDisk") { 
      return 1.0;
    } else if (spatialDist()->genericName() == "RadialProfile") {
-      optimizers::Function * foo = 
+      auto * foo = 
          const_cast<optimizers::Function *>(this->spatialDist());
       const RadialProfile * profile = dynamic_cast<RadialProfile *>(foo);
       return profile->angularIntegral();
@@ -381,14 +381,14 @@ auto DiffuseSource::computeMapRadius() const -> double {
     return 180.;
   } else if ( spatialDist()->genericName() == "RadialGaussian" ||
 	      spatialDist()->genericName() == "RadialDisk" ) {    
-    const SpatialFunction* sf = dynamic_cast<const SpatialFunction*>(m_spatialDist);
-    if ( sf == 0 ) {
+    const auto* sf = dynamic_cast<const SpatialFunction*>(m_spatialDist);
+    if ( sf == nullptr ) {
       throw std::runtime_error("DiffuseSource::computeMapRadius: could not cast SpatialFunction");
     } 
     return sf->mapRadius();
   } else if (  spatialDist()->genericName() == "RadialProfile" ) {
-    const RadialProfile* rp = dynamic_cast<const RadialProfile*>(m_spatialDist);
-    if ( rp == 0 ) {
+    const auto* rp = dynamic_cast<const RadialProfile*>(m_spatialDist);
+    if ( rp == nullptr ) {
       throw std::runtime_error("DiffuseSource::computeMapRadius: could not cast RadialProfile");
     } 
     return rp->mapRadius();

@@ -24,20 +24,20 @@ namespace Likelihood {
 
 RadialProfile::RadialProfile() 
    : optimizers::Function("RadialProfile", 3, "Normalization"),
-     m_center(0) {
+     m_center(nullptr) {
    init();
 }
 
 RadialProfile::RadialProfile(const std::string & template_file) 
    : optimizers::Function("RadialProfile", 3, "Normalization"),
-     m_center(0), m_templateFile(template_file) {
+     m_center(nullptr), m_templateFile(template_file) {
    init();
    readTemplateFile(template_file);
 }
 
 RadialProfile::RadialProfile(const RadialProfile & other) 
    : optimizers::Function(other),
-     m_center(0),
+     m_center(nullptr),
      m_templateFile(other.m_templateFile),
      m_theta(other.m_theta), 
      m_profile(other.m_profile) {
@@ -76,8 +76,8 @@ auto RadialProfile::valueAtOffset(double offset) const -> double {
 }
 
 auto RadialProfile::value(const optimizers::Arg & x) const -> double {
-   const SkyDirArg & dir = dynamic_cast<const SkyDirArg &>(x);
-   if (m_center == 0) {
+   const auto & dir = dynamic_cast<const SkyDirArg &>(x);
+   if (m_center == nullptr) {
       m_center = new astro::SkyDir(getParam("RA").getValue(),
                                    getParam("DEC").getValue());
    }

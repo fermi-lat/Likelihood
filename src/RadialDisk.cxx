@@ -92,8 +92,7 @@ auto RadialDisk::operator=(const RadialDisk & rhs) -> RadialDisk & {
    return *this;
 }
 
-RadialDisk::~RadialDisk() {
-}
+RadialDisk::~RadialDisk() = default;
 
 auto RadialDisk::value(const astro::SkyDir & dir) const -> double {
    double delta = this->dir().difference(dir)*180./M_PI;
@@ -134,7 +133,7 @@ void RadialDisk::update() {
 }
 
 auto RadialDisk::value(const optimizers::Arg & x) const -> double {
-   const SkyDirArg & dir = dynamic_cast<const SkyDirArg &>(x);
+   const auto & dir = dynamic_cast<const SkyDirArg &>(x);
    double offset = dir().difference(this->dir())*180./M_PI;
    return value(offset,m_radius);
 }

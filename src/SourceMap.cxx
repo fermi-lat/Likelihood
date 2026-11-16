@@ -85,7 +85,7 @@ SourceMap::SourceMap(const Source& src,
      m_srcType(src.getType()),
      m_dataCache(dataCache),
      m_observation(observation),
-     m_meanPsf(0),
+     m_meanPsf(nullptr),
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
      m_config(config),
      m_drm(&drm),
@@ -96,7 +96,7 @@ SourceMap::SourceMap(const Source& src,
      m_mapType(FileUtils::Unknown),
      m_save_model(save_model),     
      m_model_is_local(true),
-     m_drm_cache(0) {
+     m_drm_cache(nullptr) {
 
 
    set_energies();
@@ -122,7 +122,7 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
     m_dataCache(dataCache),
     m_observation(observation),
     m_config(config),
-    m_meanPsf(0),
+    m_meanPsf(nullptr),
     m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
     m_weights(weights),
     m_mapType(FileUtils::Unknown),
@@ -132,7 +132,7 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
     m_edisp_val(src.use_edisp() ? config.edisp_val() : 0),
     m_edisp_bins(0),    
     m_edisp_offset(0),
-    m_drm_cache(0) {
+    m_drm_cache(nullptr) {
 
     int status = readModel(sourceMapsFile);
 
@@ -150,7 +150,7 @@ SourceMap::SourceMap(const SourceMap& other)
    m_srcType(other.m_srcType),
    m_dataCache(other.m_dataCache),
    m_observation(other.m_observation),
-   m_meanPsf( other.m_meanPsf != 0 ? new MeanPsf(*other.m_meanPsf) : 0),
+   m_meanPsf( other.m_meanPsf != nullptr ? new MeanPsf(*other.m_meanPsf) : nullptr),
    m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
    m_config(other.m_config),
    m_drm(other.m_drm),
@@ -267,7 +267,7 @@ void SourceMap::computeNpredArray() {
        if ( ! is_meas_bin ) continue;
        // This is the index in the weights
        size_t indx_w(kmeas*npix + j);
-       double weight_val = m_weights != 0 ? m_weights->model()[indx_w] : 1.;       
+       double weight_val = m_weights != nullptr ? m_weights->model()[indx_w] : 1.;       
        size_t idx_k(0);
        size_t idx_k0(kmin_edisp*npix + j);
        for ( size_t kk(kmin_edisp); kk < kmax_edisp; kk++, idx_k++, idx_k0 += npix ) {
@@ -317,7 +317,7 @@ void SourceMap::computeNpredArray_sparse() {
      }     
    }
 
-   for ( SparseVector<float>::iterator itr = m_sparseModel.begin(); itr != m_sparseModel.end(); itr++ ) {
+   for ( auto itr = m_sparseModel.begin(); itr != m_sparseModel.end(); itr++ ) {
      size_t indx_0 = itr->first;
      size_t k_true = indx_0 / npix;
      size_t j = indx_0 % npix;
@@ -329,7 +329,7 @@ void SourceMap::computeNpredArray_sparse() {
      size_t kmeas = k_true - edisp_bins();
      size_t indx_w(kmeas*npix + j);
 
-     double weight_val = m_weights != 0 ? m_weights->model()[indx_w] : 1.;
+     double weight_val = m_weights != nullptr ? m_weights->model()[indx_w] : 1.;
      FitUtils::get_edisp_range(*this, kmeas, kmin_edisp, kmax_edisp);
      size_t idx_k(0);
      size_t idx_k0(kmin_edisp*npix + j);
@@ -352,7 +352,7 @@ void SourceMap::computeNpredArray_sparse() {
     const ProjMap * phased_expmap = &(m_observation.phased_expmap());
     const std::vector<Pixel> & pixels = m_dataCache->countsMap().pixels();
     for (size_t k(0); k < n_energies(); k++) {
-      std::vector<Pixel>::const_iterator pixel(pixels.begin());
+      auto pixel(pixels.begin());
       for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
 	size_t indx(k*pixels.size() + j);
 	m_model[indx] *= phased_expmap->operator()(pixel->dir(),
@@ -368,7 +368,7 @@ void SourceMap::computeNpredArray_sparse() {
     const ProjMap * phased_expmap = &(m_observation.phased_expmap());
     const std::vector<Pixel> & pixels = m_dataCache->countsMap().pixels();
    
-    for ( SparseVector<float>::iterator itr = m_sparseModel.begin(); itr != m_sparseModel.end(); itr++ ) {
+    for ( auto itr = m_sparseModel.begin(); itr != m_sparseModel.end(); itr++ ) {
       size_t indx = itr->first;
       size_t j = indx % pixels.size();
       size_t k = indx / pixels.size();
@@ -403,7 +403,7 @@ void SourceMap::computeNpredArray_sparse() {
 
 
   void SourceMap::setSpectralValues(bool latch_params ) {
-    if ( m_src == 0 ) return;
+    if ( m_src == nullptr ) return;
     FitUtils::extractSpectralVals(*m_src,m_energies,m_specVals);
     FitUtils::get_spectral_weights(m_specVals,m_energies,m_logEnergyRatios,m_specWts);
     m_modelPars.clear();
@@ -415,7 +415,7 @@ void SourceMap::computeNpredArray_sparse() {
   }
 
   void SourceMap::setSpectralDerivs(const std::vector<std::string>& paramNames) {
-    if ( m_src == 0 ) return;
+    if ( m_src == nullptr ) return;
     FitUtils::extractSpectralDerivs(*m_src,m_energies,paramNames,m_derivs);
   }
 
@@ -430,7 +430,7 @@ void SourceMap::computeNpredArray_sparse() {
 
 
 auto SourceMap::spectrum_changed() const -> bool {
-  if ( m_src == 0 ) return true;
+  if ( m_src == nullptr ) return true;
   std::vector<double> parValues;
   m_src->spectrum().getParamValues(parValues);
   if ( parValues.size() != m_latchedModelPars.size() ) {
@@ -498,7 +498,7 @@ auto SourceMap::weighted_npreds(bool force) -> const std::vector<std::vector<std
 }  
 
 auto SourceMap::drm_cache(bool force) -> const Drm_Cache* {
-  if ( m_drm_cache == 0) {
+  if ( m_drm_cache == nullptr) {
     m_drm_cache = new Drm_Cache(*m_drm, *this);
   } else if ( force ) {
     m_drm_cache->update(*m_drm, *this);  
@@ -536,7 +536,7 @@ auto SourceMap::summed_counts(size_t kmin, size_t kmax,
 				int edisp_val,
 				bool use_weighted) -> double {
     
-  if ( m_drm_cache == 0 ) {
+  if ( m_drm_cache == nullptr ) {
     throw std::runtime_error("Called summed counts on a SourceMap that does not have a Drm_Cache ");
   }
  
@@ -577,7 +577,7 @@ auto SourceMap::memory_size() const -> size_t {
   retVal += sizeof(double)*m_modelPars.capacity();
   retVal += sizeof(double)*m_npreds.capacity();
   retVal += sizeof(std::pair<double,double>)*m_weighted_npreds.capacity();
-  if ( m_drm_cache != 0 ) {
+  if ( m_drm_cache != nullptr ) {
     retVal += m_drm_cache->memory_size();
   }
   return retVal;
@@ -585,7 +585,7 @@ auto SourceMap::memory_size() const -> size_t {
 
 
 void SourceMap::test_sparse(const std::string& prefix) const {
-  for ( SparseVector<float>::const_iterator itr = m_sparseModel.begin();
+  for ( auto itr = m_sparseModel.begin();
 	itr != m_sparseModel.end(); itr++ ) {
     if ( itr->first >= m_sparseModel.size() ) {
     }
@@ -695,7 +695,7 @@ auto SourceMap::readTable_healpix(const std::string& sourceMapsFile) -> int {
 
 
 auto SourceMap::make_model() -> int {
-  if ( m_src == 0 ) return -1;
+  if ( m_src == nullptr ) return -1;
   
   m_model_is_local = true;
   m_model.clear();
@@ -710,13 +710,13 @@ auto SourceMap::make_model() -> int {
 
   if ( m_src->srcType() == Source::Point && 
        !m_config.psf_integ_config().use_single_psf() &&
-       m_meanPsf == 0 ) {
+       m_meanPsf == nullptr ) {
     m_meanPsf = PSFUtils::build_psf(*m_src, m_dataCache->countsMap(), m_energies, m_observation);
   }
 
   status = PSFUtils::makeModelMap(*m_src, *m_dataCache, 
 				  m_energies,
-				  m_meanPsf==0 ? m_observation.meanpsf() : *m_meanPsf,
+				  m_meanPsf==nullptr ? m_observation.meanpsf() : *m_meanPsf,
 				  m_observation.bexpmap_ptr(),
 				  m_config.psf_integ_config(),
 				  m_filename, m_drm,
@@ -739,7 +739,7 @@ auto SourceMap::make_model() -> int {
 }
 
 void SourceMap::addToVector_full(std::vector<float>& vect, bool includeSpec, int kmin, int kmax) const {
-  SourceMap* nc_this = const_cast<SourceMap*>(this);
+  auto* nc_this = const_cast<SourceMap*>(this);
   const std::vector<float>& m = const_cast<SourceMap*>(this)->model();
   size_t npix = m_dataCache->num_pixels();
   kmax = kmax < 0 ? n_energies() : kmax;
@@ -751,8 +751,8 @@ void SourceMap::addToVector_full(std::vector<float>& vect, bool includeSpec, int
   if ( includeSpec && m_specVals.size() != n_energies() ) {
     throw std::runtime_error("SourceMap::addToVector_full spectrum size != number of energy layers");
   }
-  std::vector<float>::const_iterator itr_in = m.begin() + (npix*kmin);
-  std::vector<float>::iterator itr_out = vect.begin();
+  auto itr_in = m.begin() + (npix*kmin);
+  auto itr_out = vect.begin();
   for ( size_t ie(kmin); ie != kmax; ie++ ) {
     double factor = includeSpec ? m_specVals[ie] : 1.;
     for ( size_t ipix(0); ipix < npix; ipix++, itr_in++, itr_out++ ) {
@@ -771,11 +771,11 @@ void SourceMap::addToVector_sparse(std::vector<float>& vect, bool includeSpec, i
     throw std::runtime_error("SourceMap::addToVector_sparse model size != vector size");
   }
   if ( includeSpec ) {
-    SourceMap* nct = const_cast<SourceMap*>(this);
+    auto* nct = const_cast<SourceMap*>(this);
     nct->setSpectralValues();
   }
-  SparseVector<float>::const_iterator itr = m_sparseModel.lower_bound(kmin*npix);
-  SparseVector<float>::const_iterator itr_end = m_sparseModel.upper_bound(kmax*npix);
+  auto itr = m_sparseModel.lower_bound(kmin*npix);
+  auto itr_end = m_sparseModel.upper_bound(kmax*npix);
   size_t offset = kmin*npix;
   for ( ; itr != itr_end; itr++) {
     int ie = includeSpec ? ( itr->first / npix ) : -1;    
@@ -799,11 +799,11 @@ void SourceMap::subtractFromVector_full(std::vector<float>& vect, bool includeSp
     throw std::runtime_error("SourceMap::subtractFromVector_full model size != vector size");
   }
   if ( includeSpec ) {
-    SourceMap* nct = const_cast<SourceMap*>(this);
+    auto* nct = const_cast<SourceMap*>(this);
     nct->setSpectralValues();
   }
-  std::vector<float>::const_iterator itr_in = m_model.begin() + (npix*kmin);
-  std::vector<float>::iterator itr_out = vect.begin();
+  auto itr_in = m_model.begin() + (npix*kmin);
+  auto itr_out = vect.begin();
   for ( size_t ie(kmin); ie != kmax; ie++ ) {
     double factor = includeSpec ? m_specVals[ie] : 1.;
     for ( size_t ipix(0); ipix < npix; ipix++, itr_in++, itr_out++ ) {
@@ -825,8 +825,8 @@ void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool include
   if ( includeSpec && m_specVals.size() != n_energies() ) {
     throw std::runtime_error("SourceMap::subtractFromVector_sparse spectrum size != number of energy layers");
   }
-  SparseVector<float>::const_iterator itr  = m_sparseModel.lower_bound(kmin*npix);
-  SparseVector<float>::const_iterator itr_end = m_sparseModel.upper_bound(kmax*npix);
+  auto itr  = m_sparseModel.lower_bound(kmin*npix);
+  auto itr_end = m_sparseModel.upper_bound(kmax*npix);
   size_t offset = kmin*npix;
   for ( ; itr != itr_end; itr++) {
     int ie = includeSpec ? ( itr->first / npix ) : -1;

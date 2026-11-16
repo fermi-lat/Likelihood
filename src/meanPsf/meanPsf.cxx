@@ -35,14 +35,14 @@ using namespace Likelihood;
 class meanPsf : public st_app::StApp {
 public:
    meanPsf();
-   virtual ~meanPsf() throw() {}
+   virtual ~meanPsf() throw() = default;
    virtual void run();
    virtual void banner() const;
 private:
-   AppHelpers * m_helper;
+   AppHelpers * m_helper{nullptr};
    st_app::AppParGroup & m_pars;
 
-   MeanPsf * m_meanPsf;
+   MeanPsf * m_meanPsf{nullptr};
 
    std::vector<double> m_energies;
    std::vector<double> m_thetas;
@@ -86,7 +86,7 @@ void meanPsf::run() {
                                "select the irfs and evtype explicitly.");
    }
    m_helper = new AppHelpers(&m_pars, "none");
-   ExposureCube & expCube = 
+   auto & expCube = 
       const_cast<ExposureCube &>(m_helper->observation().expCube());
    expCube.readExposureCube(expcube_file);
    
@@ -146,12 +146,12 @@ void meanPsf::writeFitsFile() {
 
    const std::vector<double> & exposure = m_meanPsf->exposure();
 
-   std::vector<double>::const_iterator energy = m_energies.begin();
+   auto energy = m_energies.begin();
    for (int k = 0; energy != m_energies.end(); ++energy, ++row, ++k) {
       record["Energy"].set(*energy);
       record["Exposure"].set(exposure.at(k));
       tip::Table::Vector<double> Psf = record["Psf"];
-      std::vector<double>::const_iterator theta = m_thetas.begin();
+      auto theta = m_thetas.begin();
       for (unsigned int i = 0; theta != m_thetas.end(); ++theta, ++i) {
          Psf[i] = (*m_meanPsf)(*energy, *theta, 0);
       }
@@ -170,7 +170,7 @@ void meanPsf::writeFitsFile() {
    theta_table->setNumRecords(m_thetas.size());
    row = theta_table->begin();
    tip::Table::Record & theta_record = *row;
-   for (std::vector<double>::const_iterator theta = m_thetas.begin();
+   for (auto theta = m_thetas.begin();
         theta != m_thetas.end(); ++theta, ++row) {
       theta_record["Theta"].set(*theta);
    }

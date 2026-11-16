@@ -19,7 +19,7 @@ namespace Likelihood {
 
 ExposureCube::ExposureCube(const ExposureCube & other) 
    : m_exposure(new map_tools::Exposure(*(other.m_exposure))),
-     m_weightedExposure(0), m_efficiencyFactor(0),
+     m_weightedExposure(nullptr), m_efficiencyFactor(nullptr),
      m_haveFile(other.m_haveFile),
      m_fileName(other.m_fileName), 
      m_hasPhiDependence(other.m_hasPhiDependence),
@@ -41,7 +41,7 @@ void ExposureCube::readExposureCube(std::string filename) {
       m_weightedExposure = new map_tools::Exposure(filename,
                                                    "WEIGHTED_EXPOSURE");
    } catch(tip::TipException &) {
-      m_weightedExposure = 0;
+      m_weightedExposure = nullptr;
    }
    m_haveFile = true;
    m_hasPhiDependence = phiDependence(filename);
@@ -84,7 +84,7 @@ ExposureCube::Aeff::Aeff(double energy, int evtType,
 // Turn off phi-dependence if omitted from livetime cube.
    bool phi_dependence(m_observation.expCube().hasPhiDependence());
    if (!phi_dependence) {
-      std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
+      auto respIt 
          = m_observation.respFuncs().begin();
       for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
          respIt->second->aeff()->setPhiDependence(false);
@@ -107,7 +107,7 @@ auto ExposureCube::Aeff::value(double cosTheta, double phi) const -> double {
    double inclination = acos(cosTheta)*180./M_PI;
    double epoch((m_observation.expCube().tstart() 
                  + m_observation.expCube().tstop())/2.);
-   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
+   auto respIt 
       = m_observation.respFuncs().begin();
    for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
       if (respIt->second->irfID() == m_evtType) {

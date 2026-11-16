@@ -26,11 +26,11 @@ BinnedCountsCache::BinnedCountsCache(CountsMapBase& dataMap,
     : m_dataMap(dataMap),
       m_numPixels(dataMap.pixels().size()),
       m_weightMap_orig(weightMap),
-      m_weightMap(0),
-      m_weightedCounts(0) {
+      m_weightMap(nullptr),
+      m_weightedCounts(nullptr) {
     log_energy_ratios(m_dataMap.energies(), m_log_energy_ratios);
 
-    if (weightMap != 0) {
+    if (weightMap != nullptr) {
         if (FileUtils::fileHasExtension(srcMapsFile, "__weights__") && !overwriteWeights) {
             st_stream::StreamFormatter formatter("BinnedLikelihood", "", 2);
             formatter.warn() << "Reading existing weights map from file " << srcMapsFile << std::endl;
@@ -64,8 +64,8 @@ void BinnedCountsCache::setWeightsMap(const ProjMap* wmap,
     // delete m_weightMap_orig;
     delete m_weightMap;
     m_weightMap_orig = wmap;
-    if (wmap == 0) {
-        m_weightMap = 0;
+    if (wmap == nullptr) {
+        m_weightMap = nullptr;
     } else {
         m_weightMap = new WeightMap(*wmap, &m_dataMap, observation, true);
     }
@@ -85,7 +85,7 @@ void BinnedCountsCache::deleteOriginalWeightMap(){
 }
 
 auto BinnedCountsCache::saveWeightsMap(const std::string& srcMapsFile, bool replace) const -> tip::Extension* {
-    if (m_weightMap == 0) return 0;
+    if (m_weightMap == nullptr) return nullptr;
     bool has_weights = FileUtils::fileHasExtension(srcMapsFile, "__weights__");
     if (has_weights) {
         if (replace) {
@@ -99,13 +99,13 @@ auto BinnedCountsCache::saveWeightsMap(const std::string& srcMapsFile, bool repl
         return FileUtils::append_image_from_float_vector(srcMapsFile, "__weights__",
                                                          m_dataMap, m_weightMap->model(), false);
     }
-    return 0;
+    return nullptr;
 }
 
 void BinnedCountsCache::fillWeightedCounts() {
-    if (m_weightMap == 0) {
+    if (m_weightMap == nullptr) {
         delete m_weightedCounts;
-        m_weightedCounts = 0;
+        m_weightedCounts = nullptr;
         return;
     }
     delete m_weightedCounts;

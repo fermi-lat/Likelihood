@@ -47,7 +47,7 @@ public:
                 m_pars(st_app::StApp::getParGroup("gtbkg")) {
       setVersion(s_cvs_id);
    }
-   virtual ~BackFile() throw() {}
+   virtual ~BackFile() throw() = default;
 
    virtual void run();
    virtual void banner() const;
@@ -59,7 +59,7 @@ private:
    void getEbounds(std::vector<double> & emin,
                    std::vector<double> & emax) const;
    void updateKeywords() const;
-   auto NpredError(const Likelihood::LogLike & logLike,
+   [[nodiscard]] auto NpredError(const Likelihood::LogLike & logLike,
                      const std::vector<std::string> & source_names,
                      double emin, double emax) const -> double;
    void writeBackFile(const std::vector<double> & bg_rate,
@@ -155,7 +155,7 @@ void BackFile::run() {
       double emin_val = std::max(emin.at(i), energies.front());
       double emax_val = std::min(emax.at(i), energies.back());
       double counts(0);
-      for (std::vector<std::string>::const_iterator srcName = srcNames.begin();
+      for (auto srcName = srcNames.begin();
            srcName != srcNames.end(); ++srcName) {
          if (*srcName != target) {
             counts += logLike.getSource(*srcName)->Npred(emin_val, emax_val);

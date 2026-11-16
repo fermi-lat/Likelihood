@@ -189,7 +189,7 @@ void LikeExposure::writeFilename(const std::string & outfile) const {
 void LikeExposure::writeLivetimes(const std::string & outfile,
                                   const map_tools::Exposure * self,
                                   const std::string & extname) const {
-   if (self == 0) {
+   if (self == nullptr) {
       self = this;
    }
    setCosbinsFieldFormat(outfile, self, extname);
@@ -201,7 +201,7 @@ void LikeExposure::writeLivetimes(const std::string & outfile,
    tip::Table::Iterator it(table->begin());
    tip::TableRecord & row(*it);
 
-   healpix::HealpixArray<healpix::CosineBinner>::const_iterator 
+   auto 
       pixel(self->data().begin());
 
    for ( ; pixel != self->data().end(); ++pixel, ++it) {
@@ -252,7 +252,7 @@ void LikeExposure::setCosbinsFieldFormat(const std::string & outfile,
                                          const std::string & extname) const {
    int status(0);
 
-   fitsfile * fptr(0);
+   fitsfile * fptr(nullptr);
    std::string extfilename(outfile + "[" + extname + "]");
    fits_open_file(&fptr, extfilename.c_str(), READWRITE, &status);
    fitsReportError(status, "LikeExposure::setCosbinsFieldFormat");
@@ -284,7 +284,7 @@ acceptInterval(double start, double stop,
 
    std::pair<double, double> candidateInterval(start, stop);
 
-   typedef std::vector< std::pair<double, double> > IntervalCont_t;
+   using IntervalCont_t = std::vector< std::pair<double, double> >;
    IntervalCont_t::const_iterator it;
 
    for (it = timeCuts.begin(); it != timeCuts.end(); ++it) {
@@ -297,14 +297,14 @@ acceptInterval(double start, double stop,
    double total(0);
    double maxTotal(candidateInterval.second - candidateInterval.first);
    
-   IntervalCont_t::const_iterator gti_first = 
+   auto gti_first = 
       std::upper_bound(gtis.begin(), gtis.end(), candidateInterval,
                        ::compareFirst);
    if (gti_first != gtis.begin()) {
       --gti_first;
    }
 
-   IntervalCont_t::const_iterator gti_last = 
+   auto gti_last = 
       std::upper_bound(gti_first, gtis.end(), candidateInterval,
                        ::compareSecond);
 

@@ -54,7 +54,7 @@ private:
 
    st_app::AppParGroup & m_pars;
 
-   auto par(const std::string & key) const -> std::string;
+   [[nodiscard]] auto par(const std::string & key) const -> std::string;
 
    static std::string s_cvs_id;
 
@@ -83,7 +83,7 @@ void Ebl::run() {
    st_stream::StreamFormatter formatter("gtebl", "", 2);
 
    int model_id = m_pars["model_id"];
-   IRB::EblModel modelId = static_cast<IRB::EblModel>(model_id);
+   auto modelId = static_cast<IRB::EblModel>(model_id);
 
    double redshift = m_pars["redshift"];
    double emin = m_pars["emin"];

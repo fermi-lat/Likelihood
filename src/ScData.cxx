@@ -35,7 +35,7 @@ void ScData::readData(std::string scfile, double tstart, double tstop,
    tstop += 2*maxIntervalSize;
    facilities::Util::expandEnvVar(&scfile);
 
-   const tip::Table * scData(0);
+   const tip::Table * scData(nullptr);
    std::ostringstream filter;
    filter << std::setprecision(10);
    filter << "col START;STOP;LIVETIME;RA_SCZ;DEC_SCZ;RA_SCX;DEC_SCX]"
@@ -88,7 +88,7 @@ void ScData::readData(const std::vector<std::string> & scFiles,
                       double tstart, double tstop,
                       const std::string & sctable) {
    clear_arrays();
-   std::vector<std::string>::const_iterator scIt = scFiles.begin();
+   auto scIt = scFiles.begin();
    for ( ; scIt != scFiles.end(); scIt++) {
       st_facilities::Util::file_ok(*scIt);
       readData(*scIt, tstart, tstop, false, sctable);
@@ -111,7 +111,7 @@ auto ScData::time_index(double time) const -> size_t {
               << tmin << " to " << tmax << "MET s";
       throw std::runtime_error(message.str());
    }
-   std::vector<double>::const_iterator it 
+   auto it 
       = std::upper_bound(m_start.begin(), m_start.end(), time);
    size_t indx = it - m_start.begin() - 1;
    return indx;

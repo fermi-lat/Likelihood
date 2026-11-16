@@ -135,7 +135,7 @@ namespace Likelihood {
       
       //Build the psf map
       vec3 cvec = center.to_vec3();
-      std::set<int>::iterator it = listReduced.begin();
+      auto it = listReduced.begin();
       for ( ; it != listReduced.end() ; ++it){
 	// This will break if we go to extremely high resolution
 	double cdist = astro::radToDeg(acos(dotprod(cvec, hp.pix2ang(*it).to_vec3())));

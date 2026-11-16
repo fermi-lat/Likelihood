@@ -177,8 +177,8 @@ CountsMap::CountsMap(const std::string & event_file,
 
 // Use custom energy bins.
    std::vector<evtbin::Binner::Interval> energy_intervals;
-   std::vector<double>::const_iterator emin(emins.begin());
-   std::vector<double>::const_iterator emax(emaxs.begin());
+   auto emin(emins.begin());
+   auto emax(emaxs.begin());
    for ( ; emin != emins.end() && emax != emaxs.end(); ++emin, ++emax) {
       energy_intervals.push_back(evtbin::Binner::Interval(*emin, *emax));
    }
@@ -229,7 +229,7 @@ auto CountsMap::makeProjMap(CountsMapBase::ConversionType cType) const -> ProjMa
 
 auto CountsMap::makeBkgEffMap(const MeanPsf & psf, const float& efact) const -> CountsMapBase* {
 
-  CountsMap* outMap = new CountsMap(*this);     
+  auto* outMap = new CountsMap(*this);     
   ProjMap* projMap = makeProjMap();
   ProjMap* convMap = projMap->convolveAll(psf);
   delete projMap;
@@ -300,7 +300,7 @@ void CountsMap::readKeywords(const std::string & countsMapFile) {
    std::unique_ptr<const tip::Image> 
       image(tip::IFileSvc::instance().readImage(countsMapFile, ""));
    const tip::Header & header = image->getHeader();
-   typedef std::vector<tip::PixOrd_t> DimCont_t;
+   using DimCont_t = std::vector<tip::PixOrd_t>;
    DimCont_t dims = image->getImageDimensions();
    DimCont_t::size_type num_dims = dims.size();
    if (3 != num_dims) {
@@ -582,10 +582,10 @@ void CountsMap::getPixels(std::vector<astro::SkyDir> & pixelDirs,
 
    pixelDirs.reserve(nx*ny);
    pixelSolidAngles.reserve(nx*ny);
-   std::vector<double>::const_iterator latIt = latitudes.begin();
+   auto latIt = latitudes.begin();
    for ( ; latIt != latitudes.end() - 1; ++latIt) {
       double latitude = (*latIt + *(latIt+1))/2.;
-      std::vector<double>::const_iterator lonIt = longitudes.begin();
+      auto lonIt = longitudes.begin();
       for ( ; lonIt != longitudes.end() - 1; ++lonIt) {
          double longitude = (*lonIt + *(lonIt+1))/2.;
          try {

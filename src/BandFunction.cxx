@@ -29,7 +29,7 @@ namespace {
          return m_params[i].getTrueValue();
       }
 
-      auto size() const -> unsigned int {
+      [[nodiscard]] auto size() const -> unsigned int {
          return m_params.size();
       }
 

@@ -44,7 +44,7 @@ namespace Likelihood {
     //    double wtot = 0.;
     //    int nused = 0;
     for (unsigned int i = 0; i < m_events.size(); i++) {
-      double w = (m_weights == NULL) ? 1.0 : (*m_weights)[i];
+      double w = (m_weights == nullptr) ? 1.0 : (*m_weights)[i];
       if (w > m_epsw) {
 	double q = m_src->fluxDensity(m_events[i]);
 	if (fabs(q) > m_epsf) {
@@ -68,7 +68,7 @@ namespace Likelihood {
     double deriv = 0;
     //    double wtot = 0.;
     for (unsigned int i = 0; i < m_events.size(); i++) {
-      double w = (m_weights == NULL) ? 1.0 : (*m_weights)[i];
+      double w = (m_weights == nullptr) ? 1.0 : (*m_weights)[i];
       if (w > m_epsw) {
 	//	wtot += w;
 	double q = m_src->fluxDensity(m_events[i]);
@@ -86,7 +86,7 @@ namespace Likelihood {
   void OneSourceFunc::syncParams(void) {
     m_parameter.clear();
     Source::FuncMap srcFuncs = m_src->getSrcFuncs();
-    Source::FuncMap::iterator func_it = srcFuncs.begin();
+    auto func_it = srcFuncs.begin();
     for (; func_it != srcFuncs.end(); func_it++) {
       std::vector<optimizers::Parameter> params;
       (*func_it).second->getParams(params);
@@ -100,7 +100,7 @@ namespace Likelihood {
   OneSourceFunc::setFreeParamValues_(std::vector<double>::const_iterator it) -> std::vector<double>::const_iterator {
     syncParams();
     Likelihood::Source::FuncMap srcFuncs = m_src->getSrcFuncs();
-    Likelihood::Source::FuncMap::iterator func_it = srcFuncs.begin();
+    auto func_it = srcFuncs.begin();
     for (; func_it != srcFuncs.end(); func_it++) {
       it = (*func_it).second->setFreeParamValues_(it);
     }
@@ -112,7 +112,7 @@ namespace Likelihood {
   OneSourceFunc::setParamValues_(std::vector<double>::const_iterator it) -> std::vector<double>::const_iterator {
     syncParams();
     Likelihood::Source::FuncMap srcFuncs = m_src->getSrcFuncs();
-    Likelihood::Source::FuncMap::iterator func_it = srcFuncs.begin();
+    auto func_it = srcFuncs.begin();
     for (; func_it != srcFuncs.end(); func_it++) {
       it = (*func_it).second->setParamValues_(it);
     }
@@ -128,7 +128,7 @@ namespace Likelihood {
     }
     int k = 0;
     Source::FuncMap srcFuncs = m_src->getSrcFuncs();
-    Source::FuncMap::iterator func_it = srcFuncs.begin();
+    auto func_it = srcFuncs.begin();
     for (; func_it != srcFuncs.end(); func_it++) {
       unsigned int numParams = func_it->second->getNumParams();
       for (unsigned int j = 0; j < numParams; j++, k++)

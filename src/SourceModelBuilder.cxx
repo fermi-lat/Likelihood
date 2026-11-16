@@ -161,7 +161,7 @@ SourceModelBuilder::SourceModelBuilder(const std::string &functionLibrary,
    m_doc->append_node(m_srcLib);
 }
 
-SourceModelBuilder::~SourceModelBuilder() {}
+SourceModelBuilder::~SourceModelBuilder() = default;
 
 void SourceModelBuilder::addSourceModel(const SourceModel& srcModel) {   
    append_source_model(m_srcLib, srcModel);
@@ -203,7 +203,7 @@ auto SourceModelBuilder::likelihoodSource(const Source & src) -> rapidxml::xml_n
 auto SourceModelBuilder::spectralPart(const Source & src) -> rapidxml::xml_node<>* {
    const Source::FuncMap & srcFuncs = src.getSrcFuncs();
    
-   Source::FuncMap::const_iterator find_spectrum = srcFuncs.find("Spectrum");
+   auto find_spectrum = srcFuncs.find("Spectrum");
    if (find_spectrum == srcFuncs.end()) {
       throw std::runtime_error("SourceModelBuilder::spectralPart: Spectrum function not found");
    }
@@ -214,24 +214,24 @@ auto SourceModelBuilder::spectralPart(const Source & src) -> rapidxml::xml_node<
    addAttribute(m_doc, specElt, "type", spectrum->genericName());
    
    // Handle DMFitFunction special case
-   const DMFitFunction* dmfit = dynamic_cast<const DMFitFunction*>(spectrum);
+   const auto* dmfit = dynamic_cast<const DMFitFunction*>(spectrum);
    if (dmfit != nullptr) {
       addAttribute(m_doc, specElt, "file", dmfit->filename());
    }
    
    // Handle FileFunction special case
-   const FileFunction* fileFunc = dynamic_cast<const FileFunction*>(spectrum);
+   const auto* fileFunc = dynamic_cast<const FileFunction*>(spectrum);
    if (fileFunc != nullptr) {
       addAttribute(m_doc, specElt, "file", fileFunc->filename());
    }
    
    // Check if spectrum is wrapped in ScaleFactor
-   const ScaleFactor* scaleFactor = dynamic_cast<const ScaleFactor*>(spectrum);
+   const auto* scaleFactor = dynamic_cast<const ScaleFactor*>(spectrum);
    if (scaleFactor != nullptr) {
       // Get the wrapped spectrum - spectrum() returns a pointer
       const optimizers::Function* wrappedSpec = scaleFactor->spectrum();
       if (wrappedSpec != nullptr) {
-         const FileFunction* wrappedFileFunc = dynamic_cast<const FileFunction*>(wrappedSpec);
+         const auto* wrappedFileFunc = dynamic_cast<const FileFunction*>(wrappedSpec);
          if (wrappedFileFunc != nullptr) {
             addAttribute(m_doc, specElt, "file", wrappedFileFunc->filename());
          }
@@ -242,13 +242,13 @@ auto SourceModelBuilder::spectralPart(const Source & src) -> rapidxml::xml_node<
    // as the scaling_file attribute.
    const optimizers::Function* scalingFunc = spectrum->scalingFunction();
    if (scalingFunc != nullptr) {
-      const FileFunction* scalingFileFunc = dynamic_cast<const FileFunction*>(scalingFunc);
+      const auto* scalingFileFunc = dynamic_cast<const FileFunction*>(scalingFunc);
       if (scalingFileFunc != nullptr) {
          addAttribute(m_doc, specElt, "scaling_file", scalingFileFunc->filename());
       }
    }
 
-   optimizers::Function* nc_spectrum = const_cast<optimizers::Function*>(spectrum);
+   auto* nc_spectrum = const_cast<optimizers::Function*>(spectrum);
    appendParameterNodes(m_doc, specElt, *nc_spectrum);
    return specElt;
 }
@@ -258,13 +258,13 @@ void SourceModelBuilder::addSpatialPart(rapidxml::xml_node<>* srcElt, const Sour
 
    rapidxml::xml_node<>* spatialElt = createElement(m_doc, "spatialModel");
    
-   Source::FuncMap::const_iterator find_pos = srcFuncs.find("Position");
-   Source::FuncMap::const_iterator find_spatial = srcFuncs.find("SpatialDist");
+   auto find_pos = srcFuncs.find("Position");
+   auto find_spatial = srcFuncs.find("SpatialDist");
 
    if (find_pos != srcFuncs.end()) {
       addAttribute(m_doc, srcElt, "type", "PointSource");
       addAttribute(m_doc, spatialElt, "type", "SkyDirFunction");
-      optimizers::Function* nc_pos = const_cast<optimizers::Function*>(find_pos->second);
+      auto* nc_pos = const_cast<optimizers::Function*>(find_pos->second);
       appendParameterNodes(m_doc, spatialElt, *nc_pos);
       appendChild(srcElt, spatialElt);
    } else if (find_spatial != srcFuncs.end()) {
@@ -284,12 +284,12 @@ void SourceModelBuilder::addSpatialPart(rapidxml::xml_node<>* srcElt, const Sour
          addAttribute(m_doc, spatialElt, "file", file);
       }
       
-      const DiffuseSource* diffuseSource = dynamic_cast<const DiffuseSource*>(&src);
+      const auto* diffuseSource = dynamic_cast<const DiffuseSource*>(&src);
       if (diffuseSource != nullptr && diffuseSource->mapBasedIntegral()) {
          addAttribute(m_doc, spatialElt, "map_based_integral", "true");
       }
       
-      optimizers::Function* nc_spatial = const_cast<optimizers::Function*>(spatial);
+      auto* nc_spatial = const_cast<optimizers::Function*>(spatial);
       appendParameterNodes(m_doc, spatialElt, *nc_spatial);
       appendChild(srcElt, spatialElt);
    }
@@ -298,7 +298,7 @@ void SourceModelBuilder::addSpatialPart(rapidxml::xml_node<>* srcElt, const Sour
 void SourceModelBuilder::addComposite(rapidxml::xml_node<>* srcElt, const Source & src) {
    addAttribute(m_doc, srcElt, "type", "CompositeSource");
    
-   const CompositeSource* comp = dynamic_cast<const CompositeSource*>(&src);
+   const auto* comp = dynamic_cast<const CompositeSource*>(&src);
    if (comp == nullptr) {
       throw std::runtime_error("SourceModelBuilder::addComposite: source not a composite");
    }

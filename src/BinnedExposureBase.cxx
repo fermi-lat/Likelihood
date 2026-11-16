@@ -38,7 +38,7 @@ namespace Likelihood {
 
 auto
 BinnedExposureBase::findNearest(const std::vector<double> & xx, double x, double tol) -> std::vector<double>::const_iterator {
-  std::vector<double>::const_iterator ix = std::find(xx.begin(),
+  auto ix = std::find(xx.begin(),
 						     xx.end(), x);
   if (ix == xx.end()) { // no exact match, so look for nearest                                                       
     for (ix = xx.begin(); ix != xx.end(); ++ix) {
@@ -57,14 +57,14 @@ BinnedExposureBase::findNearest(const std::vector<double> & xx, double x, double
   return ix;  // return the exact match                                                                              
 }
 
-BinnedExposureBase::BinnedExposureBase() : m_observation(0), m_proj(0), 
+BinnedExposureBase::BinnedExposureBase() : m_observation(nullptr), m_proj(nullptr), 
 					   m_costhmin(-1), m_costhmax(1),
 					   m_enforce_boundaries(false) {}
 
 BinnedExposureBase::BinnedExposureBase(const Observation & observation,
 				       bool useEbounds,
 				       const st_app::AppParGroup * pars)
-   : m_observation(&observation), m_proj(0), m_costhmin(-1), m_costhmax(1),
+   : m_observation(&observation), m_proj(nullptr), m_costhmin(-1), m_costhmax(1),
      m_enforce_boundaries(false),
      m_allSky(false){
    if (pars) {
@@ -75,7 +75,7 @@ BinnedExposureBase::BinnedExposureBase(const Observation & observation,
 BinnedExposureBase::BinnedExposureBase(const std::vector<double> & energies,
 				       const Observation & observation,
 				       const st_app::AppParGroup * pars) 
-   : m_energies(energies), m_observation(&observation), m_proj(0),
+   : m_energies(energies), m_observation(&observation), m_proj(nullptr),
      m_costhmin(-1), m_costhmax(1),m_enforce_boundaries(false),m_allSky(false)  {
    if (pars) {
       setCosThetaBounds(*pars);
@@ -83,7 +83,7 @@ BinnedExposureBase::BinnedExposureBase(const std::vector<double> & energies,
 }
 
 BinnedExposureBase::BinnedExposureBase(const std::string & filename) 
-   : m_observation(0), m_proj(0), m_costhmin(-1), m_costhmax(1),
+   : m_observation(nullptr), m_proj(nullptr), m_costhmin(-1), m_costhmax(1),
      m_enforce_boundaries(false),m_allSky(false) {
 
    std::unique_ptr<const tip::Table>

@@ -43,7 +43,7 @@ BinnedExposure::BinnedExposure(const CountsMap & cmap,
                                const st_app::AppParGroup * pars)
   :  BinnedExposureBase(observation,useEbounds,pars){
    int edisp_bins(0);
-   if ( pars != 0 ) {
+   if ( pars != nullptr ) {
      edisp_bins = (*pars)["edisp_bins"];
    }
    setMapGeometry(cmap, edisp_bins);
@@ -98,17 +98,16 @@ BinnedExposure::BinnedExposure(const std::string & filename)
 
 }
 
-BinnedExposure::~BinnedExposure() {
-}
+BinnedExposure::~BinnedExposure() = default;
 
 auto BinnedExposure::operator()(double energy, double ra, double dec) const -> double {
 
-   if ( m_proj == 0 ) {
+   if ( m_proj == nullptr ) {
      throw std::runtime_error("BinnedExposure::operator() "
 			      "No projection loaded");
    }
   
-   std::vector<double>::const_iterator ie = findNearest(m_energies, energy);
+   auto ie = findNearest(m_energies, energy);
    unsigned int k = ie - m_energies.begin();
 
    std::pair<double, double> pixel;
@@ -143,7 +142,7 @@ void BinnedExposure::get_exposures_for_dir(const astro::SkyDir& dir,
 					   std::vector<double>& exposures) const {
   exposures.clear();
   exposures.resize(energies.size(), 0.);
-  if ( m_proj == 0 ) {
+  if ( m_proj == nullptr ) {
     throw std::runtime_error("BinnedExposure::operator() "
 			     "No projection loaded");
   }
@@ -161,11 +160,11 @@ void BinnedExposure::get_exposures_for_dir(const astro::SkyDir& dir,
 			     "is outside of the map boundaries.");
   }
   
-  std::vector<double>::const_iterator itr_eng = energies.begin();
-  std::vector<double>::iterator itr_exp = exposures.begin();
+  auto itr_eng = energies.begin();
+  auto itr_exp = exposures.begin();
   unsigned int pixel_step = m_naxes.at(0) * m_naxes.at(1);
   for ( ; itr_eng != energies.end(); ++itr_eng, ++itr_exp ) {
-    std::vector<double>::const_iterator ie = findNearest(m_energies, *itr_eng);
+    auto ie = findNearest(m_energies, *itr_eng);
     unsigned int k = ie - m_energies.begin();
     bool energy_bounds = k >= 0 && k < m_energies.size();
     if ( m_enforce_boundaries && !energy_bounds) {
@@ -257,7 +256,7 @@ void BinnedExposure::computeMap() {
    // Storing Aeff objects for use within loops over sky pixels.
    std::map<std::pair<unsigned int, int>, Aeff *> aeffs;
    for (unsigned int k(0); k < m_energies.size(); k++) {
-      std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+      auto 
          resp = m_observation->respFuncs().begin();
       for (; resp != m_observation->respFuncs().end(); ++resp) {
          int evtType = resp->second->irfID();
@@ -289,7 +288,7 @@ void BinnedExposure::computeMap() {
                                            
          for (unsigned int k = 0; k < m_energies.size(); k++) {
             unsigned int indx = (k*m_naxes.at(1) + j)*m_naxes.at(0) + i;
-            std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+            auto 
                resp = m_observation->respFuncs().begin();
             for (; resp != m_observation->respFuncs().end(); ++resp) {
                int evtType = resp->second->irfID();
@@ -305,7 +304,7 @@ void BinnedExposure::computeMap() {
 
    // Release memory of Aeff map.
    for (unsigned int k(0); k < m_energies.size(); k++) {
-      std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+      auto 
          resp = m_observation->respFuncs().begin();
       for (; resp != m_observation->respFuncs().end(); ++resp) {
          int evtType = resp->second->irfID();
@@ -381,7 +380,7 @@ void BinnedExposure::writeOutput(const std::string & filename) const {
    tip::Table::Iterator row = table->begin();
    tip::Table::Record & record = *row;
 
-   std::vector<double>::const_iterator energy = m_energies.begin();
+   auto energy = m_energies.begin();
    for ( ; energy != m_energies.end(); ++energy, ++row) {
       record["Energy"].set(*energy);
    }

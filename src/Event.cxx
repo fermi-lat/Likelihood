@@ -168,7 +168,7 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
    double mumax(one);
    double theta(getDir().difference(zAxis())*180./M_PI);
 
-   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respFuncs.respPtr(getType())));
+   auto * irfs(const_cast<irfInterface::Irfs *>(respFuncs.respPtr(getType())));
 
    /// Upper bound on incidence angle to ensure that the integration
    /// region encompasses the LAT FoV
@@ -184,7 +184,7 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
    EquinoxRotation eqRot(getDir().ra(), getDir().dec());
    for (size_t i(0); i < srcs.size(); i++) {     
       const std::string& name(diffuseSrcName(srcs.at(i)->getName()));
-      bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(srcs.at(i)->spatialDist()) != 0;
+      bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(srcs.at(i)->spatialDist()) != nullptr;
       if (useDummyValue) {
          m_respDiffuseSrcs[name].push_back(0);
       } else {
@@ -204,7 +204,7 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
 	 mumin = std::max(mumin,mu_psfmax);
 
 	 if (haveSpatialFunction) {
-	    const SpatialFunction* fn = dynamic_cast<const SpatialFunction *>(srcs.at(i)->spatialDist());
+	    const auto* fn = dynamic_cast<const SpatialFunction *>(srcs.at(i)->spatialDist());
 	    respValue = fn->diffuseResponse(*this,respFuncs);	
 	 } else if (srcs.at(i)->mapBasedIntegral() || 
 		    (::getenv("MAP_BASED_DIFFRSP") && (mumin != minusone || mumax != one))) {
@@ -256,7 +256,7 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
       }
    }
    
-   std::vector<double>::iterator trueEnergy = m_trueEnergies.begin();
+   auto trueEnergy = m_trueEnergies.begin();
    for ( ; trueEnergy != m_trueEnergies.end(); ++trueEnergy) {
 
 // Prepare the array of integrals over phi for passing to the 
@@ -344,7 +344,7 @@ void Event::computeGaussianParams(const std::string & name,
 
 void Event::writeDiffuseResponses(const std::string & filename) {
    std::ofstream outfile(filename.c_str());
-   std::map<std::string, diffuse_response>::iterator it
+   auto it
       = m_respDiffuseSrcs.begin();
    for ( ; it != m_respDiffuseSrcs.end(); ++it) {
       diffuse_response & resp = it->second;
@@ -437,7 +437,7 @@ void Event::getCelestialDir(double phi, double mu,
 
 void Event::getNewDiffuseSrcs(const std::vector<DiffuseSource *> & srcList,
                               std::vector<DiffuseSource *> & srcs) const {
-   for (std::vector<DiffuseSource *>::const_iterator it = srcList.begin();
+   for (auto it = srcList.begin();
         it != srcList.end(); ++it) {
       const std::string & name(diffuseSrcName((*it)->getName()));
       if (!m_respDiffuseSrcs.count(name)) {
@@ -453,7 +453,7 @@ void Event::toLower(std::string & name) {
 }
 
 auto Event::diffuseSrcName(const std::string & srcName) const -> const std::string & {
-   std::map<std::string, std::string>::iterator it =
+   auto it =
       m_diffSrcNames.find(srcName);
    if (it == m_diffSrcNames.end()) {
       std::string name(::strip_evtype_qualifier(m_respName) + "__" + srcName);
@@ -490,7 +490,7 @@ void Event::setDiffuseResponse(const std::string& srcName,
                                const std::vector<double> & gaussianParams) {
    const std::string & diffuseComponent(diffuseSrcName(srcName));
    static double sqrt2pi = sqrt(2.*M_PI);
-   std::vector<double>::const_iterator energy = m_trueEnergies.begin();
+   auto energy = m_trueEnergies.begin();
    m_respDiffuseSrcs[diffuseComponent].clear();
    for ( ; energy != m_trueEnergies.end(); ++energy) {
       double value = gaussianParams[0]/sqrt2pi/gaussianParams[2]

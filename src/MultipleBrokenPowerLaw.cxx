@@ -78,7 +78,7 @@ derivByParamImp(const optimizers::Arg & xarg,
       double normalization(m_parameter[0].getValue());
       return value(xarg)/normalization;
    }
-   std::vector<std::string>::const_iterator it
+   auto it
       = std::find(m_indexNames.begin(), m_indexNames.end(), paramName);
    if (it == m_indexNames.end()) {
       std::ostringstream what;

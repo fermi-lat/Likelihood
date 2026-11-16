@@ -422,7 +422,7 @@ namespace Likelihood {
    }
    
    // Create the DiffuseSource with the spatial distribution function
-   DiffuseSource* src = new DiffuseSource(spatialDist, m_observation, 
+   auto* src = new DiffuseSource(spatialDist, m_observation, 
                                           m_requireExposure, mapBasedIntegral);
    
    // Set the spectrum

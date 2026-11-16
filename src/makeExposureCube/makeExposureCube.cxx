@@ -76,8 +76,8 @@ public:
    virtual void banner() const;
 private:
    st_app::AppParGroup & m_pars;
-   Likelihood::LikeExposure * m_exposure;
-   Likelihood::RoiCuts * m_roiCuts;
+   Likelihood::LikeExposure * m_exposure{nullptr};
+   Likelihood::RoiCuts * m_roiCuts{nullptr};
    void readRoiCuts();
    void createDataCube();
    void writeTableKeywords(const std::string & outfile,
@@ -221,7 +221,7 @@ void ExposureCube::createDataCube() {
    st_facilities::Util::file_ok(scFile);
    std::vector<std::string> scFiles;
    st_facilities::Util::resolve_fits_files(scFile, scFiles);
-   std::vector<std::string>::const_iterator scIt = scFiles.begin();
+   auto scIt = scFiles.begin();
    for ( ; scIt != scFiles.end(); scIt++) {
       st_facilities::Util::file_ok(*scIt);
       formatter.err() << "Working on file " << *scIt << std::endl;

@@ -39,7 +39,7 @@ namespace {
 //   class Image : public std::vector< std::vector<double> > {
    class Image : public std::vector< std::vector<float> > {
    public:
-      Image() {}
+      Image() = default;
       void normalize() {
          double total(0);
          for (unsigned int i = 0; i < this->size(); i++) {
@@ -73,7 +73,7 @@ void WcsMap2::foldVector(const std::vector<float>& vector_in,
 			 std::vector<std::vector<std::vector<float> > >& image_out){
   image_out.clear();
   image_out.reserve(naxis3);
-  std::vector<float>::const_iterator pixelValue = vector_in.begin();
+  auto pixelValue = vector_in.begin();
   for (int k = 0; k < naxis3; k++) {
     std::vector<std::vector<float> > image_plane;
     image_plane.reserve(naxis2);
@@ -94,7 +94,7 @@ void WcsMap2::fillSolidAngles(const std::vector<Pixel> & pixels,
 			      int naxis1, int naxis2, 
 			      std::vector<std::vector<float> >& image_out) {
 
-  std::vector<Pixel>::const_iterator itrPix = pixels.begin();
+  auto itrPix = pixels.begin();
   for (int j = 0; j < naxis2; j++) {
     std::vector<float> row(naxis1);
     for (int i = 0; i < naxis1 && itrPix != pixels.end();
@@ -153,7 +153,7 @@ WcsMap2::WcsMap2(const std::string & filename,
   : ProjMap(filename,interpolate,enforceEnergyRange),
     m_isPeriodic(false) {
    
-   astro::SkyProj* theProj = new astro::SkyProj(filename, extension);
+   auto* theProj = new astro::SkyProj(filename, extension);
 
    const tip::Image * image = 
       tip::IFileSvc::instance().readImage(filename, extension);
@@ -249,7 +249,7 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    m_cdelt2 = pix_size;
    m_crota2 = 0;
 
-   astro::SkyProj* theProj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
+   auto* theProj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
    astro::SkyDir refDir(ra, dec, use_lb ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
 
    setProjInfo(refDir,*theProj);
@@ -314,7 +314,7 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    m_naxis1 = naxis1;
    m_naxis2 = naxis2;
 
-   astro::SkyProj* theProj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
+   auto* theProj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
    setProjInfo(refDir,*theProj);
    
    ImagePlane_t image_plane;
@@ -453,7 +453,7 @@ WcsMap2::WcsMap2(const WcsMap2 & rhs,const double&energy,
   m_image.push_back(image);
 }
 
-WcsMap2::~WcsMap2(){}
+WcsMap2::~WcsMap2()= default;
 
 auto WcsMap2::operator=(const WcsMap2 & rhs) -> WcsMap2 & {
    if (this != &rhs) {
@@ -585,12 +585,12 @@ auto WcsMap2::convolveAll(const MeanPsf & psf,
 			      const BinnedExposureBase * exposure,
 			      bool performConvolution) const -> ProjMap* {
 
-  WcsMap2* outMap = new WcsMap2(*this, false);
+  auto* outMap = new WcsMap2(*this, false);
   outMap->m_image.clear();
   int k(0);
-  for ( std::vector<double>::const_iterator itr_energy = energies().begin();
+  for ( auto itr_energy = energies().begin();
 	itr_energy != energies().end(); itr_energy++, k++ ) {
-    WcsMap2* layer_map = static_cast<WcsMap2*>(this->convolve(*itr_energy, psf, exposure, performConvolution, k));
+    auto* layer_map = static_cast<WcsMap2*>(this->convolve(*itr_energy, psf, exposure, performConvolution, k));
     outMap->m_image.push_back(layer_map->image()[0]);
     delete layer_map;
   }
@@ -620,14 +620,14 @@ auto WcsMap2::convolve(double energy, const MeanPsf & psf,
 			      getProj()->isGalactic() ? 
 			      astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
 	    counts[j][i] = m_image[k][j][i];
-	    if ( exposure != 0 ) {
+	    if ( exposure != nullptr ) {
 	      counts[j][i] *= (*exposure)(energy, dir.ra(), dir.dec());
 	    }
          }
       }
    }
    // EAC_FIX, should we be working about the energies and map integrals also?
-   WcsMap2* my_image = new WcsMap2(*this,false);
+   auto* my_image = new WcsMap2(*this,false);
 
    if (!performConvolution) {
       my_image->m_image.push_back(counts);
@@ -735,13 +735,13 @@ auto WcsMap2::convolve(double energy, const MeanPsf & psf,
 
 	    double dtheta = fndir.difference(dir)*180./M_PI;
 	    double v = dtheta > theta.back() ? 0. : st_facilities::Util::interpolate(theta, value, dtheta);
-	    double exp = exposure != 0 ? (*exposure)(energy, fndir.ra(), fndir.dec()) : 1.;
+	    double exp = exposure != nullptr ? (*exposure)(energy, fndir.ra(), fndir.dec()) : 1.;
             counts[j][i] = v*exp;
          }
       }
    }
 
-   WcsMap2* my_image = new WcsMap2(*this);
+   auto* my_image = new WcsMap2(*this);
    my_image->m_image.clear();
    my_image->m_image.push_back(counts);
    return my_image;
@@ -750,7 +750,7 @@ auto WcsMap2::convolve(double energy, const MeanPsf & psf,
 
 
 auto WcsMap2::makeCountsMap(const CountsMapBase& counts_map) const -> CountsMapBase* {
-  const CountsMap& wcs_counts_map = static_cast<const CountsMap&>(counts_map);
+  const auto& wcs_counts_map = static_cast<const CountsMap&>(counts_map);
   return new CountsMap(*this, wcs_counts_map);
 }
 
@@ -836,10 +836,9 @@ auto WcsMap2::pixelValue(double ilon, double ilat, int k) const -> double {
 
 
 auto WcsMap2::insideMap(const astro::SkyDir & dir) const -> bool {
-   std::pair<double, double> pixel = dir.project(*getProj());
+   auto [x, y] = dir.project(*getProj());
 
-   double x(pixel.first);
-   double y(pixel.second);
+   
    // Bin centers are at 1,2....m_naxis.   
    // We have to include 1/2 bin on either side 
    if ((!m_isPeriodic && (x < 0.5 || x > (m_naxis1 + 0.5)))
@@ -957,7 +956,7 @@ void WcsMap2::computeMapIntegrals() {
 }
 
 auto WcsMap2::rebin(unsigned int factor, bool average) -> ProjMap* {
-   WcsMap2 * my_map = new WcsMap2(*this);
+   auto * my_map = new WcsMap2(*this);
    int dnxp = factor - (m_naxis1 % factor);
    if (dnxp == factor) {
       dnxp = 0;
@@ -991,7 +990,7 @@ auto WcsMap2::rebin(unsigned int factor, bool average) -> ProjMap* {
       crval[1] = getRefDir().dec();
    }
    
-   astro::SkyProj* newProj =  new astro::SkyProj(getProj()->projType(), crpix, crval, cdelt,
+   auto* newProj =  new astro::SkyProj(getProj()->projType(), crpix, crval, cdelt,
 						 m_crota2, getProj()->isGalactic());
    my_map->setProjInfo(getRefDir(),*newProj);
 

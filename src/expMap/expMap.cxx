@@ -53,7 +53,7 @@ public:
    virtual void run();
    virtual void banner() const;
 private:
-   AppHelpers * m_helper;
+   AppHelpers * m_helper{nullptr};
    st_app::AppParGroup & m_pars;
    double m_srRadius;
    void promptForParameters();
@@ -93,7 +93,7 @@ void ExpMap::run() {
    promptForParameters();
    m_helper = new AppHelpers(&m_pars, "UNBINNED");
    bool useEdisp = false;
-   ResponseFunctions & respFuncs =
+   auto & respFuncs =
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
    respFuncs.setEdispFlag(useEdisp);
    m_helper->setRoi();
@@ -160,10 +160,10 @@ void ExpMap::createExposureMap() {
    // RoiCuts object for the GTI extension since Catalog group wants
    // to use hand-crafted livetime cubes instead of lt cubes made for
    // specific FT1 files.
-   RoiCuts * gti_roicuts(0);
+   RoiCuts * gti_roicuts(nullptr);
    if (expCubeFile != "none") {
       st_facilities::Util::file_ok(expCubeFile);
-      ExposureCube & expCube = 
+      auto & expCube = 
          const_cast<ExposureCube &>(m_helper->observation().expCube());
       expCube.readExposureCube(expCubeFile);
       // Read the GTIs from the livetime cube.

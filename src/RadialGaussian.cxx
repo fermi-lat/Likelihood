@@ -94,7 +94,6 @@ RadialGaussian::RadialGaussian(double ra, double dec, double sigma)
 
 RadialGaussian::RadialGaussian(const RadialGaussian & rhs) 
   : SpatialFunction(rhs), m_sigma(rhs.m_sigma) {
-
 }
 
 auto RadialGaussian::operator=(const RadialGaussian & rhs) -> RadialGaussian & {
@@ -105,8 +104,7 @@ auto RadialGaussian::operator=(const RadialGaussian & rhs) -> RadialGaussian & {
    return *this;
 }
 
-RadialGaussian::~RadialGaussian() {
-}
+RadialGaussian::~RadialGaussian() = default;
 
 auto RadialGaussian::value(const astro::SkyDir & dir) const -> double {
    double separation = this->dir().difference(dir)*180./M_PI;
@@ -149,7 +147,7 @@ void RadialGaussian::update() {
 
 auto RadialGaussian::value(const optimizers::Arg & x) const -> double {
 
-   const SkyDirArg & dir = dynamic_cast<const SkyDirArg &>(x);
+   const auto & dir = dynamic_cast<const SkyDirArg &>(x);
    double offset = dir().difference(this->dir())*180./M_PI;
    return value(offset,m_sigma);
 }

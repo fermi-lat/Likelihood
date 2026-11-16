@@ -34,7 +34,7 @@ namespace {
 
 namespace Likelihood {
 
-LogNormalMuDist * LogNormalMuDist::s_instance(0);
+LogNormalMuDist * LogNormalMuDist::s_instance(nullptr);
 
 auto LogNormalMuDist::instance() -> LogNormalMuDist * {
    if (!s_instance) {
@@ -88,7 +88,7 @@ void LogNormalMuDist::createSample(double mu, std::vector<double> & mus) {
    double dxi(1./(nx-1));
    for (size_t i(1); i < nx; i++) {
       double xi(dxi*i);
-      std::vector<double>::const_iterator it = 
+      auto it = 
          std::upper_bound(cdf.begin(), cdf.end(), xi);
       if (it != cdf.end()) {
          size_t indx(it - cdf.begin());

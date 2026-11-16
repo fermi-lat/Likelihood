@@ -37,7 +37,7 @@ namespace {
 //   class Image : public std::vector< std::vector<double> > {
    class Image : public std::vector<float> {
    public:
-      Image() {}
+      Image() = default;
       void normalize() {
          double total(0);
          for (unsigned int i = 0; i < this->size(); i++) {
@@ -67,7 +67,7 @@ namespace Likelihood {
 				  std::vector<Healpix_Map<float> >& image_out) {
     image_out.clear();
     image_out.reserve(nebins);
-    std::vector<float>::const_iterator pixelValue = vector_in.begin();
+    auto pixelValue = vector_in.begin();
     nside_dummy dummy;
     for (int k = 0; k < nebins; k++) {
       Healpix_Map<float> image_plane(hp_proj.healpix().Nside(), hp_proj.healpix().Scheme(), dummy);      
@@ -156,7 +156,7 @@ HealpixProjMap::HealpixProjMap(const std::string & filename,
   // Note also that tip work in lowercase
   std::vector<tip::FieldIndex_t> dataColumns;
   const tip::Table::FieldCont& colNames = table->getValidFields();
-  for ( tip::Table::FieldCont::const_iterator itr = colNames.begin(); 
+  for ( auto itr = colNames.begin(); 
 	itr != colNames.end(); itr++ ) {
     if ( itr->find("energy") >= 0 || itr->find("Bin") >= 0 ) { 
       dataColumns.push_back( table->getFieldIndex(*itr) );     
@@ -171,7 +171,7 @@ HealpixProjMap::HealpixProjMap(const std::string & filename,
   m_image.clear();
   m_image.resize(ncol);
   int idx(0);
-  for ( std::vector<tip::FieldIndex_t>::const_iterator itrData = dataColumns.begin();
+  for ( auto itrData = dataColumns.begin();
 	itrData != dataColumns.end(); itrData++, idx++ ) {
     ImagePlane_t& image = m_image[idx];
     // EAC_FIX. Until we implement partial sky HEALPix maps we can use this to build the map
@@ -348,7 +348,7 @@ HealpixProjMap::HealpixProjMap(const HealpixProjMap & rhs, const double& energy,
   m_image.push_back(image);
 }
 
-HealpixProjMap::~HealpixProjMap(){}
+HealpixProjMap::~HealpixProjMap()= default;
 
 auto HealpixProjMap::operator=(const HealpixProjMap & rhs) -> HealpixProjMap & {
    if (this != &rhs) {
@@ -430,13 +430,13 @@ auto HealpixProjMap::convolveAll(const MeanPsf & psf,
 				     const BinnedExposureBase * exposure,
 				     bool performConvolution) const -> ProjMap* {
 
-  HealpixProjMap* outMap = new HealpixProjMap(*this, false);
+  auto* outMap = new HealpixProjMap(*this, false);
   int k(0);
   std::cout << "Convolving HEALPix map (n = " << energies().size() << "):" << std::flush;
-  for ( std::vector<double>::const_iterator itr_energy = energies().begin();
+  for ( auto itr_energy = energies().begin();
 	itr_energy != energies().end(); itr_energy++, k++ ) {
     std::cout << '.' << std::flush;
-    HealpixProjMap* layer_map = static_cast<HealpixProjMap*>(this->convolve(*itr_energy, psf, exposure, performConvolution, k));
+    auto* layer_map = static_cast<HealpixProjMap*>(this->convolve(*itr_energy, psf, exposure, performConvolution, k));
     outMap->m_image.push_back(layer_map->image()[0]);
     delete layer_map;
   }
@@ -460,14 +460,14 @@ auto HealpixProjMap::convolve(double energy, const MeanPsf & psf,
        astro::SkyDir dir(coord.first, coord.second, 
 			 getProj()->isGalactic() ? 
 			 astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
-       if ( exposure != 0 ) {
+       if ( exposure != nullptr ) {
 	 counts[i] *= (*exposure)(energy, dir.ra(), dir.dec());
        }
      }
    }
 
    if (!performConvolution) {
-     HealpixProjMap* my_image = new HealpixProjMap(*this,energy,counts);
+     auto* my_image = new HealpixProjMap(*this,energy,counts);
      return my_image;
    }
 
@@ -502,12 +502,12 @@ auto HealpixProjMap::convolve(double energy, const MeanPsf & psf,
      out_image.Import_nograde(conv_image);
    }
    
-   HealpixProjMap* my_image = new HealpixProjMap(*this,energy,out_image);
+   auto* my_image = new HealpixProjMap(*this,energy,out_image);
    return my_image;
 }
 
 auto HealpixProjMap::makeCountsMap(const CountsMapBase& counts_map) const -> CountsMapBase* {
-  const CountsMapHealpix& hp_counts_map = static_cast<const CountsMapHealpix&>(counts_map);
+  const auto& hp_counts_map = static_cast<const CountsMapHealpix&>(counts_map);
   return new CountsMapHealpix(*this, hp_counts_map);
 }
 

@@ -115,9 +115,9 @@ namespace Likelihood {
 
 AppHelpers::AppHelpers(st_app::AppParGroup * pars,
                        const std::string & analysisType) 
-   : m_pars(pars), m_funcFactory(0), m_scData(0), m_expCube(0),
-     m_expMap(0), m_respFuncs(0), m_roiCuts(0), m_eventCont(0),
-     m_bexpmap(0), m_phased_expmap(0), m_meanpsf(0), m_irfsName("") {
+   : m_pars(pars), m_funcFactory(nullptr), m_scData(nullptr), m_expCube(nullptr),
+     m_expMap(nullptr), m_respFuncs(nullptr), m_roiCuts(nullptr), m_eventCont(nullptr),
+     m_bexpmap(nullptr), m_phased_expmap(nullptr), m_meanpsf(nullptr), m_irfsName("") {
    st_app::AppParGroup & my_pars(*m_pars);
    prepareFunctionFactory();
    createResponseFuncs(analysisType);
@@ -354,7 +354,7 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
 
 void AppHelpers::setRoi(const std::string & filename,
                         const std::string & ext, bool strict) {
-   RoiCuts & roiCuts = const_cast<RoiCuts &>(m_observation->roiCuts());
+   auto & roiCuts = const_cast<RoiCuts &>(m_observation->roiCuts());
    if (filename != "") {
       roiCuts.readCuts(filename, ext, strict);
       return;
@@ -440,7 +440,7 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
    std::string respBase = pars["irfs"];
    std::string evfile;
    std::string extname;
-   dataSubselector::Cuts * my_cuts(0);
+   dataSubselector::Cuts * my_cuts(nullptr);
    if (analysisType == "UNBINNED") {
       try {
          std::string my_file = pars["expmap"];
@@ -473,7 +473,7 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       st_facilities::Util::resolve_fits_files(evfile, files);
       my_cuts = new dataSubselector::Cuts(files.at(0), extname,
                                           false, true, true);
-      dataSubselector::BitMaskCut * evclass_cut(0);
+      dataSubselector::BitMaskCut * evclass_cut(nullptr);
       if (!(evclass_cut = my_cuts->bitMaskCut("EVENT_CLASS"))) {
          // The binned expposure map may not have DSS keywords
          // specifying an event class cut. If so, look in the cmap
@@ -492,7 +492,7 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       // If the pars["evtype"] option is available and specified (i.e., not
       // INDEF) and if my_cuts does not already have one, add an EVENT_TYPE
       // bit-mask cut with the provided value.
-      dataSubselector::BitMaskCut * evtype_cut(0);
+      dataSubselector::BitMaskCut * evtype_cut(nullptr);
       if (!(evtype_cut = my_cuts->bitMaskCut("EVENT_TYPE"))) {
          try {
             unsigned int evtype = pars["evtype"];
@@ -570,7 +570,7 @@ getSelectedEvtTypes(const dataSubselector::Cuts & cuts,
    // Find the event_type BitMaskCut, if it exists, and get mask.
    for (size_t i(0); i < cuts.size(); i++) {
       if (cuts[i].type() == "bit_mask") {
-         const dataSubselector::BitMaskCut & event_type_cut
+         const auto & event_type_cut
             = dynamic_cast<const dataSubselector::BitMaskCut &>(cuts[i]);
          if (event_type_cut.colname() == "EVENT_TYPE") {
             evtype_bit_mask = event_type_cut.mask();
@@ -835,12 +835,12 @@ auto AppHelpers::checkTimeCuts(const dataSubselector::Cuts & cuts1,
          ok = ok && *(time_cuts1[i]) == *(time_cuts2[i]);
          if (!(*(time_cuts1[i]) == *(time_cuts2[i]))) {
             std::cout << "difference in gti interval found" << std::endl;
-            const dataSubselector::GtiCut * gticut1 
+            const auto * gticut1 
                = dynamic_cast<const dataSubselector::GtiCut *>(time_cuts1[i]);
-            const dataSubselector::GtiCut * gticut2
+            const auto * gticut2
                = dynamic_cast<const dataSubselector::GtiCut *>(time_cuts2[i]);
-            evtbin::Gti::ConstIterator it1(gticut1->gti().begin());
-            evtbin::Gti::ConstIterator it2(gticut2->gti().begin());
+            auto it1(gticut1->gti().begin());
+            auto it2(gticut2->gti().begin());
             for ( ; it1 != gticut1->gti().end() && it2 != gticut2->gti().end();
                   ++it1, ++it2) {
                gti_start_diffs += std::fabs(it1->first - it2->first);
@@ -1057,7 +1057,7 @@ AppHelpers::checkProjectionMethod(const std::string& filename,
 // EAC -> Open a fits file and read in the correct type of CountsMap                          
 auto AppHelpers::readCountsMap(const std::string& filename) -> CountsMapBase*{
   astro::ProjBase::Method method = checkProjectionMethod(filename,std::string("SKYMAP"));
-  CountsMapBase* retMap(0);
+  CountsMapBase* retMap(nullptr);
   switch ( method ) {
   case astro::ProjBase::WCS:
     retMap = new CountsMap(filename);
@@ -1068,7 +1068,7 @@ auto AppHelpers::readCountsMap(const std::string& filename) -> CountsMapBase*{
   default:
     break;
   }
-  if ( retMap == 0 ) {
+  if ( retMap == nullptr ) {
     std::string errMsg("Did not recognize CountsMapBase type at: ");
     errMsg += filename;
     throw std::runtime_error(errMsg);
@@ -1079,7 +1079,7 @@ auto AppHelpers::readCountsMap(const std::string& filename) -> CountsMapBase*{
 // EAC -> Open a fits file and read in the correct type of BinnedExposureBase                 
 auto AppHelpers::readBinnedExposure(const std::string& filename) -> BinnedExposureBase*{
   astro::ProjBase::Method method = checkProjectionMethod(filename,std::string("HPXEXPOSURES"));
-  BinnedExposureBase* retMap(0);
+  BinnedExposureBase* retMap(nullptr);
   switch ( method ) {
   case astro::ProjBase::WCS:
     retMap = new BinnedExposure(filename);
@@ -1090,7 +1090,7 @@ auto AppHelpers::readBinnedExposure(const std::string& filename) -> BinnedExposu
   default:
     break;
   }
-  if ( retMap == 0 ) {
+  if ( retMap == nullptr ) {
     std::string errMsg("Did not recognize BinnedExposureBase type at: ");
     errMsg += filename;
     throw std::runtime_error(errMsg);
@@ -1136,7 +1136,7 @@ auto AppHelpers::makeBinnedLikelihood(st_app::AppParGroup& pars,
 			  minbinsz, PsfIntegConfig::adaptive, 
 			  1e-3, 1e-6, true, edisp_val);
 
-  ProjMap* wmap(0);
+  ProjMap* wmap(nullptr);
   static const std::string noneString("none");
   std::string wmap_file = AppHelpers::param(pars, "wmap", noneString, true);
     
@@ -1146,7 +1146,7 @@ auto AppHelpers::makeBinnedLikelihood(st_app::AppParGroup& pars,
     wmap->setExtrapolation(true);
   }
 
-  BinnedLikelihood* logLike = new BinnedLikelihood(*dataMap, helper.observation(),
+  auto* logLike = new BinnedLikelihood(*dataMap, helper.observation(),
 						   config, cmap, wmap);
 
   return logLike;

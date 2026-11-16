@@ -268,7 +268,7 @@ void ExposureMap::writeFitsFile(const std::string & filename,
    tip::Table::Iterator row = table->begin();
    tip::Table::Record & record = *row;
 
-   std::vector<double>::const_iterator energy = energies.begin();
+   auto energy = energies.begin();
    for ( ; energy != energies.end(); ++energy, ++row) {
       record["Energy"].set(*energy);
    }
@@ -285,7 +285,7 @@ void ExposureMap::readEnergyExtension(const std::string & filename,
    tip::Table::ConstIterator row = table->begin();
    tip::ConstTableRecord & record = *row;
 
-   std::vector<double>::iterator energy = energies.begin();
+   auto energy = energies.begin();
    for ( ; energy != energies.end(); ++energy, ++row) {
       record["Energy"].get(*energy);
    }

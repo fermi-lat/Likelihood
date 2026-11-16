@@ -67,10 +67,10 @@ public:
    virtual void run();
    virtual void banner() const;
 private:
-   AppHelpers * m_helper;
+   AppHelpers * m_helper{nullptr};
    st_app::AppParGroup & m_pars;
 
-   BinnedLikelihood * m_binnedLikelihood;
+   BinnedLikelihood * m_binnedLikelihood{nullptr};
 
    void getRefCoord(const std::string & countsMapFile, 
                     double & ra, double & dec) const;
@@ -84,7 +84,7 @@ st_app::StAppFactory<gtsrcmaps> myAppFactory("gtsrcmaps");
 gtsrcmaps::gtsrcmaps() 
    : st_app::StApp(), m_helper(0),
      m_pars(st_app::StApp::getParGroup("gtsrcmaps")),
-     m_binnedLikelihood(0) {
+     m_binnedLikelihood(0) { 
    setVersion(s_cvs_id);
 }
 
@@ -133,7 +133,7 @@ void gtsrcmaps::run() {
      roi_size_cut = 20.;
    }      
      
-   RoiCuts &roiCuts = const_cast<RoiCuts &>(m_helper->observation().roiCuts());
+   auto &roiCuts = const_cast<RoiCuts &>(m_helper->observation().roiCuts());
    roiCuts.setCuts(ra, dec, roi_size_cut, energies.front(), energies.back());
   
    std::string binnedMap = m_pars["bexpmap"];

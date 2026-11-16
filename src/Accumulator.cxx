@@ -70,7 +70,7 @@ auto Accumulator::indx(double xx) -> size_t {
       return m_partialSums.size() - 1;
    }
    double xstep((std::log(m_xmax) - std::log(m_xmin))/(m_npts - 1));
-   size_t my_indx = 
+   auto my_indx = 
       static_cast<size_t>((std::log(xx) - std::log(m_xmin))/xstep);
    m_partialSums.at(my_indx);
    return my_indx;

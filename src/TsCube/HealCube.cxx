@@ -71,13 +71,13 @@ public:
   virtual void banner() const;
 private:
 
-  AppHelpers * m_helper;
+  AppHelpers * m_helper{nullptr};
   st_app::AppParGroup & m_pars;
-  Likelihood::BinnedLikelihood * m_logLike;
-  optimizers::Optimizer* m_opt;
+  Likelihood::BinnedLikelihood * m_logLike{nullptr};
+  optimizers::Optimizer* m_opt{nullptr};
   st_stream::StreamFormatter * m_formatter;
-  Likelihood::FitScanner* m_scanner;
-  astro::HealpixProj* m_proj;
+  Likelihood::FitScanner* m_scanner{nullptr};
+  astro::HealpixProj* m_proj{nullptr};
   astro::SkyDir m_refDir; 
   std::string m_coordSys;
 
@@ -95,7 +95,7 @@ private:
 st_app::StAppFactory<HealCube> myAppFactory("gthealcube");
 
 HealCube::HealCube() 
-  : st_app::StApp(), m_helper(0), 
+: st_app::StApp(), m_helper(0), 
     m_pars(st_app::StApp::getParGroup("gthealcube")),
     m_logLike(0), m_opt(0),
     m_formatter(new st_stream::StreamFormatter("gthealcube", "", 2)),
@@ -188,7 +188,7 @@ void HealCube::setGrid() {
 
   Healpix_Ordering_Scheme scheme = hpx_scheme == "RING" ? RING : NEST;
 
-  astro::HealpixProj* hpxProj = new astro::HealpixProj(hpx_order,scheme,is_galactic);
+  auto* hpxProj = new astro::HealpixProj(hpx_order,scheme,is_galactic);
   m_scanner = new FitScanner(*m_logLike,*m_opt,*hpxProj,hpx_region);
   m_proj = hpxProj;
 

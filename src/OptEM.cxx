@@ -45,7 +45,7 @@ namespace Likelihood {
       //! The E step.  Find weight factors
       for (unsigned int j = 0; j < events.size(); j++) {
 	double ztot = 0.;
-        std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
+        auto srcIt = m_sources.begin();
         for (unsigned int i = 0 ; srcIt != m_sources.end(); ++srcIt, i++) {
 	  double x = srcIt->second->fluxDensity(events[j]);
 	  (*Warray[i])[j] = x;
@@ -57,7 +57,7 @@ namespace Likelihood {
       }
 
       //! The M step.  Optimize parameters of each source.
-      std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
+      auto srcIt = m_sources.begin();
       for (unsigned int i = 0 ; srcIt != m_sources.end(); ++srcIt, ++i) {
 	OneSourceFunc f(srcIt->second, events, Warray[i]); 
 	f.setEpsF(1.e-20);

@@ -40,7 +40,7 @@ void CompositeLikelihood::addComponent(const std::string & srcName,
 
 auto CompositeLikelihood::value() const -> double {
    double my_value(0);
-   ComponentConstIterator_t it(m_components.begin());
+   auto it(m_components.begin());
    for ( ; it != m_components.end(); ++it) {
       my_value += it->first->value();
    }
@@ -69,10 +69,10 @@ getFreeParams(std::vector<optimizers::Parameter> & params) const {
 // Loop over LogLike components and gather up the free Parameters for
 // all of the Sources, except for the common source types, which we
 // reserve to the end.
-   ComponentConstIterator_t it(m_components.begin());
+   auto it(m_components.begin());
    for ( ; it != m_components.end(); ++it) {
       const std::string & commonSrcName(it->second);
-      std::map<std::string, Source *>::const_iterator 
+      auto 
          src(it->first->sources().begin());
       for ( ; src != it->first->sources().end(); ++src) {
          if (src->first != commonSrcName) { 
@@ -134,10 +134,10 @@ setFreeParamValues(const std::vector<double> & values) {
 // Loop over LogLike components and set the free Parameters for all of
 // the Sources, except for the common source types, which we handle
 // at the end.
-   std::vector<double>::const_iterator vals(values.begin());
-   ComponentIterator_t it(m_components.begin());
+   auto vals(values.begin());
+   auto it(m_components.begin());
    for ( ; it != m_components.end(); ++it) {
-      std::map<std::string, Source *>::const_iterator 
+      auto 
          src(it->first->sources().begin());
       for ( ; src != it->first->sources().end(); ++src) {
          if (src->first != it->second) { 
@@ -156,7 +156,7 @@ setFreeParamValues(const std::vector<double> & values) {
    it = m_components.begin();
    Source * my_source = const_cast<Source *>(it->first->sources()
                                              .find(it->second)->second);
-   optimizers::Function & my_spectrum = 
+   auto & my_spectrum = 
       const_cast<optimizers::Function &>(my_source->spectrum());
 
    std::vector<std::string> parNames;
@@ -178,7 +178,7 @@ setFreeParamValues(const std::vector<double> & values) {
    for ( ; it != m_components.end(); ++it) {
       my_source = const_cast<Source *>(it->first->sources()
                                        .find(it->second)->second);
-      optimizers::Function & my_spec = 
+      auto & my_spec = 
          const_cast<optimizers::Function &>(my_source->spectrum());
       for (size_t i(0); i < parNames.size(); i++) {
          if (parNames.at(i) != m_normParName) {
@@ -197,7 +197,7 @@ setFreeParamValues(const std::vector<double> & values) {
 void CompositeLikelihood::syncParams() {
    m_parameter.clear();
    optimizers::Parameter saved_par;
-   for (ComponentIterator_t it(m_components.begin()); 
+   for (auto it(m_components.begin()); 
         it != m_components.end(); ++it) {
       it->first->syncParams();
       const std::vector<optimizers::Parameter> & pars(it->first->parameters());
@@ -215,10 +215,10 @@ void CompositeLikelihood::syncParams() {
 }
 
 auto CompositeLikelihood::getNumFreeParams() const -> unsigned int {
-   ComponentConstIterator_t it(m_components.begin());
+   auto it(m_components.begin());
    unsigned int npars(0);
    for ( ; it != m_components.end(); ++it) {
-      std::map<std::string, Source *>::const_iterator src =
+      auto src =
          it->first->sources().begin();
       for ( ; src != it->first->sources().end(); ++src) {
          if (it->second != src->first) {
@@ -250,7 +250,7 @@ void CompositeLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
    std::vector<std::pair<std::string, std::string> > componentPars;
    std::vector<int> commonSrcTypeFlag;
 
-   ComponentConstIterator_t it(m_components.begin());
+   auto it(m_components.begin());
 // Determine the number of spectral shape parameters (i.e., excluding
 // the normalization) for the common source type object in the first
 // component.
@@ -266,7 +266,7 @@ void CompositeLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
    }
 
    for ( ; it != m_components.end(); ++it) {
-      std::map<std::string, Source *>::const_iterator src 
+      auto src 
          = it->first->sources().begin();
       for ( ; src != it->first->sources().end(); ++src) {
          std::vector<std::string> parNames;

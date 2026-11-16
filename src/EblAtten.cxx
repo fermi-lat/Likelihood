@@ -20,7 +20,7 @@ namespace Likelihood {
 
 EblAtten::EblAtten() 
    : optimizers::Function("EblAtten::PowerLaw2", 7, "Integral"),
-     m_spectrum(new PowerLaw2()), m_tau(0) {
+     m_spectrum(new PowerLaw2()), m_tau(nullptr) {
    init();
 }
 
@@ -30,7 +30,7 @@ EblAtten::EblAtten(const optimizers::Function & spectrum,
    : optimizers::Function("EblAtten::" + spectrum.genericName(),
                           spectrum.getNumParams() + 3, 
                           spectrum.normPar().getName()),
-     m_spectrum(spectrum.clone()), m_tau(0) {
+     m_spectrum(spectrum.clone()), m_tau(nullptr) {
    init(tau_norm, redshift, ebl_model);
 }
 
@@ -153,7 +153,7 @@ auto EblAtten::attenuation(double energy) const -> double {
    int redshift(tau_norm + 1);
    int ebl_model(redshift + 1);
    
-   IRB::EblModel new_model = static_cast<IRB::EblModel>(static_cast<int>(m_parameter[ebl_model].getTrueValue()));
+   auto new_model = static_cast<IRB::EblModel>(static_cast<int>(m_parameter[ebl_model].getTrueValue()));
    if (new_model != m_tau->model()) {
       delete m_tau;
       m_tau = new IRB::EblAtten(new_model);

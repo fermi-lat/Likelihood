@@ -263,17 +263,17 @@ private:
 
    void generate_exposureHyperCube();
 
-   auto singleSrcMap(unsigned int nee,
+   [[nodiscard]] auto singleSrcMap(unsigned int nee,
                           unsigned long num_x_pix = 40, 
                           unsigned long num_y_pix = 40,
                           double pix_scale = 0.25) const -> CountsMap;
 
-   auto healpixmap_allsky() const -> CountsMapHealpix;
-   auto healpixmap_region() const -> CountsMapHealpix;
+   [[nodiscard]] auto healpixmap_allsky() const -> CountsMapHealpix;
+   [[nodiscard]] auto healpixmap_region() const -> CountsMapHealpix;
 
    void deleteExpMap();
   
-   auto dataPath(const std::string& filename) const -> std::string {
+   [[nodiscard]] auto dataPath(const std::string& filename) const -> std::string {
       return facilities::commonUtilities::joinPath(m_rootPath, filename);
    }
 
@@ -296,12 +296,12 @@ double LikelihoodTests::ASSERT_TOLERANCE = 1e-4;
 #define ASSERT_EQUALS(X, Y) CPPUNIT_ASSERT(std::fabs((X - Y)/Y) < ASSERT_TOLERANCE )
 
 void LikelihoodTests::setUp() {
-   if (m_respFuncs == 0) m_respFuncs = new ResponseFunctions();
-   if (m_scData == 0) m_scData = new ScData();
-   if (m_roiCuts == 0) m_roiCuts = new RoiCuts();
-   if (m_expCube == 0) m_expCube = new ExposureCube();
-   if (m_expMap == 0) m_expMap = new ExposureMap();
-   if (m_eventCont == 0) m_eventCont = new EventContainer(*m_respFuncs,
+   if (m_respFuncs == nullptr) m_respFuncs = new ResponseFunctions();
+   if (m_scData == nullptr) m_scData = new ScData();
+   if (m_roiCuts == nullptr) m_roiCuts = new RoiCuts();
+   if (m_expCube == nullptr) m_expCube = new ExposureCube();
+   if (m_expMap == nullptr) m_expMap = new ExposureMap();
+   if (m_eventCont == nullptr) m_eventCont = new EventContainer(*m_respFuncs,
                                                           *m_roiCuts, 
                                                           *m_scData);
    m_observation = new Observation(m_respFuncs,
@@ -333,8 +333,8 @@ void LikelihoodTests::setUp() {
    m_fracTol = 1e-4;
 
 // Use lazy evaluation for m_funcFactory and m_srcFactory.
-   m_funcFactory = 0;
-   m_srcFactory = 0;
+   m_funcFactory = nullptr;
+   m_srcFactory = nullptr;
 
    m_scFile = dataPath("oneday_scData_0000.fits");
    m_expMapFile = dataPath("anticenter_expMap.fits");
@@ -342,7 +342,7 @@ void LikelihoodTests::setUp() {
 }
 void LikelihoodTests::deleteExpMap() {
    delete m_expMap;
-   m_expMap = 0;
+   m_expMap = nullptr;
 }
 
 void LikelihoodTests::tearDown() {
@@ -968,7 +968,7 @@ void LikelihoodTests::test_SourceModel() {
 void LikelihoodTests::test_SourceDerivs() {
    // Implementation
    SourceFactory * srcFactory = srcFactoryInstance();
-   CPPUNIT_ASSERT(srcFactory != 0);
+   CPPUNIT_ASSERT(srcFactory != nullptr);
    std::vector<std::string> srcNames;
    srcFactory->fetchSrcNames(srcNames);
 
@@ -978,7 +978,7 @@ void LikelihoodTests::test_SourceDerivs() {
    double dec(28.9);
    double energy(1e3);
    double time(1e3);
-   CPPUNIT_ASSERT(m_scData != 0);
+   CPPUNIT_ASSERT(m_scData != nullptr);
    astro::SkyDir zAxis = m_scData->zAxis(time);
    double muZenith(1.);
    int type = 0;
@@ -991,9 +991,9 @@ void LikelihoodTests::test_SourceDerivs() {
 //   for (int i = 0; i < 3; i++) {
    for (int i = 0; i < 2; i++) {
       Source * src = srcFactory->create(srcNames[i]);
-      CPPUNIT_ASSERT(src != 0);
+      CPPUNIT_ASSERT(src != nullptr);
       if (src->getType() == "Diffuse") {
-         DiffuseSource *diffuse_src = dynamic_cast<DiffuseSource *>(src);
+         auto *diffuse_src = dynamic_cast<DiffuseSource *>(src);
          myEvent.computeResponse(*diffuse_src, *m_respFuncs);
       }
       Source::FuncMap srcFuncs = src->getSrcFuncs();
@@ -1484,7 +1484,7 @@ void LikelihoodTests::test_CompositeSource() {
    
    const std::string specFuncName("ConstantValue");
    CompositeSource* comp = binnedLogLike.mergeSources(comp_name,nested,specFuncName);
-   CPPUNIT_ASSERT(comp!=0);
+   CPPUNIT_ASSERT(comp!=nullptr);
    int nsrc = comp->getNumSrcs();
    CPPUNIT_ASSERT(nsrc==2);
 
@@ -1506,7 +1506,7 @@ void LikelihoodTests::test_CompositeSource() {
    binnedLogLike2.readXml(srcModel_out, *m_funcFactory);
 
    CompositeSource* comp2 = dynamic_cast<CompositeSource*>(binnedLogLike2.getSource("Comp"));
-   CPPUNIT_ASSERT(comp2 != 0);
+   CPPUNIT_ASSERT(comp2 != nullptr);
 
    std::vector<float> modelwts_v2(binnedLogLike2.source_map_size(),0.);   
    comp2->fillSummedSourceMap(modelwts_v2);
@@ -1672,7 +1672,7 @@ void LikelihoodTests::test_SourceMap() {
    CountsMap dataMap(singleSrcMap(3));
    dataMap.writeOutput("test.cxx", "cntsMap.fits");
    
-   BinnedCountsCache dataCache(dataMap, *m_observation, 0, "dummy.fits");
+   BinnedCountsCache dataCache(dataMap, *m_observation, nullptr, "dummy.fits");
    
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
  //   Source * src = srcFactory->create("Galactic Diffuse");
@@ -1696,17 +1696,17 @@ void LikelihoodTests::test_PointSourceMap() {
    // Coarse counts map
    CountsMap dataMap0(singleSrcMap(5,40,40,0.2));
    dataMap0.writeOutput("test.cxx", "cntsMap0.fits");
-   BinnedCountsCache dataCache0(dataMap0, *m_observation, 0, "dummy.fits");
+   BinnedCountsCache dataCache0(dataMap0, *m_observation, nullptr, "dummy.fits");
 
    // Fine counts map
    CountsMap dataMap1(singleSrcMap(5,80,80,0.1));
    dataMap1.writeOutput("test.cxx", "cntsMap1.fits");
-   BinnedCountsCache dataCache1(dataMap1, *m_observation, 0, "dummy.fits");
+   BinnedCountsCache dataCache1(dataMap1, *m_observation, nullptr, "dummy.fits");
 
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
 
-   PointSource * pointSrc = dynamic_cast<PointSource *>(src);
+   auto * pointSrc = dynamic_cast<PointSource *>(src);
    const astro::SkyDir & srcDir(pointSrc->getDir());
 
    Drm drm0(dataCache0.countsMap().refDir().ra(), dataCache0.countsMap().refDir().dec(), 
@@ -1724,11 +1724,11 @@ void LikelihoodTests::test_PointSourceMap() {
    dataMap0.getEnergies(energies);
 
    // Loop over pixels of coarse map
-   std::vector<double>::const_iterator energy = energies.begin();
+   auto energy = energies.begin();
    
    for(int i = 0; energy != energies.end(); ++energy, ++i) {
 
-     std::vector<Pixel>::const_iterator pixel0(pixels0.begin());  
+     auto pixel0(pixels0.begin());  
      for(int j = 0; pixel0 != pixels0.end(); ++pixel0, ++j) {
      
        astro::SkyDir dir0 = pixel0->dir();
@@ -1741,7 +1741,7 @@ void LikelihoodTests::test_PointSourceMap() {
        if(srcSep > 1.0)
 	 continue;
 
-       std::vector<Pixel>::const_iterator pixel1(pixels1.begin());
+       auto pixel1(pixels1.begin());
        for(int k = 0 ; pixel1 != pixels1.end(); ++pixel1, ++k) {
        
 	 astro::SkyDir dir1 = pixel1->dir();
@@ -1767,7 +1767,7 @@ void LikelihoodTests::test_PointSourceMap_hpx_allsky() {
    m_expCube->readExposureCube(exposureCubeFile);
    
    CountsMapHealpix cmap = healpixmap_allsky();
-   BinnedCountsCache dataCache(cmap, *m_observation, 0, "dummy.fits");
+   BinnedCountsCache dataCache(cmap, *m_observation, nullptr, "dummy.fits");
 
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
@@ -1809,7 +1809,7 @@ void LikelihoodTests::test_PointSourceMap_hpx_region() {
    m_expCube->readExposureCube(exposureCubeFile);
    
    CountsMapHealpix cmap = healpixmap_region();
-   BinnedCountsCache dataCache(cmap, *m_observation, 0, "dummy.fits");
+   BinnedCountsCache dataCache(cmap, *m_observation, nullptr, "dummy.fits");
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
 
@@ -1907,7 +1907,7 @@ void LikelihoodTests::test_Drm() {
    m_expCube->readExposureCube(exposureCubeFile);
 
    CountsMap cmap(singleSrcMap(41));
-   BinnedCountsCache dataCache(cmap, *m_observation, 0, "dummy.fits");
+   BinnedCountsCache dataCache(cmap, *m_observation, nullptr, "dummy.fits");
 
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
@@ -2027,7 +2027,7 @@ srcFactoryInstance(const std::string & scFile,
                    const std::string & expMapFile,
                    const std::string & sourceXmlFile,
                    bool requireExposure, bool verbose) -> SourceFactory * {
-   if (m_srcFactory == 0) {
+   if (m_srcFactory == nullptr) {
       m_roiCuts->setCuts(86.404, 28.936, 25., 30., 2e5, 0., 8.64e4, -1., true);
       if (scFile == "") {
          m_scData->readData(m_scFile, 0, 86400, true);

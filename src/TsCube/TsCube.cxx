@@ -74,14 +74,14 @@ public:
   virtual void banner() const;
 private:
 
-  AppHelpers * m_helper;
+  AppHelpers * m_helper{nullptr};
   st_app::AppParGroup & m_pars;
-  ProjMap* m_wmap;
-  Likelihood::BinnedLikelihood * m_logLike;
-  optimizers::Optimizer* m_opt;
+  ProjMap* m_wmap{nullptr};
+  Likelihood::BinnedLikelihood * m_logLike{nullptr};
+  optimizers::Optimizer* m_opt{nullptr};
   st_stream::StreamFormatter * m_formatter;
-  Likelihood::FitScanner* m_scanner;
-  astro::SkyProj* m_proj;
+  Likelihood::FitScanner* m_scanner{nullptr};
+  astro::SkyProj* m_proj{nullptr};
   astro::SkyDir m_refDir; 
   std::string m_coordSys;
 
@@ -193,7 +193,7 @@ void TsCube::setGrid() {
   m_refDir() = astro::SkyDir(xref,yref,
 			     (is_galactic ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL ) )();   
 
-  astro::SkyProj* skyProj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, is_galactic);
+  auto* skyProj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, is_galactic);
   m_scanner = new FitScanner(*m_logLike,*m_opt,*skyProj,nxpix,nypix);
   m_proj = skyProj;
 
@@ -239,7 +239,7 @@ void TsCube::computeMap() {
 
   int status = m_scanner->run_tscube(doTsMap,doSED,nnorm,normSigma,covScale_bb,covScale,
 				     tol,maxiter,tolType,remakeTestSource,ST_scan_level,
-				     "",initLambda,m_wmap != 0);
+				     "",initLambda,m_wmap != nullptr);
   
   if ( status != 0 ) {
     // Go ahead and let it try to write the output, for now

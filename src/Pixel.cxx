@@ -25,7 +25,7 @@ auto Pixel::modelCounts(double emin, double emax,
 
    for (unsigned int i = 0; i < srcNames.size(); i++) {
       Source * src = srcModel.getSource(srcNames[i]);
-      std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
+      auto respIt 
          = srcModel.observation().respFuncs().begin();
       for ( ; respIt != srcModel.observation().respFuncs().end(); ++respIt) {
          int evtType = respIt->second->irfID();
@@ -54,12 +54,12 @@ void Pixel::getFreeDerivs(double emin, double emax, SourceModel & srcModel,
 
    const std::map<std::string, Source *> & srcMap = srcModel.sources();
 
-   std::map<std::string, Source *>::const_iterator src = srcMap.begin();
+   auto src = srcMap.begin();
    for ( ; src != srcMap.end(); ++src) {
       std::vector<std::string> names;
       src->second->spectrum().getFreeParamNames(names);
       for (size_t i(0); i < names.size(); i++) {
-         std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+         auto 
             respIt = srcModel.observation().respFuncs().begin();
          for ( ; respIt != srcModel.observation().respFuncs().end();
                ++respIt) {
@@ -84,8 +84,8 @@ Pixel::Aeff::Aeff(Source * src, const astro::SkyDir & appDir,
                   double energy, int type, double time)
    : ExposureCube::AeffBase(), m_src(src), m_appDir(appDir), 
      m_energy(energy), m_type(type), m_time(time) {
-   PointSource * ptsrc = dynamic_cast<PointSource *>(src);
-   if (ptsrc == 0) {
+   auto * ptsrc = dynamic_cast<PointSource *>(src);
+   if (ptsrc == nullptr) {
       m_separation = 90.;
    } else {
       m_separation = ptsrc->getDir().difference(appDir)*180./M_PI;
@@ -106,8 +106,8 @@ Pixel::AeffDeriv::AeffDeriv(Source * src, const std::string & paramName,
                             double energy, int type, double time)
    : ExposureCube::AeffBase(), m_src(src), m_paramName(paramName), 
      m_appDir(appDir), m_energy(energy), m_type(type), m_time(time) {
-   PointSource * ptsrc = dynamic_cast<PointSource *>(src);
-   if (ptsrc == 0) {
+   auto * ptsrc = dynamic_cast<PointSource *>(src);
+   if (ptsrc == nullptr) {
       m_separation = 90.;
    } else {
       m_separation = ptsrc->getDir().difference(appDir)*180./M_PI;

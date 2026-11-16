@@ -98,7 +98,7 @@ namespace Likelihood {
       // Note also that tip work in lowercase
       std::vector<tip::FieldIndex_t> dataColumns;
       const tip::Table::FieldCont& colNames = table->getValidFields();
-      for ( tip::Table::FieldCont::const_iterator itr = colNames.begin(); 
+      for ( auto itr = colNames.begin(); 
 	    itr != colNames.end(); itr++ ) {
 	if ( itr->find("channel") == 0 ) { 
 	  dataColumns.push_back( table->getFieldIndex(*itr) );     
@@ -114,7 +114,7 @@ namespace Likelihood {
       vect.reserve(nEvals*nrow);
       
       double readVal(0.);
-      for ( std::vector<tip::FieldIndex_t>::const_iterator itrData = dataColumns.begin();
+      for ( auto itrData = dataColumns.begin();
 	    itrData != dataColumns.end(); itrData++ ) {    
 	const tip::IColumn* col = table->getColumn(*itrData);
 	for ( tip::Index_t irow(0); irow < nrow; irow++ ) {
@@ -263,7 +263,7 @@ namespace Likelihood {
     
     void replace_image_from_hist_wcs(tip::Image& image,
 				     HistND& hist) {
-      typedef std::vector<tip::PixOrd_t> DimCont_t;
+      using DimCont_t = std::vector<tip::PixOrd_t>;
       DimCont_t dims = image.getImageDimensions();
 
       DimCont_t::size_type num_dims = dims.size();
@@ -348,7 +348,7 @@ namespace Likelihood {
 						    const std::vector<float>& imageData,
 						    bool is_src_map, 
 						    int kmin, int kmax) -> tip::Extension* {
-      tip::Extension* ptr(0);
+      tip::Extension* ptr(nullptr);
       switch ( dataMap.projection().method() ) {
       case astro::ProjBase::WCS:
 	ptr = FileUtils::replace_image_from_float_vector_wcs(filename,extension,
@@ -552,7 +552,7 @@ namespace Likelihood {
 						   const std::vector<float>& imageData,
 						   bool is_src_map, 
 						   int kmin, int kmax) -> tip::Extension* {
-      tip::Extension* ptr(0);
+      tip::Extension* ptr(nullptr);
       switch ( dataMap.projection().method() ) {
       case astro::ProjBase::WCS:
 	ptr = FileUtils::append_image_from_float_vector_wcs(filename,extension,
@@ -619,7 +619,7 @@ namespace Likelihood {
 
     void append_table_only(const std::string& file_name,
 			   const std::string& table_name) {
-      fitsfile * fp = 0;
+      fitsfile * fp = nullptr;
       int status = 0;
       
       // Open the file create the file.
@@ -627,7 +627,7 @@ namespace Likelihood {
       if (0 != status) {
 	throw tip::TipException(status, "File does not exist \"" + file_name + "\"");
       }    
-      fits_create_tbl(fp, BINARY_TBL, 0, 0, 0, 0, 0, const_cast<char *>(table_name.c_str()), &status);
+      fits_create_tbl(fp, BINARY_TBL, 0, 0, nullptr, nullptr, nullptr, const_cast<char *>(table_name.c_str()), &status);
       if (0 != status) {
 	throw tip::TipException(status, "Unable to create table named \"" + table_name + "\" in file \"" + file_name + "\"");
       }
@@ -650,7 +650,7 @@ namespace Likelihood {
       tip::IColumn& par_free_col = append_column(*table,"ParamFree","L");
 
       size_t irec(0);
-      for ( std::vector<const Source*>::const_iterator itr = sources.begin(); itr != sources.end(); itr++ ) {
+      for ( auto itr = sources.begin(); itr != sources.end(); itr++ ) {
 	const Source* src = *itr;
 	write_source_parameters_to_table(*src,
 					 irec,src_name_col,
@@ -671,7 +671,7 @@ namespace Likelihood {
 					  tip::IColumn& par_free_col ) {
       const std::string srcName = source.getName();
       const Source::FuncMap& funcMap =  source.getSrcFuncs();      
-      for ( Source::FuncMap::const_iterator itr = funcMap.begin(); itr != funcMap.end(); itr++ ) {
+      for ( auto itr = funcMap.begin(); itr != funcMap.end(); itr++ ) {
 	const optimizers::Function& func = *(itr->second);
 	write_function_parameters_to_table(srcName,func,
 					   irec,src_name_col,
@@ -693,7 +693,7 @@ namespace Likelihood {
       const std::string& funcName = func.getName();
       std::vector<std::string> parNames; 
       func.getParamNames(parNames);      
-      for ( std::vector<std::string>::const_iterator itr = parNames.begin(); itr != parNames.end(); itr++ ) {
+      for ( auto itr = parNames.begin(); itr != parNames.end(); itr++ ) {
 	const optimizers::Parameter param = func.getParam(*itr);
 	write_parameter_to_table(srcName,funcName,param,
 				 irec,src_name_col,

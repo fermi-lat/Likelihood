@@ -61,9 +61,9 @@ private:
 
    st_app::AppParGroup & m_pars;
 
-   Likelihood::AppHelpers * m_helper;
+   Likelihood::AppHelpers * m_helper{nullptr};
    Likelihood::CountsMapBase * m_dataMap;  // EAC: switch to new base class
-   Likelihood::BinnedLikelihood * m_logLike;
+   Likelihood::BinnedLikelihood * m_logLike{nullptr};
 
    void computeDrm();
    void updateDssKeywords();

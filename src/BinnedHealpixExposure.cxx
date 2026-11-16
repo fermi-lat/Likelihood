@@ -43,7 +43,7 @@ BinnedHealpixExposure::BinnedHealpixExposure(const evtbin::HealpixMap & cmap,
 					     const st_app::AppParGroup * pars)
   : BinnedExposureBase(observation,useEbounds,pars) {
   int edisp_bins(0);
-  if ( pars != 0 ) {
+  if ( pars != nullptr ) {
     edisp_bins = (*pars)["edisp_bins"];
   }
   setMapGeometry(cmap, edisp_bins);
@@ -89,7 +89,7 @@ BinnedHealpixExposure::BinnedHealpixExposure(const std::string& filename)
   // Note also that tip work in lowercase
   std::vector<tip::FieldIndex_t> dataColumns;
   const tip::Table::FieldCont& colNames = table->getValidFields();
-  for ( tip::Table::FieldCont::const_iterator itr = colNames.begin(); 
+  for ( auto itr = colNames.begin(); 
         itr != colNames.end(); itr++ ) {
     if ( itr->find("energy") == 0 ) { 
       dataColumns.push_back( table->getFieldIndex(*itr) );     
@@ -107,7 +107,7 @@ BinnedHealpixExposure::BinnedHealpixExposure(const std::string& filename)
   // This keeps track of the energy slice we are filling.  
   // Starts with slice 0
   int iPlane(0);    
-  for ( std::vector<tip::FieldIndex_t>::const_iterator itrData = dataColumns.begin();
+  for ( auto itrData = dataColumns.begin();
         itrData != dataColumns.end(); itrData++, iPlane++ ) {    
     ExposurePlane_t& expPlane = m_exposureMap[iPlane];
     expPlane.SetNside(m_healpixProj->healpix().Nside(),m_healpixProj->healpix().Scheme());
@@ -118,11 +118,10 @@ BinnedHealpixExposure::BinnedHealpixExposure(const std::string& filename)
   }
 }
   
-BinnedHealpixExposure::~BinnedHealpixExposure() {
-}
+BinnedHealpixExposure::~BinnedHealpixExposure() = default;
 
 auto BinnedHealpixExposure::operator()(double energy, double ra, double dec) const -> double {
-  std::vector<double>::const_iterator ie = BinnedExposureBase::findNearest(m_energies, energy);
+  auto ie = BinnedExposureBase::findNearest(m_energies, energy);
   unsigned int k = ie - m_energies.begin();
   std::pair<double, double> pixel;
   st_facilities::Util::skyDir2pixel(*m_proj, astro::SkyDir(ra, dec),
@@ -150,7 +149,7 @@ void BinnedHealpixExposure::get_exposures_for_dir(const astro::SkyDir& dir,
 						  std::vector<double>& exposures) const {
   exposures.clear();
   exposures.resize(energies.size(), 0.);
-  if ( m_proj == 0 ) {
+  if ( m_proj == nullptr ) {
     throw std::runtime_error("BinnedExposure::operator() "
 			     "No projection loaded");
   }
@@ -164,11 +163,11 @@ void BinnedHealpixExposure::get_exposures_for_dir(const astro::SkyDir& dir,
 			     "is outside of the map boundaries.");
   }
 
-  std::vector<double>::const_iterator itr_eng = energies.begin();
-  std::vector<double>::iterator itr_exp = exposures.begin();
+  auto itr_eng = energies.begin();
+  auto itr_exp = exposures.begin();
 
   for ( ; itr_eng != energies.end(); ++itr_eng, ++itr_exp ) {
-    std::vector<double>::const_iterator ie = findNearest(m_energies, *itr_eng);
+    auto ie = findNearest(m_energies, *itr_eng);
     unsigned int k = ie - m_energies.begin();
     bool energy_bounds = k >= 0 && k < m_energies.size();
     if ( m_enforce_boundaries && !energy_bounds) {
@@ -220,7 +219,7 @@ void BinnedHealpixExposure::computeHealpixMap() {
   std::map<std::pair<unsigned int, int>, Aeff *> aeffs;
   for (unsigned int k(0); k < m_energies.size(); k++) {
     m_exposureMap[k].SetNside(m_healpixProj->healpix().Nside(),m_healpixProj->healpix().Scheme());
-    std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+    auto 
       resp = m_observation->respFuncs().begin();
     for (; resp != m_observation->respFuncs().end(); ++resp) {
       int evtType = resp->second->irfID();
@@ -237,7 +236,7 @@ void BinnedHealpixExposure::computeHealpixMap() {
     astro::SkyDir dir(i,0.,*m_healpixProj);
     for (unsigned int k = 0; k < m_energies.size(); k++) {
       m_exposureMap[k][i] = 0.;      
-      std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+      auto 
 	resp = m_observation->respFuncs().begin();
       
       for (; resp != m_observation->respFuncs().end(); ++resp) {
@@ -250,7 +249,7 @@ void BinnedHealpixExposure::computeHealpixMap() {
   }
   // Release memory of Aeff map.
   for (unsigned int k(0); k < m_energies.size(); k++) {
-    std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+    auto 
       resp = m_observation->respFuncs().begin();
     for (; resp != m_observation->respFuncs().end(); ++resp) {
       int evtType = resp->second->irfID();
@@ -302,7 +301,7 @@ void BinnedHealpixExposure::writeOutput(const std::string & filename) const {
   tip::Table::Iterator row = table->begin();
   tip::Table::Record & record = *row;
     
-  std::vector<double>::const_iterator energy = m_energies.begin();
+  auto energy = m_energies.begin();
   for ( ; energy != m_energies.end(); ++energy, ++row) {
     record["Energy"].set(*energy);
   }

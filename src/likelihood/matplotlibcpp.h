@@ -1272,7 +1272,7 @@ bool bar(const std::vector<Numeric> &               y,
          double                                     lw       = 1.0,
          const std::map<std::string, std::string> & keywords = {})
 {
-  using T = typename std::remove_reference<decltype(y)>::type::value_type;
+  using T = typename std::remove_reference_t<decltype(y)>::value_type;
 
   detail::_interpreter::get();
 
@@ -2884,7 +2884,7 @@ template<typename T>
 struct is_callable
 {
     // dispatch to is_callable_impl<true, T> or is_callable_impl<false, T> depending on whether T is of class type or not
-    typedef typename is_callable_impl<std::is_class<T>::value, T>::type type;
+    typedef typename is_callable_impl<std::is_class_v<T>, T>::type type;
 };
 
 template<typename IsYDataCallable>

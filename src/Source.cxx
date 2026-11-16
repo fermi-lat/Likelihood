@@ -47,7 +47,7 @@ Source::Source(const Observation * observation)
      m_useEdisp(false), 
      m_usePSF(true), 
      m_useExposure(true), 
-     m_spectrum(0), 
+     m_spectrum(nullptr), 
      m_observation(observation) {}
 
 Source::Source(const Source & rhs)
@@ -101,7 +101,7 @@ void Source::getExposureValues(const std::vector<double> & energies,
       if (energies[k] < m_energies[0] || energies[k] > m_energies.back()) {
          exposures[k] = 0;
       } else {
-         size_t indx = static_cast<size_t>(std::log(energies[k]/m_energies[0])
+         auto indx = static_cast<size_t>(std::log(energies[k]/m_energies[0])
                                            /estep);
          exposures[k] = (m_exposure[indx]
                          *std::exp(std::log(energies[k]/m_energies[indx])/estep
@@ -121,7 +121,7 @@ auto Source::Npred(double emin, double emax) const -> double {
 //              << energies.front() << "  "
 //              << energies.back() << std::endl;
 
-   FuncMap::const_iterator my_func = m_functions.find("Spectrum");
+   auto my_func = m_functions.find("Spectrum");
    const optimizers::Function & specFunc = 
       const_cast<optimizers::Function &>(*my_func->second);
 
@@ -272,7 +272,7 @@ void Source::getExposureArrays(double emin, double emax,
    for (size_t k(0); k < nee; k++) {
       double logE(k*logestep + std::log(emin));
       energies.push_back(std::exp(logE));
-      size_t kk = static_cast<size_t>((logE - std::log(roi_energies.front()))
+      auto kk = static_cast<size_t>((logE - std::log(roi_energies.front()))
                                       /roi_estep);
       double exposure(0);
       if (kk == roi_energies.size()-1) { 
@@ -299,9 +299,9 @@ void Source::getExposureSubArrays(double emin, double emax,
       emax = roi_energies.back();
    }
 
-   std::vector<double>::const_iterator first 
+   auto first 
       = std::upper_bound(roi_energies.begin(), roi_energies.end(), emin);
-   std::vector<double>::const_iterator last 
+   auto last 
       = std::upper_bound(roi_energies.begin(), roi_energies.end(), emax);
    energies.resize(last - first);
    std::copy(first, last, energies.begin());

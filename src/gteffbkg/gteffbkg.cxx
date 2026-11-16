@@ -38,7 +38,7 @@ public:
 
    BkgEffMap() : st_app::StApp(),
                 m_pars(st_app::StApp::getParGroup("gteffbkg")),
-		 m_helper(0), m_bkg_eff_map(0), m_dataMap(0) {
+                m_helper(0), m_bkg_eff_map(0), m_dataMap(0) {
       setVersion(s_cvs_id);
    }
    virtual ~BkgEffMap() throw() {
@@ -58,9 +58,9 @@ private:
 
    st_app::AppParGroup & m_pars;
 
-   Likelihood::AppHelpers * m_helper;
-   Likelihood::CountsMapBase * m_dataMap;  
-   Likelihood::CountsMapBase * m_bkg_eff_map; 
+   Likelihood::AppHelpers * m_helper{nullptr};
+   Likelihood::CountsMapBase * m_dataMap{nullptr};  
+   Likelihood::CountsMapBase * m_bkg_eff_map{nullptr}; 
 
    void computeBkgEffMap();
    void updateDssKeywords();

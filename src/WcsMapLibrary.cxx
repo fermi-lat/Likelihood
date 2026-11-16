@@ -19,13 +19,13 @@
 
 namespace Likelihood {
 
-WcsMapLibrary * WcsMapLibrary::s_instance(0);
+WcsMapLibrary * WcsMapLibrary::s_instance(nullptr);
 
-WcsMapLibrary::WcsMapLibrary() {}
+WcsMapLibrary::WcsMapLibrary() = default;
 
 WcsMapLibrary::~WcsMapLibrary() throw() {
    try {
-      MapLibrary_t::iterator it(m_library.begin());
+      auto it(m_library.begin());
       for ( ; it != m_library.end(); ++it) {
          delete it->second;
       }
@@ -41,7 +41,7 @@ auto WcsMapLibrary::wcsmap(const std::string & filename,
       return it->second;
    }
    astro::ProjBase::Method method = AppHelpers::checkProjectionMethod(filename,extname);
-   ProjMap* theMap(0);
+   ProjMap* theMap(nullptr);
    switch ( method ) {
    case astro::ProjBase::WCS:
      theMap = new WcsMap2(filename, extname);
@@ -52,7 +52,7 @@ auto WcsMapLibrary::wcsmap(const std::string & filename,
    default:
      break;
    }
-   if ( theMap == 0 ) {
+   if ( theMap == nullptr ) {
      std::string errMsg("Did not recognize ProjMap type at: ");
      errMsg += filename;
      if ( extname.size() > 0 ) {
@@ -106,7 +106,7 @@ void WcsMapLibrary::remove_observer(MapBase * observer) {
 }
 
 void WcsMapLibrary::notify() {
-   std::map<MapBase *, int>::iterator it(m_observers.begin());
+   auto it(m_observers.begin());
    for ( ; it != m_observers.end(); ++it) {
       it->first->update();
    }

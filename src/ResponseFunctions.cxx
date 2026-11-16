@@ -24,7 +24,7 @@
 namespace Likelihood {
    
 ResponseFunctions::~ResponseFunctions() {
-   std::map<unsigned int, irfInterface::Irfs *>::iterator 
+   auto 
       it(m_respPtrs.begin());
    for ( ; it != m_respPtrs.end(); ++it) {
       deleteRespPtr(it->first);
@@ -38,7 +38,7 @@ auto ResponseFunctions::totalResponse(double energy, double appEnergy,
                                         const astro::SkyDir & appDir, 
                                         int type, double time) const -> double {
    double myResponse;
-   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   auto * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
       message << "Could not find appropriate response functions "
@@ -69,7 +69,7 @@ auto ResponseFunctions::totalResponse(double inclination, double phi,
                                         double separation, int type,
                                         double time) const -> double {
    double myResponse;
-   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   auto * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
       message << "Could not find appropriate response functions "
@@ -96,12 +96,12 @@ auto ResponseFunctions::totalResponse(double inclination, double phi,
 }   
 
 auto ResponseFunctions::respPtr(unsigned int i) const -> irfInterface::Irfs * {
-   typedef std::map<unsigned int, irfInterface::Irfs *> IrfMap_t;
-   IrfMap_t::const_iterator irfs(m_respPtrs.find(i));
+   using IrfMap_t = std::map<unsigned int, irfInterface::Irfs *>;
+   auto irfs(m_respPtrs.find(i));
    if (irfs != m_respPtrs.end()) {
       return irfs->second;
    } else {
-      return 0;
+      return nullptr;
    }
 }
 
@@ -112,7 +112,7 @@ void ResponseFunctions::load(const std::string & respFuncs,
 
    irfInterface::IrfsFactory * myFactory(irfInterface::IrfsFactory::instance());
       
-   typedef std::map< std::string, std::vector<std::string> > respMap_t;
+   using respMap_t = std::map< std::string, std::vector<std::string> >;
    const respMap_t & responseIds = irfLoader::Loader_respIds();
    respMap_t::const_iterator it;
    if ( (it = responseIds.find(respFuncs)) != responseIds.end() ) {
@@ -136,7 +136,7 @@ void ResponseFunctions::load(const std::string & respFuncs,
       std::ostringstream message;
       message << "Invalid response function choice: " << respFuncs << "\n"
               << "Valid choices are \n";
-      for (respMap_t::const_iterator resp = responseIds.begin();
+      for (auto resp = responseIds.begin();
            resp != responseIds.end(); ++resp) {
          message << resp->first << "\n";
       }
@@ -158,7 +158,7 @@ void ResponseFunctions::load(const std::string & respFuncs,
 }
 
 auto ResponseFunctions::edisp(int type) const -> irfInterface::IEdisp & {
-   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   auto * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
       message << "Could not find appropriate response functions "
@@ -170,7 +170,7 @@ auto ResponseFunctions::edisp(int type) const -> irfInterface::IEdisp & {
 }
 
 auto ResponseFunctions::psf(int type) const -> irfInterface::IPsf & {
-   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   auto * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
       message << "Could not find appropriate response functions "
@@ -182,7 +182,7 @@ auto ResponseFunctions::psf(int type) const -> irfInterface::IPsf & {
 }
 
 auto ResponseFunctions::aeff(int type) const -> irfInterface::IAeff & {
-   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   auto * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
       message << "Could not find appropriate response functions "
@@ -198,7 +198,7 @@ auto ResponseFunctions::edisp(double emeas, double etrue,
                                 const astro::SkyDir & zAxis,
                                 const astro::SkyDir & xAxis,
                                 int type, double time) const -> double {
-   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   auto * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
       message << "Could not find appropriate response functions "
@@ -213,7 +213,7 @@ auto ResponseFunctions::edisp(double emeas, double etrue,
 auto ResponseFunctions::edisp(double emeas, double etrue, 
                                 double theta, double phi, 
                                 int type, double time) const -> double {
-   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   auto * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
       message << "Could not find appropriate response functions "
@@ -230,7 +230,7 @@ auto ResponseFunctions::aeff(double etrue,
                                const astro::SkyDir & zAxis,
                                const astro::SkyDir & xAxis,
                                int type, double time) const -> double {
-   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   auto * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
       message << "Could not find appropriate response functions "
@@ -244,7 +244,7 @@ auto ResponseFunctions::aeff(double etrue,
 
 auto ResponseFunctions::aeff(double etrue, double theta, double phi,
                                int type, double time) const -> double {
-   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   auto * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
       message << "Could not find appropriate response functions "

@@ -47,7 +47,7 @@ namespace Likelihood {
 
   CountsMapHealpix::CountsMapHealpix(const std::string & countsMapFile) 
     : CountsMapBase(countsMapFile),
-      m_healpixProj(0),
+      m_healpixProj(nullptr),
       m_solidAngle(0.),
       m_pixelSize(0.),
       m_nPixels(0) {
@@ -107,7 +107,7 @@ namespace Likelihood {
 
   auto CountsMapHealpix::makeBkgEffMap(const MeanPsf & psf, const float& efact) const -> CountsMapBase* {
 
-    CountsMapHealpix* outMap = new CountsMapHealpix(*this);     
+    auto* outMap = new CountsMapHealpix(*this);     
     ProjMap* projMap = makeProjMap();
     ProjMap* convMap = projMap->convolveAll(psf);
     delete projMap;
@@ -309,7 +309,7 @@ void CountsMapHealpix::readImageData(const std::string & countsMapFile,
   // Note also that tip work in lowercase
   std::vector<tip::FieldIndex_t> dataColumns;
   const tip::Table::FieldCont& colNames = table->getValidFields();
-  for ( tip::Table::FieldCont::const_iterator itr = colNames.begin(); 
+  for ( auto itr = colNames.begin(); 
         itr != colNames.end(); itr++ ) {
     if ( itr->find("channel") == 0 ) { 
       dataColumns.push_back( table->getFieldIndex(*itr) );     
@@ -327,7 +327,7 @@ void CountsMapHealpix::readImageData(const std::string & countsMapFile,
   // This keeps track of the energy slice we are filling.  
   // Starts with slice 0
   std::vector<unsigned int> ivalues(2,0);    
-  for ( std::vector<tip::FieldIndex_t>::const_iterator itrData = dataColumns.begin();
+  for ( auto itrData = dataColumns.begin();
         itrData != dataColumns.end(); itrData++, ivalues[1]++ ) {    
     const tip::IColumn* col = table->getColumn(*itrData);
     for ( tip::Index_t irow(0); irow < nrow; irow++ ) {
@@ -341,7 +341,7 @@ void CountsMapHealpix::readImageData(const std::string & countsMapFile,
 
 auto CountsMapHealpix::globalToLocalIndex(int glo) const -> int {
   if ( allSky() ) return glo;
-  std::map<int,int>::const_iterator itrFind = m_hpx_binner->pixGlobalToLocalMap().find(glo);
+  auto itrFind = m_hpx_binner->pixGlobalToLocalMap().find(glo);
   return itrFind == m_hpx_binner->pixGlobalToLocalMap().end() ? -1 : itrFind->second;
 }
    
@@ -367,8 +367,8 @@ void CountsMapHealpix::latchCacheData() {
 
   double c1(0.);
   double c2(0.);  
-  healpix::HealpixRegion* hpx_reg = const_cast<healpix::HealpixRegion*>(m_hpx_binner->region());
-  if ( hpx_reg != 0 ) {
+  auto* hpx_reg = const_cast<healpix::HealpixRegion*>(m_hpx_binner->region());
+  if ( hpx_reg != nullptr ) {
     hpx_reg->getRegionSize(m_mapRadius);
     hpx_reg->getRefDir(c1,c2);
   } else {

@@ -17,7 +17,7 @@ namespace Likelihood {
   CompositeSource::CompositeSource(const Observation& observation)
     :Source(&observation),
      m_sourceModel(observation),
-     m_srcMapCache(0),
+     m_srcMapCache(nullptr),
      m_xmlFile(""){     
     m_srcType = Source::Composite;
     m_energies = m_observation->roiCuts().energies();
@@ -27,7 +27,7 @@ namespace Likelihood {
   CompositeSource::CompositeSource(const  CompositeSource&rhs)
     :Source(rhs),
      m_sourceModel(rhs.m_sourceModel),
-     m_srcMapCache(rhs.m_srcMapCache != 0 ? rhs.m_srcMapCache->clone() : 0){
+     m_srcMapCache(rhs.m_srcMapCache != nullptr ? rhs.m_srcMapCache->clone() : nullptr){
     m_srcType = Source::Composite;
     m_functions["Spectrum"] = m_spectrum;
   }
@@ -38,7 +38,7 @@ namespace Likelihood {
 				   const std::string& specFuncName)
     :Source(&observation),
      m_sourceModel(observation),
-     m_srcMapCache(0){
+     m_srcMapCache(nullptr){
     m_srcType = Source::Composite;
     m_energies = m_observation->roiCuts().energies();
     setName(name);
@@ -58,8 +58,8 @@ namespace Likelihood {
   void CompositeSource::addSource(Source *src, SourceMap* srcMap, 
 				  bool fromClone) {
     m_sourceModel.addSource(src,fromClone);
-    if ( srcMap == 0 ) return;
-    if ( m_srcMapCache == 0 ) {
+    if ( srcMap == nullptr ) return;
+    if ( m_srcMapCache == nullptr ) {
       throw std::runtime_error("Can't add a source model to a CompositeSource until buildSourceMapCache has been called");
       return;
     }
@@ -71,8 +71,8 @@ namespace Likelihood {
 
   auto CompositeSource::deleteSource(const std::string &srcName,
 					SourceMap*& srcMap) -> Source* {
-    srcMap = 0;
-    if ( m_srcMapCache != 0 && m_srcMapCache->hasSourceMap(srcName) ) {
+    srcMap = nullptr;
+    if ( m_srcMapCache != nullptr && m_srcMapCache->hasSourceMap(srcName) ) {
       srcMap = m_srcMapCache->removeSourceMap(srcName);
     }
     Source* src = m_sourceModel.deleteSource(srcName);
@@ -82,7 +82,7 @@ namespace Likelihood {
   void CompositeSource::deleteAllSources() {
     m_sourceModel.deleteAllSources();
     delete m_srcMapCache;
-    m_srcMapCache = 0;
+    m_srcMapCache = nullptr;
   }
 
   auto CompositeSource::fluxDensity(const Event & evt, 
@@ -90,7 +90,7 @@ namespace Likelihood {
     optimizers::dArg energy_arg(evt.getEnergy() );
     double spec_factor = (*m_spectrum)(energy_arg);
     Kahan_Accumulator accum;
-    for ( std::map<std::string, Source*>::const_iterator itr = m_sourceModel.sources().begin();
+    for ( auto itr = m_sourceModel.sources().begin();
 	  itr != m_sourceModel.sources().end(); itr++ ) {
       accum.add( itr->second->fluxDensity(evt,cResp) );
     }
@@ -106,7 +106,7 @@ namespace Likelihood {
     optimizers::dArg energy_arg(energy);
     double spec_factor = (*m_spectrum)(energy_arg);
     Kahan_Accumulator accum;
-    for ( std::map<std::string, Source*>::const_iterator itr = m_sourceModel.sources().begin();
+    for ( auto itr = m_sourceModel.sources().begin();
 	  itr != m_sourceModel.sources().end(); itr++ ) {
       accum.add( itr->second->fluxDensity(inclination,phi,energy,appDir,evtType,time,cResp) );
     }
@@ -122,7 +122,7 @@ namespace Likelihood {
     double spec_factor = (*m_spectrum)(energy_arg);
     Kahan_Accumulator accum_pos;
     Kahan_Accumulator accum_neg;
-    for ( std::map<std::string, Source*>::const_iterator itr = m_sourceModel.sources().begin();
+    for ( auto itr = m_sourceModel.sources().begin();
 	  itr != m_sourceModel.sources().end(); itr++ ) {
       double val = itr->second->fluxDensityDeriv(evt,paramName,cResp);
       Kahan_Accumulator& accum = val > 0 ? accum_pos : accum_neg;
@@ -143,7 +143,7 @@ namespace Likelihood {
     double spec_factor = (*m_spectrum)(energy_arg);
     Kahan_Accumulator accum_pos;
     Kahan_Accumulator accum_neg;
-    for ( std::map<std::string, Source*>::const_iterator itr = m_sourceModel.sources().begin();
+    for ( auto itr = m_sourceModel.sources().begin();
 	  itr != m_sourceModel.sources().end(); itr++ ) {
       double val = itr->second->fluxDensityDeriv(inclination,phi,energy,appDir,evtType,time,paramName,cResp);
       Kahan_Accumulator& accum = val > 0 ? accum_pos : accum_neg;
@@ -219,9 +219,9 @@ namespace Likelihood {
 					const std::string& srcName) -> Source* {
     
     Source* src = other.deleteSource(srcName);
-    BinnedLikelihood* bl = dynamic_cast<BinnedLikelihood*>(&other);
-    SourceMap* srcMap(0);
-    if ( bl != 0 ) {
+    auto* bl = dynamic_cast<BinnedLikelihood*>(&other);
+    SourceMap* srcMap(nullptr);
+    if ( bl != nullptr ) {
       srcMap = bl->removeSourceMap(srcName);
     }
     addSource(src,srcMap,false);
@@ -230,13 +230,13 @@ namespace Likelihood {
   
   auto CompositeSource::give_source(SourceModel& other,
 				       const std::string& srcName) -> Source* {
-    SourceMap* srcMap(0);
-    if ( m_srcMapCache != 0 ) {
+    SourceMap* srcMap(nullptr);
+    if ( m_srcMapCache != nullptr ) {
       srcMap = m_srcMapCache->removeSourceMap(srcName);
     }
     Source* src = m_sourceModel.give_source(other,srcName,srcMap);
-    BinnedLikelihood* bl = dynamic_cast<BinnedLikelihood*>(&other);    
-    if ( bl == 0 ) {      
+    auto* bl = dynamic_cast<BinnedLikelihood*>(&other);    
+    if ( bl == nullptr ) {      
       // Not a binned likelihood, so we should clean up the SourceMap
       delete srcMap;     
     }
@@ -247,7 +247,7 @@ namespace Likelihood {
   auto CompositeSource::buildSourceMapCache(const BinnedCountsCache& dataCache,
 						       const std::string & srcMapsFile,
 						       const Drm* drm) -> SourceMapCache* {
-    if ( m_srcMapCache != 0 ) {
+    if ( m_srcMapCache != nullptr ) {
       std::cout << "WARNING, deleting existing SourceMapCache from CompositeSource::" << getName() << std::endl;
       delete m_srcMapCache;
     } 
@@ -257,7 +257,7 @@ namespace Likelihood {
 
 
   void CompositeSource::fillSummedSourceMap(std::vector<float>& model, int kmin, int kmax) const {
-    if ( m_srcMapCache == 0 ) {
+    if ( m_srcMapCache == nullptr ) {
       throw std::runtime_error("CompositeSource::buildSourceMapCache must be called before fillSummedSourceMap");
     }
     std::vector<std::string> srcNames;

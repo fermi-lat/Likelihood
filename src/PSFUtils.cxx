@@ -101,7 +101,7 @@ namespace Likelihood {
 
     auto maxRadius(const std::vector<Likelihood::Pixel> & pixels,
 		     const astro::SkyDir & dir) -> double {
-      std::vector<Likelihood::Pixel>::const_iterator pixel = pixels.begin();
+      auto pixel = pixels.begin();
       double maxValue(0);
       for ( ; pixel != pixels.end(); ++pixel) {
          double dist = pixel->dir().difference(dir);
@@ -145,7 +145,7 @@ namespace Likelihood {
       int index(0);
       int energyLayer(0);
       hpm.fill(0.);
-      for ( std::vector<int>::const_iterator itr = pixList.begin(); itr != pixList.end(); 
+      for ( auto itr = pixList.begin(); itr != pixList.end(); 
 	    itr++, index++ ) {
 	astro::SkyDir dir( double(*itr), 0., proj );
 	double value = inputMap(dir,energyLayer);
@@ -181,9 +181,9 @@ namespace Likelihood {
 		       const CountsMapBase& dataMap,
 		       const std::vector<double>& energies,
 		       const Observation& obs) -> MeanPsf* {
-      const PointSource& pointSrc = dynamic_cast<const PointSource&>(src);
+      const auto& pointSrc = dynamic_cast<const PointSource&>(src);
       const astro::SkyDir & dir(pointSrc.getDir());
-      MeanPsf* meanPsf = new MeanPsf(dir.ra(), dir.dec(), energies, obs);
+      auto* meanPsf = new MeanPsf(dir.ra(), dir.dec(), energies, obs);
       return meanPsf; 
     } 
 
@@ -197,11 +197,11 @@ namespace Likelihood {
 			 const PsfIntegConfig& config) {
 
       try {
-	MapBase & tmp = const_cast<MapBase &>(*src.mapBaseObject());
+	auto & tmp = const_cast<MapBase &>(*src.mapBaseObject());
 	double minbinsz = std::min(config.minbinsz(),dataMap.pixelSize());
 	double pixSize = tmp.projmap().pixelSize();
 	if ( pixSize < minbinsz ) {
-	  unsigned int factor = static_cast<unsigned int>( minbinsz/pixSize);
+	  auto factor = static_cast<unsigned int>( minbinsz/pixSize);
 	  if (factor > 1) {
             tmp.rebin(factor);
 	  }
@@ -236,7 +236,7 @@ namespace Likelihood {
 			 const CountsMap& dataMap,
 			 std::vector< std::vector< double > >& pixelOffsets) {
       
-      const PointSource & pointSrc = dynamic_cast<const PointSource&>(src);
+      const auto & pointSrc = dynamic_cast<const PointSource&>(src);
       const astro::SkyDir & dir = pointSrc.getDir();
       const std::vector<Pixel> & pixels = dataMap.pixels();
       const double pixel_size = dataMap.pixelSize();
@@ -252,7 +252,7 @@ namespace Likelihood {
       std::pair<double, double> src_coords(dataMap.projection().sph2pix(src_lon, 
 									src_lat));
 
-      std::vector<Pixel>::const_iterator pixel(pixels.begin());
+      auto pixel(pixels.begin());
       for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
 	
 	int ix = j/dataMap.naxis1();
@@ -374,9 +374,9 @@ namespace Likelihood {
 			   FileUtils::SrcMapType& mapType,
 			   int kmin, int kmax) -> int {
 
-      bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist()) != 0;
+      bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist()) != nullptr;
       bool do_psf_convolution = config.performConvolution() && diffuseSrc.use_psf();
-      const BinnedExposureBase* bexpmap_use = diffuseSrc.use_exposure() ? bexpmap : 0;
+      const BinnedExposureBase* bexpmap_use = diffuseSrc.use_exposure() ? bexpmap : nullptr;
 
       // If the diffuse source is represented by an underlying map, then
       // rebin according to the minimum bin size.
@@ -392,9 +392,9 @@ namespace Likelihood {
       long npts = num_ebins*pixels.size();
       modelmap.resize(npts, 0);
       
-      std::vector<Pixel>::const_iterator pixel = pixels.begin();
+      auto pixel = pixels.begin();
       size_t counter(0);
-      std::vector<double>::const_iterator energy = energies.begin();
+      auto energy = energies.begin();
       for (int k(0); energy != energies.end(); ++energy, k++) {
 	double resamp_fact = computeResampFactor(diffuseSrc, dataMap, config);
 	formatter.info(4) << "\nresampling factor: " 
@@ -479,7 +479,7 @@ namespace Likelihood {
 	}
             
 	bool interpolate(true);	
-	WcsMap2 * convolvedMap(0);      
+	WcsMap2 * convolvedMap(nullptr);      
 	WcsMap2 diffuseMap(diffuseSrc,  
 			   (dataMap.projection().isGalactic() ? mapRefDir.l() : mapRefDir.ra()), 
 			   (dataMap.projection().isGalactic() ? mapRefDir.b() : mapRefDir.dec()),
@@ -489,7 +489,7 @@ namespace Likelihood {
 			   interpolate);
 	
 	if(haveSpatialFunction) {
-	  const SpatialFunction* m = 
+	  const auto* m = 
 	    dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist());
 	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(*energy, meanpsf, 
 								   bexpmap_use, *m, do_psf_convolution));
@@ -498,7 +498,7 @@ namespace Likelihood {
 								   bexpmap_use, do_psf_convolution) );
 	}
 	
-	size_t rfac(static_cast<size_t>(resamp_fact));
+	auto rfac(static_cast<size_t>(resamp_fact));
 	double added(0.0);
 	for (size_t j(ny_offset); j < naxis2 - ny_offset_upper; j++) {
 	  for (size_t i(nx_offset); i < naxis1 - nx_offset_upper; i++) {
@@ -524,7 +524,7 @@ namespace Likelihood {
       // Delete model map for map-based diffuse sources to save memory.  The
       // map will be reloaded dynamically if it is needed again.
       try {
-	MapBase * mapBaseObj = 
+	auto * mapBaseObj = 
 	  const_cast<MapBase *>(diffuseSrc.mapBaseObject());
 	mapBaseObj->deleteMap();
 	formatter.info(4) << "PSFUtils::makeDiffuseMap_wcs: "
@@ -550,7 +550,7 @@ namespace Likelihood {
 			       int kmin, int kmax) -> int {
 
       bool do_psf_convolution = config.performConvolution() && diffuseSrc.use_psf();
-      const BinnedExposureBase* bexpmap_use = diffuseSrc.use_exposure() ? bexpmap : 0;
+      const BinnedExposureBase* bexpmap_use = diffuseSrc.use_exposure() ? bexpmap : nullptr;
 
       // If the diffuse source is represented by an underlying map, then
       // rebin according to the minimum bin size.
@@ -590,7 +590,7 @@ namespace Likelihood {
 				  ALLSKY_RADIUS,mapRefDir.ra(), mapRefDir.dec(),
 				  interpolate, false);
 	ProjMap* cmap = diffuseMap.convolve(energy,meanpsf,bexpmap_use,do_psf_convolution);
-	HealpixProjMap* convolvedMap = static_cast<HealpixProjMap*>(cmap);
+	auto* convolvedMap = static_cast<HealpixProjMap*>(cmap);
 	Healpix_Map<float> outmap(nside_orig,scheme,SET_NSIDE);
 	if ( nside_orig == resamp_nside ) {
 	  outmap = convolvedMap->image()[0];
@@ -606,7 +606,7 @@ namespace Likelihood {
 	}
      }
       try {
-	MapBase * mapBaseObj = 
+	auto * mapBaseObj = 
 	  const_cast<MapBase *>(diffuseSrc.mapBaseObject());
 	mapBaseObj->deleteMap();
 	formatter.info(4) << "PSFUtils::makeDiffuseMap_healpix: "
@@ -633,9 +633,9 @@ namespace Likelihood {
 			      int kmin, int kmax) -> int {
 
 
-      bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist()) != 0;
+      bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist()) != nullptr;
       bool do_psf_convolution = config.performConvolution() && diffuseSrc.use_psf();
-      const BinnedExposureBase* bexpmap_use = diffuseSrc.use_exposure() ? bexpmap : 0;
+      const BinnedExposureBase* bexpmap_use = diffuseSrc.use_exposure() ? bexpmap : nullptr;
 
       bool counts_map_allsky = dataMap.mapRadius() >= 90.;
       bool source_map_allsky = diffuseSrc.mapRadius() >= 90.;
@@ -672,12 +672,12 @@ namespace Likelihood {
       // rebin according to the minimum bin size.
       std::string nativeProj("STG");
       try {
-	MapBase & tmp = const_cast<MapBase&>(*diffuseSrc.mapBaseObject());
+	auto & tmp = const_cast<MapBase&>(*diffuseSrc.mapBaseObject());
 	nativeProj = tmp.projmap().getProj()->projType();
 	source_pixel_size = tmp.projmap().pixelSize();
 	// std::cout << "Rebin check " << source_pixel_size << ' ' << config.minbinsz() << std::endl;
 	if ( source_pixel_size < config.minbinsz() ) {
-	  unsigned int factor = static_cast<unsigned int>(config.minbinsz()/source_pixel_size);
+	  auto factor = static_cast<unsigned int>(config.minbinsz()/source_pixel_size);
 	  // std::cout << "Rebinning factor: " << factor << std::endl;
 	  formatter.info(4) << "\nrebinning factor: " 
 			    << factor << std::endl;
@@ -703,7 +703,7 @@ namespace Likelihood {
       long npts = num_ebins*pixels.size();
       modelmap.resize(npts, 0);
       
-      std::vector<Pixel>::const_iterator pixel = pixels.begin();
+      auto pixel = pixels.begin();
       
       double resamp_fact = 1.;
       if ( config.resample() ) {
@@ -783,7 +783,7 @@ namespace Likelihood {
 	bool computeIntegrals(true);
 	formatter.warn() << ".";
 	
-	WcsMap2 * convolvedMap(0);
+	WcsMap2 * convolvedMap(nullptr);
 	WcsMap2 diffuseMap(diffuseSrc, ref1, ref2,
 			   crpix1, crpix2, cdelt1, cdelt2, naxis1, naxis2,
 			   energy, nativeProj, 
@@ -794,7 +794,7 @@ namespace Likelihood {
 	//std::cout << "Map Integral " << diffuseMap.mapIntegral() << std::endl;
 	
 	if(haveSpatialFunction) {
-	  const SpatialFunction* m = 
+	  const auto* m = 
 	    dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist());
 	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(energy, meanpsf, 
 								   bexpmap_use, *m, do_psf_convolution));
@@ -829,7 +829,7 @@ namespace Likelihood {
       // Delete model map for map-based diffuse sources to save memory.  The
       // map will be reloaded dynamically if it is needed again.
       try {
-	MapBase * mapBaseObj = 
+	auto * mapBaseObj = 
 	  const_cast<MapBase *>(diffuseSrc.mapBaseObject());
 	mapBaseObj->deleteMap();
 	formatter.info(4) << "PSFUtils::makeDiffuseMap_native: "
@@ -919,7 +919,7 @@ namespace Likelihood {
 
       std::vector<double> exposure;
 
-      if ( bexpmap != 0 ) {
+      if ( bexpmap != nullptr ) {
 	bexpmap->get_exposures_for_dir(dir, energies, exposure);
       } else {
 	exposure = meanpsf.exposure();
@@ -941,12 +941,12 @@ namespace Likelihood {
 	src_lat = dir.dec();
       }
       
-      std::pair<double, double> srcCoord = 
+      auto srcCoord = 
 	std::pair<double, double>(dataMap.projection().sph2pix(src_lon, 
 							       src_lat));
       
       std::vector< std::pair<double, double> > pixCoords(pixels.size());
-      std::vector<Pixel>::const_iterator pixel(pixels.begin());
+      auto pixel(pixels.begin());
       for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
 	
 	double lon, lat;
@@ -1002,7 +1002,7 @@ namespace Likelihood {
 	}
 	// We have finished the loop of the pixels, now we apply the map corrections, if requested
 	if ( apply_map_corrections ) {
-	  std::vector<double>::const_iterator energy = energies.begin();
+	  auto energy = energies.begin();
 	  for ( int kk = 0; energy != energies.end(); ++energy, kk++) {
 
 	    // This is the correction factor for this energy layer
@@ -1015,20 +1015,20 @@ namespace Likelihood {
             correction_factor = meanpsf.integral(psfRadius, *energy ) / mapIntegrals[kk-kmin];
         }
 	    // Loop over the pixels and apply the correction factor
-	    std::vector<float>::iterator itr_corr_b =  modelmap.begin() + (kk-kmin)*pixels.size();
-	    std::vector<float>::iterator itr_corr_e =  itr_corr_b + pixels.size();
-	    for ( std::vector<float>::iterator itr_corr = itr_corr_b; itr_corr != itr_corr_e; itr_corr++) {
+	    auto itr_corr_b =  modelmap.begin() + (kk-kmin)*pixels.size();
+	    auto itr_corr_e =  itr_corr_b + pixels.size();
+	    for ( auto itr_corr = itr_corr_b; itr_corr != itr_corr_e; itr_corr++) {
 	      *itr_corr *= correction_factor;
 	    }
 	  }
 	}
       } else {
-	const std::vector<Pixel>::const_iterator targetPixel = 
+	const auto targetPixel = 
 	  Pixel::find(pixels.begin(), pixels.end(),
 		      Pixel(dir.ra(), dir.dec(), 1), 2.);
 	if (targetPixel != pixels.end()) {
 	  size_t ipix = targetPixel - pixels.begin();
-	  std::vector<double>::const_iterator energy = energies.begin();
+	  auto energy = energies.begin();
 	  for (size_t k(kmin); k != kmax; k++) {
             size_t indx = (k-kmin)*pixels.size() + ipix;
 	    modelmap[indx] = do_exposure ? exposure[k] : 1.;
@@ -1071,7 +1071,7 @@ namespace Likelihood {
       
       const astro::SkyDir & dir(pointSrc.getDir());
       std::vector<double> exposure;
-      if ( bexpmap != 0 ) {
+      if ( bexpmap != nullptr ) {
 	bexpmap->get_exposures_for_dir(dir, energies, exposure);
       } else {
 	exposure = meanpsf.exposure();
@@ -1141,8 +1141,8 @@ namespace Likelihood {
 	mapType = FileUtils::Unknown;
 	return -1;
       }      
-      if ( compSrc.sourceMapCache() == 0 ) {
-	CompositeSource& nc_compSrc = const_cast<CompositeSource&>(compSrc);
+      if ( compSrc.sourceMapCache() == nullptr ) {
+	auto& nc_compSrc = const_cast<CompositeSource&>(compSrc);
 	nc_compSrc.buildSourceMapCache(dataCache,srcMapsFile,drm);
       }
       compSrc.fillSummedSourceMap(modelmap, kmin, kmax);

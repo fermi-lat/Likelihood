@@ -18,7 +18,7 @@ namespace Likelihood {
 
 SummedLikelihood::~SummedLikelihood() throw() {
    try {
-      for (std::vector<TiedParameter *>::iterator it(m_tiedPars.begin());
+      for (auto it(m_tiedPars.begin());
            it != m_tiedPars.end(); ++it) {
          delete *it;
       }
@@ -28,14 +28,14 @@ SummedLikelihood::~SummedLikelihood() throw() {
 
 void SummedLikelihood::addComponent(LogLike & component) {
    m_components.push_back(&component);
-   if (m_masterComponent == 0) {
+   if (m_masterComponent == nullptr) {
       m_masterComponent = &component;
    }
 }
 
 auto SummedLikelihood::value() const -> double {
    double my_value(0);
-   ComponentConstIterator_t it(m_components.begin());
+   auto it(m_components.begin());
    bool include_prior(true);
    optimizers::Arg dummy;   
    for ( ; it != m_components.end(); ++it) {
@@ -94,7 +94,7 @@ setFreeParamValues(const std::vector<double> & values) {
 
 void SummedLikelihood::syncParams() { 
    std::vector<optimizers::Parameter> & pars(m_masterComponent->parameters());
-   for (ComponentIterator_t it(m_components.begin()); 
+   for (auto it(m_components.begin()); 
         it != m_components.end(); ++it) {
       (*it)->setParams(pars);
       (*it)->syncParams();
@@ -103,7 +103,7 @@ void SummedLikelihood::syncParams() {
 
 auto SummedLikelihood::NpredValue(const std::string & srcname, bool weighted) const -> double {
    double Npred(0);
-   for (ComponentConstIterator_t it(m_components.begin());
+   for (auto it(m_components.begin());
         it != m_components.end(); ++it) {
       Npred += (*it)->NpredValue(srcname,weighted);
    }
@@ -172,7 +172,7 @@ void SummedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
    // Loop over log-likeihood components, adding derivative contributions.
    bool include_priors(true);
    optimizers::Arg dummy;      
-   for (ComponentConstIterator_t it(m_components.begin());
+   for (auto it(m_components.begin());
         it != m_components.end(); ++it) {
       std::vector<double> freeDerivs;
       (*it)->getFreeDerivs(dummy, freeDerivs, include_priors);
@@ -186,8 +186,8 @@ void SummedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
 void SummedLikelihood::
 tieParameters(const std::vector<size_t> & par_indices) {
-   TiedParameter * tiedPar = new TiedParameter();
-   for (std::vector<size_t>::const_iterator it(par_indices.begin());
+   auto * tiedPar = new TiedParameter();
+   for (auto it(par_indices.begin());
         it != par_indices.end(); ++it) {
       tiedPar->addParam(*m_masterComponent, *it);
       if (m_tiedIndices.find(*it) != m_tiedIndices.end()) {
@@ -218,7 +218,7 @@ setErrors(const std::vector<double> & errors) {
          m_tiedPars[i]->setError(errors.at(j++));
       }
    }
-   for (ComponentIterator_t it(m_components.begin());
+   for (auto it(m_components.begin());
         it != m_components.end(); ++it) {
       (*it)->setParams(pars);
    }

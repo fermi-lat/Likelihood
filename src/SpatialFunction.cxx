@@ -65,6 +65,7 @@ SpatialFunction::SpatialFunction(const SpatialFunction & rhs)
   : optimizers::Function(rhs), m_dir(rhs.m_dir) {
 }
 
+
 auto 
 SpatialFunction::operator=(const SpatialFunction & rhs) -> SpatialFunction & {
    if (this != &rhs) {
@@ -74,8 +75,7 @@ SpatialFunction::operator=(const SpatialFunction & rhs) -> SpatialFunction & {
    return *this;
 }
 
-SpatialFunction::~SpatialFunction() {
-}
+SpatialFunction::~SpatialFunction() = default;
 
 auto SpatialFunction::diffuseResponse(const Event & evt,
 					const ResponseFunctions & respFuncs) const -> double {

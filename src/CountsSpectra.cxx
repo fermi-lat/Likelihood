@@ -128,7 +128,7 @@ writeCounts(const std::string & outfile,
    getObsCounts(obsCounts);
 
    std::vector<std::vector<double> > srcCnts;
-   std::vector<std::string>::const_iterator source = sourceNames.begin();
+   auto source = sourceNames.begin();
    for ( ; source != sourceNames.end(); ++source) {
       counts->appendField(*source, "1D");
       std::vector<double> my_counts;
@@ -158,7 +158,7 @@ writeFluxes(const std::string & outfile,
    tip::Table * fluxes(fileSvc.editTable(outfile, extname));
 
    std::map<std::string, std::vector<double> > srcFluxes;
-   std::vector<std::string>::const_iterator source = sourceNames.begin();
+   auto source = sourceNames.begin();
    for (source = sourceNames.begin(); source != sourceNames.end(); ++source) {
       if (m_logLike.source(*source).getType() == "Point") {
          std::vector<double> my_fluxes;

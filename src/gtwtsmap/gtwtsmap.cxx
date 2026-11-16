@@ -35,7 +35,7 @@ public:
 
   WtsMap() : st_app::StApp(),
 	     m_pars(st_app::StApp::getParGroup("gtwtsmap")),
-	     m_alpha_map(0), m_bkg_eff_map(0), m_output(0) {
+             m_alpha_map(0), m_bkg_eff_map(0), m_output(0) {
     setVersion(s_cvs_id);
   }
   virtual ~WtsMap() throw() {
@@ -55,9 +55,9 @@ private:
 
   st_app::AppParGroup & m_pars;
 
-  Likelihood::CountsMapBase * m_alpha_map;
-  Likelihood::CountsMapBase * m_bkg_eff_map;
-  Likelihood::CountsMapBase * m_output;
+  Likelihood::CountsMapBase * m_alpha_map{nullptr};
+  Likelihood::CountsMapBase * m_bkg_eff_map{nullptr};
+  Likelihood::CountsMapBase * m_output{nullptr};
 
   void computeWtsMap();
   void updateDssKeywords();
@@ -92,7 +92,7 @@ void WtsMap::computeWtsMap() {
 
   if ( alphamap_file == "none" ||
        alphamap_file == "" ) {
-    m_alpha_map = 0;
+    m_alpha_map = nullptr;
   } else {
     m_alpha_map = Likelihood::AppHelpers::readCountsMap(alphamap_file); 
   }
@@ -107,7 +107,7 @@ void WtsMap::computeWtsMap() {
 void WtsMap::updateDssKeywords() {
   Likelihood::CountsMapBase::copyAndUpdateDssKeywords(m_pars["effbkgfile"], 
 						      m_pars["outfile"],
-						      0,
+						      nullptr,
 						      "CALDB");
   Likelihood::CountsMapBase::addWtsMapKeywords(m_pars["outfile"],
 					       m_pars["epsilon"],

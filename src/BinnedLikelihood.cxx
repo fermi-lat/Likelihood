@@ -44,7 +44,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase& dataMap,
                                    double resamp_factor,
                                    double minbinsz)
     : LogLike(observation),
-      m_dataCache(dataMap, observation, 0, srcMapsFile),
+      m_dataCache(dataMap, observation, nullptr, srcMapsFile),
       m_kmin(0),
       m_kmax(m_dataCache.num_ebins()),
       m_srcMapsFile(srcMapsFile),
@@ -186,7 +186,7 @@ auto BinnedLikelihood::value(const optimizers::Arg& dummy,
 
     if (include_priors) {
         /// Add in contribution from priors.
-        std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
+        auto par(m_parameter.begin());
         for (; par != m_parameter.end(); ++par) {
             my_total += par->log_prior_value();
         }
@@ -281,7 +281,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg& dummy,
     /// Derivatives from priors.
     if (include_priors) {
         size_t i(0);
-        std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
+        auto par(m_parameter.begin());
         for (; par != m_parameter.end(); ++par) {
             if (par->isFree()) {
                 derivs[i] += par->log_prior_deriv();
@@ -328,7 +328,7 @@ void BinnedLikelihood::addSource(Source* src, bool fromClone, SourceMap* srcMap,
         addFixedSource(src->getName());
     } else {
         if (loadMap) {
-            if (srcMap == 0) {
+            if (srcMap == nullptr) {
                 m_srcMapCache.loadSourceMap(*src, false);
             } else {
                 m_srcMapCache.eraseSourceMap(src->getName());
@@ -352,7 +352,7 @@ void BinnedLikelihood::addSource(Source* src, BinnedLikeConfig* config, bool fro
 auto BinnedLikelihood::deleteSource(const std::string& srcName) -> Source* {
     m_bestValueSoFar = -1e38;
     // Check if this is a fixed source, and if so, remove it from the fixed model.
-    std::vector<std::string>::iterator srcIt =
+    auto srcIt =
         std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
     bool subtract(true);
     if (srcIt != m_fixedSources.end()) {
@@ -442,7 +442,7 @@ void BinnedLikelihood::loadSourceMap(const std::string& srcName, bool recreate,
     const Source& src = source(srcName);
     m_srcMapCache.loadSourceMap(src, recreate);
 
-    std::vector<std::string>::iterator srcIt =
+    auto srcIt =
         std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
     if (srcIt != m_fixedSources.end() && buildFixedWeights) {
         // if(printDebug) std::cout << "BinnedLikelihood::loadSourceMap() for " << srcName << " calling buildFixedModelWts()" << std::endl;
@@ -480,7 +480,7 @@ void BinnedLikelihood::saveSourceMaps(const std::string& filename,
     m_srcMapCache.saveSourceMaps(m_srcMapsFile, srcs, replace);
 
     tip::Extension* whdu = saveWeightsMap(replace);
-    if (whdu != 0) {
+    if (whdu != nullptr) {
         delete whdu;
     }
 }
@@ -502,7 +502,7 @@ auto BinnedLikelihood::saveTotalFixedSourceMap(bool replace) -> tip::Extension* 
     std::vector<float> srcMap(source_map_size(), 0.);
     std::vector<std::string> fixedSrcNames;
     std::vector<const Source*> fixedSrcs;
-    for (std::map<std::string, Source*>::const_iterator itr = m_sources.begin();
+    for (auto itr = m_sources.begin();
          itr != m_sources.end(); itr++) {
         if (itr->second->fixedSpectrum()) {
             fixedSrcNames.push_back(itr->first);
@@ -511,7 +511,7 @@ auto BinnedLikelihood::saveTotalFixedSourceMap(bool replace) -> tip::Extension* 
     }
     fillSummedSourceMap(fixedSrcNames, srcMap);
     bool has_fixed = FileUtils::fileHasExtension(m_srcMapsFile, "__FIXED__");
-    tip::Extension* ext(0);
+    tip::Extension* ext(nullptr);
     if (has_fixed) {
         if (replace) {
             ext = FileUtils::replace_image_from_float_vector(m_srcMapsFile, "__FIXED__",
@@ -741,7 +741,7 @@ auto BinnedLikelihood::fixedModelUpdated() const -> bool {
 
     // create a local list of all the fixed sources aborting (and returning true)
     // if we find a source not in the current source list
-    std::map<std::string, Source*>::const_iterator srcIt(m_sources.begin());
+    auto srcIt(m_sources.begin());
     std::vector<std::string> fixedSources;
     for (; srcIt != m_sources.end(); ++srcIt) {
         if (srcIt->second->fixedSpectrum()) {
@@ -773,7 +773,7 @@ auto BinnedLikelihood::fixedModelUpdated() const -> bool {
         const Source* src = srcIt->second;
         if (src->fixedSpectrum()) {
             SourceMap* srcMap = m_srcMapCache.getSourceMap(*src);
-            if (srcMap == 0) {
+            if (srcMap == nullptr) {
                 throw std::runtime_error(
                     "BinnedLikelihood::fixedModelUpdated: "
                     "inconsistent m_srcMaps.");
@@ -886,7 +886,7 @@ void BinnedLikelihood::addFixedSource(const std::string& srcName) {
     SourceMap* srcMap = m_srcMapCache.getSourceMap(src);
     // if(printDebug) std::cout << "BinnedLikelihood::addFixedSource() for " << srcMap->name() << "- calling reloadIfCleared(), pos 1" << std::endl;
     srcMap->reloadIfCleared();
-    bool has_wts = srcMap->weights() != 0;
+    bool has_wts = srcMap->weights() != nullptr;
     if (m_config.save_all_srcmaps()) {
         srcMap->setSaveModel(true);
     }
@@ -919,7 +919,7 @@ void BinnedLikelihood::deleteFixedSource(const std::string& srcName) {
     // if(printDebug) std::cout << "BinnedLikelihood::deleteFixedSource() for " << srcMap->name() << "- calling reloadIfCleared()" << std::endl;
     srcMap->reloadIfCleared();
     // bool has_wts = srcMap->weights() != 0;
-    if (srcMap == 0) {
+    if (srcMap == nullptr) {
         throw std::runtime_error("SourceMap cannot be created for " + srcName);
     }
 
@@ -928,7 +928,7 @@ void BinnedLikelihood::deleteFixedSource(const std::string& srcName) {
     addFixedNpreds(srcName, srcMap, subtract = true);
     addSourceCounts(m_fixedModelCounts, srcName, srcMap, subtract = true);
     // Remove from the list of fixed sources
-    std::vector<std::string>::iterator it = std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
+    auto it = std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
     m_fixedSources.erase(it);
 }
 
@@ -983,7 +983,7 @@ auto BinnedLikelihood::edisp_val(const std::string& srcname) const -> int {
 }
 
 auto BinnedLikelihood::drm() -> Drm& {
-    if (m_drm == 0) {
+    if (m_drm == nullptr) {
         m_drm = new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(),
                         observation(), m_dataCache.countsMap().energies());
     }
@@ -1006,7 +1006,7 @@ auto BinnedLikelihood::spectrum(const Source* src, double energy) -> double {
 
 void BinnedLikelihood::setImageDimensions(tip::Image* image,
                                           long* dimensions) {
-    typedef std::vector<tip::PixOrd_t> DimCont_t;
+    using DimCont_t = std::vector<tip::PixOrd_t>;
     DimCont_t dims = image->getImageDimensions();
     DimCont_t::size_type num_dims = dims.size();
     if (3 != num_dims) {
@@ -1024,7 +1024,7 @@ void BinnedLikelihood::addSourceCounts(std::vector<double>& modelCounts,
                                        bool subtract,
                                        bool latchParams) const {
     const Source* src(const_cast<BinnedLikelihood*>(this)->getSource(srcName));
-    if (src == 0) {
+    if (src == nullptr) {
         return;
     }
     if (modelCounts.size() != m_dataCache.nFilled()) {
@@ -1034,7 +1034,7 @@ void BinnedLikelihood::addSourceCounts(std::vector<double>& modelCounts,
             "number of filled pixels.");
     }
     SourceMap* sourceMap = srcMap;
-    if (sourceMap == 0) {
+    if (sourceMap == nullptr) {
         sourceMap = getSourceMap(srcName);
         // if(printDebug) std::cout << "BinnedLikelihood::addSourceCounts() for " << sourceMap->name() << "- calling reloadIfCleared(), pos 1" << std::endl;
         sourceMap->reloadIfCleared();
@@ -1069,7 +1069,7 @@ auto BinnedLikelihood::npred_explicit(const BinnedLikelihood& like,
     float retVal(0.);
     if (weighted) {
         const WeightMap* wts = like.weightMap();
-        if (wts == 0) {
+        if (wts == nullptr) {
             throw std::runtime_error("BinnedLikelihood::npred_explicit called with weighted option, but no weights are present");
             return 0;
         }
@@ -1102,7 +1102,7 @@ auto BinnedLikelihood::npred_explicit_src(const BinnedLikelihood& like,
     float retVal(0.);
     if (weighted) {
         const WeightMap* wts = like.weightMap();
-        if (wts == 0) {
+        if (wts == nullptr) {
             throw std::runtime_error("BinnedLikelihood::npred_explicit called with weighted option, but no weights are present");
             return 0;
         }
@@ -1122,7 +1122,7 @@ auto BinnedLikelihood::nll_explict(const BinnedLikelihood& like,
     double retVal(0.);
     if (weighted) {
         const WeightMap* wts = like.weightMap();
-        if (wts == 0) {
+        if (wts == nullptr) {
             throw std::runtime_error("BinnedLikelihood::npred_explicit called with weighted option, but no weights are present");
             return 0;
         }
@@ -1140,10 +1140,10 @@ void BinnedLikelihood::spectrum_explict(const BinnedLikelihood& like,
                                         std::vector<double>& spec,
                                         bool weighted) {
     std::vector<float> model(like.dataCache().data_map_size());
-    const WeightMap* wts(0);
+    const WeightMap* wts(nullptr);
     if (weighted) {
         wts = like.weightMap();
-        if (wts == 0) {
+        if (wts == nullptr) {
             throw std::runtime_error("BinnedLikelihood::spectrum_explicit called with weighted option, but no weights are present");
             return;
         }
@@ -1158,7 +1158,7 @@ void BinnedLikelihood::spectrum_explict(const BinnedLikelihood& like,
     for (size_t ie(0); ie < ne; ie++) {
         float sum(0.);
         for (size_t i(i_start); i < i_end; i++) {
-            if (wts == 0) {
+            if (wts == nullptr) {
                 sum += model[i];
             } else {
                 sum += model[i] * wts->model()[i];
@@ -1174,7 +1174,7 @@ void BinnedLikelihood::check_npreds(const BinnedLikelihood& like,
                                     bool weighted) {
     std::vector<std::string> srcNames;
     like.getSrcNames(srcNames);
-    for (std::vector<std::string>::const_iterator itr = srcNames.begin(); itr != srcNames.end();
+    for (auto itr = srcNames.begin(); itr != srcNames.end();
          itr++) {
         double npred_func = like.NpredValue(*itr, weighted);
         float npred_explicit = BinnedLikelihood::npred_explicit_src(like, *itr, weighted);

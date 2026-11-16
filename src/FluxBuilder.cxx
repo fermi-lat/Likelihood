@@ -164,7 +164,7 @@ void FluxBuilder::addSource(Source& src) {
    appendChild(srcElt, specElt);
    
    // Add celestial_dir for point sources
-   PointSource* ptSrc = dynamic_cast<PointSource*>(&src);
+   auto* ptSrc = dynamic_cast<PointSource*>(&src);
    if (ptSrc != nullptr) {
       rapidxml::xml_node<>* dirElt = createElement(m_doc, "celestial_dir");
       addAttribute(m_doc, dirElt, "ra", ptSrc->getDir().ra());

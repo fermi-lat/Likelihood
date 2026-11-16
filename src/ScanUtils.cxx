@@ -29,7 +29,7 @@ namespace Likelihood {
       std::vector<std::string> parNames;
       optimizers::Function& spec = source.spectrum();
       spec.getParamNames(parNames);
-      for ( std::vector<std::string>::const_iterator itr = parNames.begin();
+      for ( auto itr = parNames.begin();
 	    itr != parNames.end(); itr++ ) {
 	spec.parameter(*itr).setFree(false);
       }      
@@ -37,7 +37,7 @@ namespace Likelihood {
 
     void freezeAllParams(SourceModel& srcModel) {
       const std::map<std::string, Source *>& sources = srcModel.sources();
-      for ( std::map<std::string, Source *>::const_iterator itr = sources.begin();
+      for ( auto itr = sources.begin();
 	    itr != sources.end(); itr++ ) {
 	Source* aSrc = itr->second;
 	freezeSourceParams(*aSrc);
@@ -47,7 +47,7 @@ namespace Likelihood {
     void freeNormalizations(SourceModel& srcModel,
 			    const std::list<std::string>& freeSources,
 			    bool free) {
-      for ( std::list<std::string>::const_iterator itr = freeSources.begin();
+      for ( auto itr = freeSources.begin();
 	    itr != freeSources.end(); itr++ ) {
 	Source* aSrc = srcModel.getSource(*itr);
 	aSrc->spectrum().normPar().setFree(free);
@@ -136,7 +136,7 @@ namespace Likelihood {
       normPar.setFree(false);
 
       // Loop over the normalization values
-      for ( std::vector<double>::const_iterator itrNorm = norms.begin();
+      for ( auto itrNorm = norms.begin();
 	    itrNorm != norms.end(); itrNorm++ ) {
 	
 	// Set the normalization parameter

@@ -59,11 +59,11 @@
 namespace {
    auto ptsrcSeparation(Likelihood::Source * src1,
                           Likelihood::Source * src2) -> double {
-      Likelihood::PointSource * 
+      auto * 
          ptsrc1(dynamic_cast<Likelihood::PointSource *>(src1));
-      Likelihood::PointSource * 
+      auto * 
          ptsrc2(dynamic_cast<Likelihood::PointSource *>(src2));
-      if (ptsrc1 == 0  || ptsrc2 == 0) {
+      if (ptsrc1 == nullptr  || ptsrc2 == nullptr) {
          throw std::runtime_error("likelihood::ptsrcSeparation: Attempt "
                                   "to compute separation between two Source "
                                   "objects that are not both PointSources.");
@@ -108,19 +108,19 @@ public:
    }
    virtual void run();
    virtual void banner() const;
-   auto cputime() const -> double {
+   [[nodiscard]] auto cputime() const -> double {
       return static_cast<double>(std::clock() - m_cpuStart)/1e6;
    }
 
 private:
-   AppHelpers * m_helper;
+   AppHelpers * m_helper{nullptr};
    st_app::AppParGroup & m_pars;
 
-   LogLike * m_logLike;
-   optimizers::Optimizer * m_opt;
+   LogLike * m_logLike{nullptr};
+   optimizers::Optimizer * m_opt{nullptr};
    std::vector<std::string> m_eventFiles;
-   CountsMapBase * m_dataMap;
-   ProjMap* m_wmap;
+   CountsMapBase * m_dataMap{nullptr};
+   ProjMap* m_wmap{nullptr};
 
    st_stream::StreamFormatter * m_formatter;
 
@@ -130,7 +130,7 @@ private:
 
    double m_tol;
 
-   optimizers::TOLTYPE m_tolType;
+   optimizers::TOLTYPE m_tolType{optimizers::RELATIVE};
 
    std::vector< std::vector<double> > m_covarianceMatrix;
 
@@ -150,8 +150,8 @@ private:
    void computeTsValues(const std::vector<std::string> & srcNames,
                         std::map<std::string, double> & TsValues, 
                         std::map<std::string, double> & RoiDist);
-   Source * m_tsSrc;
-   double m_maxdist;
+   Source * m_tsSrc{nullptr};
+   double m_maxdist{20.};
    void renormModel();
    void npredValues(double &, double &) const;
    auto normPar(Source *) const -> optimizers::Parameter &;
@@ -218,11 +218,11 @@ void likelihood::run() {
    // }
    //bool useEdisp = m_pars["edisp"] != 0;;
    bool useEdisp = false;
-   ResponseFunctions & respFuncs = 
+   auto & respFuncs = 
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
    respFuncs.setEdispFlag(useEdisp);
    std::string irfs = m_pars["irfs"];
-   m_wmap = 0;
+   m_wmap = nullptr;
    if (m_statistic == "BINNED") {
       std::string cmap = m_pars["cmap"];
       m_helper->setRoi(cmap, "", false);
@@ -379,7 +379,7 @@ void likelihood::createStatistic() {
 }
 
 void likelihood::readEventData() {
-   std::vector<std::string>::const_iterator evIt = m_eventFiles.begin();
+   auto evIt = m_eventFiles.begin();
    for ( ; evIt != m_eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
       if (m_statistic == "BINNED")
@@ -417,7 +417,7 @@ void likelihood::readSourceModel() {
 
 void likelihood::selectOptimizer(std::string optimizer) {
    delete m_opt;
-   m_opt = 0;
+   m_opt = nullptr;
    if (optimizer == "") {
 // Type conversions for hoops do not work properly, so we are
 // forced to use an intermediate variable.
@@ -441,9 +441,9 @@ void likelihood::writeSourceXml() {
 class EventData {
 public:
    EventData(const std::vector<Event> & events) : m_events(events) {}
-   auto nobs(double emin, double emax) const -> unsigned long {
+   [[nodiscard]] auto nobs(double emin, double emax) const -> unsigned long {
       unsigned long nevents(0);
-      std::vector<Event>::const_iterator it = m_events.begin();
+      auto it = m_events.begin();
       for ( ; it != m_events.end(); ++it) {
          if (emin <= it->getEnergy() && it->getEnergy() <= emax) {
             nevents++;
@@ -663,7 +663,7 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    computeTsValues(srcNames, TsValues, RoiDist);
 
    std::vector<optimizers::Parameter> parameters;
-   std::vector<double>::const_iterator errIt = errors.begin();
+   auto errIt = errors.begin();
 
    std::string outfile = m_pars["results"];
 
@@ -766,7 +766,7 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
                        << -m_logLike->value()
                        << "\n" << std::endl;
    delete m_opt;
-   m_opt = 0;
+   m_opt = nullptr;
 }
 
 void likelihood::printFitQuality() const {
@@ -905,7 +905,7 @@ void likelihood::renormModel() {
    }
    std::vector<std::string> srcNames;
    m_logLike->getSrcNames(srcNames);
-   for (std::vector<std::string>::const_iterator srcName = srcNames.begin();
+   for (auto srcName = srcNames.begin();
         srcName != srcNames.end(); ++srcName) {
       Source * src(m_logLike->getSource(*srcName));
       optimizers::Parameter & par(normPar(src));
@@ -922,7 +922,7 @@ auto likelihood::observedCounts() -> double {
       if (::getenv("USE_BINNED_LIKELIHOOD2")) {
 	 throw std::runtime_error("BinnedLikelihood2 has be removed, you should unset the USE_BINNED_LIKELIHOOD2 envvar");
       } else {
-         BinnedLikelihood * logLike = dynamic_cast<BinnedLikelihood *>(m_logLike);
+         auto * logLike = dynamic_cast<BinnedLikelihood *>(m_logLike);
          const std::vector<double> & counts(logLike->countsSpectrum());
          for (size_t i = 0; i < counts.size(); i++) {
             totalCounts += counts.at(i);
@@ -938,7 +938,7 @@ void likelihood::npredValues(double & freeNpred, double & totalNpred) const {
    m_logLike->getSrcNames(srcNames);
    freeNpred = 0;
    totalNpred = 0;
-   for (std::vector<std::string>::const_iterator srcName = srcNames.begin();
+   for (auto srcName = srcNames.begin();
         srcName != srcNames.end(); ++srcName) {
       Source * src = m_logLike->getSource(*srcName);
       double npred(m_logLike->NpredValue(*srcName));

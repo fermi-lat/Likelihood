@@ -41,7 +41,7 @@ HistND::HistND(const HistND & rhs) : evtbin::Hist(rhs) {
    m_strides = rhs.m_strides;
 }
 
-HistND::~HistND() throw() {}
+HistND::~HistND() throw() = default;
 
 void HistND::fillBin(const std::vector<double> & values, double weight) {
    long indx = binIndex(values);
@@ -163,12 +163,12 @@ auto HistND::sumRange(unsigned int idim, unsigned int firstBin, unsigned int las
   if ( idim >= m_ndims ) {
     throw std::length_error("HistND::sumRange:\n"
                             "idim >= histogram dimension.");
-    return 0;
+    return nullptr;
   }
   if ( firstBin >= lastBin ) {
     throw std::length_error("HistND::sumRange:\n"
                             "firstBin >= lastBin");
-    return 0;
+    return nullptr;
   }  
   unsigned int dimSize(0);
   if ( idim == m_ndims -1 ) {
@@ -179,12 +179,12 @@ auto HistND::sumRange(unsigned int idim, unsigned int firstBin, unsigned int las
   if ( firstBin >= dimSize ) {
     throw std::length_error("HistND::sumRange:\n"
                             "firstBin >= histogram axis size.");
-    return 0;
+    return nullptr;
   }  
   if ( lastBin > dimSize ) {
     throw std::length_error("HistND::sumRange:\n"
                             "lastBin > histogram axis size.");
-    return 0;
+    return nullptr;
   }  
 
   std::vector<evtbin::Binner*> binners;
@@ -193,7 +193,7 @@ auto HistND::sumRange(unsigned int idim, unsigned int firstBin, unsigned int las
     binners.push_back(const_cast<evtbin::Binner*>(getBinners()[i]));
   }
   
-  HistND* retHist = new HistND(binners);
+  auto* retHist = new HistND(binners);
   std::vector<float> outData(retHist->data().size(),0.);
   
   unsigned int stride = m_strides[idim];

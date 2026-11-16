@@ -66,10 +66,10 @@ public:
    virtual void run();
    virtual void banner() const;
 private:
-   AppHelpers * m_helper;
+   AppHelpers * m_helper{nullptr};
    st_app::AppParGroup & m_pars;
-   LogLike * m_logLike;
-   optimizers::Optimizer * m_opt;
+   LogLike * m_logLike{nullptr};
+   optimizers::Optimizer * m_opt{nullptr};
    st_stream::StreamFormatter * m_formatter;
    std::string m_statistic;
    CountsMapBase * m_dataMap;
@@ -191,7 +191,7 @@ void TsMap::run() {
 }
 
 void TsMap::readEventData(const std::vector<std::string> & evfiles) {
-   std::vector<std::string>::const_iterator evfile(evfiles.begin());
+   auto evfile(evfiles.begin());
    for ( ; evfile != evfiles.end(); ++evfile) {
       st_facilities::Util::file_ok(*evfile);
       m_logLike->getEvents(*evfile);
@@ -248,7 +248,7 @@ void TsMap::setGrid() {
 }
 
 void TsMap::computeMap() {
-   Likelihood::PointSource * testSrc(0);
+   Likelihood::PointSource * testSrc(nullptr);
    if (m_statistic == "UNBINNED") {
       testSrc = new Likelihood::PointSource(m_dirs.at(0).ra(), 
                                             m_dirs.at(0).dec(), 

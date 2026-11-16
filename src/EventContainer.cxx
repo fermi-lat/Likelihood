@@ -151,7 +151,7 @@ void EventContainer::getEvents(std::string event_file,
       thisEvent.set_classLevel(eventClass);
       if (!apply_roi_cut || m_roiCuts.accept(thisEvent)) {
          m_events.push_back(thisEvent);
-         for (std::vector<std::string>::iterator name = diffuseNames.begin();
+         for (auto name = diffuseNames.begin();
               name != diffuseNames.end(); ++name) {
             std::string srcName = sourceName(*name);
             std::vector<double> gaussianParams;
@@ -195,7 +195,7 @@ void EventContainer::getEvents(std::string event_file,
 
 void EventContainer::computeEventResponses(Source & src, double sr_radius) {
                       
-   DiffuseSource *diffuse_src = dynamic_cast<DiffuseSource *>(&src);
+   auto *diffuse_src = dynamic_cast<DiffuseSource *>(&src);
    std::vector<DiffuseSource *> srcs;
    srcs.push_back(diffuse_src);
    computeEventResponses(srcs, sr_radius);

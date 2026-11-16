@@ -41,6 +41,7 @@ MapCubeFunction2::MapCubeFunction2(const std::string & fitsFile)
 MapCubeFunction2::MapCubeFunction2(const MapCubeFunction2 & rhs)
    : optimizers::Function(rhs), MapBase(rhs) {}
 
+
 auto MapCubeFunction2::operator=(const MapCubeFunction2 & rhs) -> MapCubeFunction2 & {
    if (this != &rhs) {
       optimizers::Function::operator=(rhs);
@@ -49,11 +50,10 @@ auto MapCubeFunction2::operator=(const MapCubeFunction2 & rhs) -> MapCubeFunctio
    return *this;
 }
 
-MapCubeFunction2::~MapCubeFunction2() {
-}
+MapCubeFunction2::~MapCubeFunction2() = default;
 
 auto MapCubeFunction2::value(const optimizers::Arg & xarg) const -> double {
-   const SkyDirArg & dir = dynamic_cast<const SkyDirArg &>(xarg);
+   const auto & dir = dynamic_cast<const SkyDirArg &>(xarg);
    double energy = dir.energy();
    double value = projmap().operator()(dir(), energy);
    return value*getParam("Normalization").getTrueValue();

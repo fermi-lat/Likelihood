@@ -38,7 +38,7 @@ void RoiCuts::addTimeInterval(double tmin, double tmax) {
       p->~GtiCut();
       new (p) dataSubselector::GtiCut(gti);
    } else {
-      if (m_cuts == 0) {
+      if (m_cuts == nullptr) {
          m_cuts = new dataSubselector::Cuts();
       }
       m_gtiCuts.push_back(new dataSubselector::GtiCut(gti));
@@ -60,7 +60,7 @@ void RoiCuts::getGtis(std::vector< std::pair<double, double> > & gtis) const {
 // There should be at most one GTI extension.
    if (!m_gtiCuts.empty()) {
       const dataSubselector::Gti & gti(m_gtiCuts.at(0)->gti());
-      evtbin::Gti::ConstIterator it(gti.begin());
+      auto it(gti.begin());
       for ( ; it != gti.end(); ++it) {
          gtis.push_back(std::make_pair(it->first, it->second));
       }
@@ -175,16 +175,16 @@ void RoiCuts::setRoiData() {
 }
 
 void RoiCuts::sortCuts(bool strict) {
-   typedef dataSubselector::CutBase CutBase;
-   typedef dataSubselector::RangeCut RangeCut;
-   typedef dataSubselector::GtiCut GtiCut;
-   typedef dataSubselector::SkyConeCut SkyConeCut;
+   using CutBase = dataSubselector::CutBase;
+   using RangeCut = dataSubselector::RangeCut;
+   using GtiCut = dataSubselector::GtiCut;
+   using SkyConeCut = dataSubselector::SkyConeCut;
 
    unsigned int nenergy(0), ncone(0), ntime(0);
    for (unsigned int i = 0; i < m_cuts->size(); i++) {
-      CutBase & cut = const_cast<CutBase &>(m_cuts->operator[](i));
+      auto & cut = const_cast<CutBase &>(m_cuts->operator[](i));
       if (cut.type() == "range") {
-         RangeCut & rangeCut = dynamic_cast<RangeCut &>(cut);
+         auto & rangeCut = dynamic_cast<RangeCut &>(cut);
          std::string colname = rangeCut.colname();
          if (colname == "ENERGY") {
             if (nenergy == 0 || rangeCut.supercedes(*m_energyCut)) {

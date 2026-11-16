@@ -33,7 +33,7 @@
 namespace {
    class Image : public std::vector< std::vector<double> > {
    public:
-      Image() {}
+      Image() = default;
       void normalize() {
          double total(0);
          for (unsigned int i = 0; i < this->size(); i++) {
@@ -60,12 +60,12 @@ namespace {
 
 namespace Likelihood {
 
-WcsMap::WcsMap() : m_proj(0), m_interpolate(false), m_mapIntegral(0) {}
+WcsMap::WcsMap() : m_proj(nullptr), m_interpolate(false), m_mapIntegral(0) {}
 
 WcsMap::WcsMap(const std::string & filename,
                const std::string & extension,
                bool interpolate) 
-   : m_proj(0), m_interpolate(interpolate), m_isPeriodic(false),
+   : m_proj(nullptr), m_interpolate(interpolate), m_isPeriodic(false),
      m_mapIntegral(0) {
    
    m_proj = new astro::SkyProj(filename, extension);
@@ -107,7 +107,7 @@ WcsMap::WcsMap(const std::string & filename,
    delete image;
 
    m_image.reserve(m_naxis2);
-   std::vector<float>::const_iterator pixelValue = my_image.begin();
+   auto pixelValue = my_image.begin();
    for (int j = 0; j < m_naxis2; j++) {
       std::vector<double> row(m_naxis1);
       for (int i = 0; i < m_naxis1 && pixelValue != my_image.end();
@@ -281,10 +281,9 @@ auto WcsMap::operator=(const WcsMap & rhs) -> WcsMap & {
 
 auto WcsMap::operator()(const astro::SkyDir & dir) const -> double {
 // NB: wcslib starts indexing pixels with 1, not 0.
-   std::pair<double, double> pixel = dir.project(*m_proj);
+   auto [x, y] = dir.project(*m_proj);
 
-   double x(pixel.first);
-   double y(pixel.second);
+   
 
    if (m_isPeriodic) {
       x = std::fmod(x, m_naxis1);
@@ -474,10 +473,9 @@ auto WcsMap::skyDir(double ilon, double ilat) const -> astro::SkyDir {
 }
 
 auto WcsMap::insideMap(const astro::SkyDir & dir) const -> bool {
-   std::pair<double, double> pixel = dir.project(*m_proj);
+   auto [x, y] = dir.project(*m_proj);
 
-   double x(pixel.first);
-   double y(pixel.second);
+   
 
    int ix(static_cast<int>(x));
    int iy(static_cast<int>(y));
@@ -572,7 +570,7 @@ void WcsMap::computeMapIntegral() {
 }
 
 auto WcsMap::rebin(unsigned int factor, bool average) -> WcsMap * {
-   WcsMap * my_map = new WcsMap(*this);
+   auto * my_map = new WcsMap(*this);
    int dnxp = factor - (m_naxis1 % factor);
    if (dnxp == factor) {
       dnxp = 0;

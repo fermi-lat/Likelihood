@@ -60,8 +60,7 @@ PointSource::PointSource(const PointSource & rhs)
    m_functions["Spectrum"] = m_spectrum;
 }
 
-PointSource::~PointSource() {
-}
+PointSource::~PointSource() = default;
 
 auto PointSource::fluxDensity(double energy, double time,
                                 const astro::SkyDir & dir,
@@ -365,7 +364,7 @@ computeExposureWithHyperCube(const astro::SkyDir & srcDir,
 //    formatter.warn() << "Computing exposure at (" 
 //                     << srcDir.ra() << ", " 
 //                     << srcDir.dec() << ")";
-   for (std::vector<double>::const_iterator it = energies.begin();
+   for (auto it = energies.begin();
         it != energies.end(); it++) {
 //       if (verbose) {
 //          formatter.warn() << ".";
@@ -508,7 +507,7 @@ auto PointSource::Aeff::value(double cos_theta, double phi) const -> double {
    double theta = acos(cos_theta)*180./M_PI;
 
    double myEffArea = 0;
-   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt
+   auto respIt
       = m_respFuncs.begin();
 
    std::map<int, double> psf_vals;

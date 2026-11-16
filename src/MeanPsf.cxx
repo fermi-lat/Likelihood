@@ -35,7 +35,7 @@ void MeanPsf::init() {
    for (unsigned int k = 0; k < m_energies.size(); k++) {
       for (unsigned int j = 0; j < s_separations.size(); j++) {
          double value(0);
-         std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+         auto 
             resp = m_observation.respFuncs().begin();
          for (; resp != m_observation.respFuncs().end(); ++resp) {
             int evtType = resp->second->irfID();
@@ -63,7 +63,7 @@ void MeanPsf::computeExposure() {
    m_exposure.reserve(m_energies.size());
    for (size_t k(0); k < m_energies.size(); k++) {
       double value(0);
-      std::map<unsigned int, irfInterface::Irfs *>::const_iterator
+      auto
          resp = m_observation.respFuncs().begin();
       for (; resp != m_observation.respFuncs().end(); ++resp) {
          int evtType = resp->second->irfID();
@@ -97,7 +97,7 @@ auto MeanPsf::peakValue(double energy) const -> double {
 
 void MeanPsf::write(const std::string & filename) const {
    std::ofstream output_file(filename.c_str());
-   std::vector<double>::const_iterator sep = s_separations.begin();
+   auto sep = s_separations.begin();
    for (unsigned int j = 0; sep != s_separations.end(); ++sep, j++) {
       output_file << *sep << "  ";
       for (unsigned int k = 0; k < m_energies.size(); k++) {
@@ -302,7 +302,7 @@ auto MeanPsf::Psf::value(double cosTheta, double phi) const -> double {
    double inclination = acos(cosTheta)*180./M_PI;
    double epoch((m_observation.expCube().tstart() 
                  + m_observation.expCube().tstop())/2.);
-   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
+   auto respIt 
       = m_observation.respFuncs().begin();
    for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
       if (respIt->second->irfID() == m_evtType) {  

@@ -21,14 +21,14 @@
 namespace Likelihood {
 
   void Snapshot_Source::delete_map(ParameterMap& theMap) {
-    for ( ParameterMap::iterator itr = theMap.begin(); itr != theMap.end(); itr++ ) {
+    for ( auto itr = theMap.begin(); itr != theMap.end(); itr++ ) {
       delete itr->second;
     }
     theMap.clear();
   }
 
   void Snapshot_Source::deep_copy_param_map(ParameterMap& theMap, bool delete_old) {
-    for ( ParameterMap::iterator itr = theMap.begin(); itr != theMap.end(); itr++ ) {
+    for ( auto itr = theMap.begin(); itr != theMap.end(); itr++ ) {
       optimizers::Parameter* old =  itr->second;
       itr->second = new optimizers::Parameter(*old);
       if ( delete_old ) delete old;
@@ -102,7 +102,7 @@ namespace Likelihood {
     const std::string norm_par_name = func.normPar().getName();
     std::vector<std::string> parNames;
     func.getParamNames(parNames);
-    for ( std::vector<std::string>::const_iterator itr = parNames.begin(); itr != parNames.end(); itr++ ) {
+    for ( auto itr = parNames.begin(); itr != parNames.end(); itr++ ) {
       const optimizers::Parameter& par = func.getParam(*itr);
       if ( par.getName() == norm_par_name ) continue;
       optimizers::Parameter* ptr = clone ? new optimizers::Parameter(par) : const_cast<optimizers::Parameter*>(&par);
@@ -117,14 +117,14 @@ namespace Likelihood {
 
     static const std::string spec_name("Spectrum");
     const std::map<std::string, optimizers::Function *>& srcFuncs = src.getSrcFuncs();
-    for ( std::map<std::string, optimizers::Function *>::const_iterator itr = srcFuncs.begin();
+    for ( auto itr = srcFuncs.begin();
 	  itr != srcFuncs.end(); itr++ ) {
       if ( itr->first == spec_name ) continue;
       model_name += itr->first;
       const optimizers::Function& func = *(itr->second); 
       std::vector<std::string> parNames;
       func.getParamNames(parNames);
-      for ( std::vector<std::string>::const_iterator itr2 = parNames.begin(); itr2 != parNames.end(); itr2++ ) {
+      for ( auto itr2 = parNames.begin(); itr2 != parNames.end(); itr2++ ) {
 	const optimizers::Parameter& par = func.getParam(*itr2);
 	optimizers::Parameter* ptr = clone ? new optimizers::Parameter(par) : const_cast<optimizers::Parameter*>(&par);
 	theMap[*itr2] = ptr;
@@ -163,8 +163,8 @@ namespace Likelihood {
       status |= ( fixed ? Snapshot_Status::Fixed_Spec_Model_Type_Changed : Snapshot_Status::Free_Spec_Model_Type_Changed) ;
       return Snapshot_Status(status);
     }
-    ParameterMap::const_iterator itr1 = map1.begin();
-    ParameterMap::const_iterator itr2 = map2.begin();
+    auto itr1 = map1.begin();
+    auto itr2 = map2.begin();
     for ( ; itr1 != map1.end(); itr1++, itr2++ ) {
       // Parameter name has changed
       // Don't bother comparing values
@@ -196,8 +196,8 @@ namespace Likelihood {
       status |= ( fixed ? Snapshot_Status::Fixed_Spatial_Model_Type_Changed : Snapshot_Status::Free_Spatial_Model_Type_Changed) ;
       return Snapshot_Status(status);
     }
-    ParameterMap::const_iterator itr1 = map1.begin();
-    ParameterMap::const_iterator itr2 = map2.begin();
+    auto itr1 = map1.begin();
+    auto itr2 = map2.begin();
     for ( ; itr1 != map1.end(); itr1++, itr2++ ) {
       // Parameter name has changed
       // Don't bother comparing values
@@ -226,8 +226,8 @@ namespace Likelihood {
       status |= ( fixed ? Snapshot_Status::Fixed_Ancillary_Changed : Snapshot_Status::Free_Ancillary_Changed);
       return Snapshot_Status(status);
     }
-    StringMap::const_iterator itr1 = map1.begin();
-    StringMap::const_iterator itr2 = map2.begin();
+    auto itr1 = map1.begin();
+    auto itr2 = map2.begin();
     for ( ; itr1 != map1.end(); itr1++, itr2++ ) {
       if ( ( itr1->first != itr2->first ) || 
 	   ( itr1->second != itr2->second ) ) {
@@ -250,13 +250,13 @@ namespace Likelihood {
   void Snapshot_Source::print_param_map(const ParameterMap& parMap, const std::string& indent) {
     std::string indent2(indent);
     indent2 += indent;
-    for ( ParameterMap::const_iterator itr = parMap.begin(); itr != parMap.end(); itr++ ){
+    for ( auto itr = parMap.begin(); itr != parMap.end(); itr++ ){
       print_param(*(itr->second),indent2);
     }
   }
 
   void Snapshot_Source::print_string_map(const StringMap& strMap, const std::string& indent) {
-    for ( StringMap::const_iterator itr = strMap.begin(); itr != strMap.end(); itr++ ){
+    for ( auto itr = strMap.begin(); itr != strMap.end(); itr++ ){
       std::cout << indent << ' ' << itr->first << " : " << itr->second << std::endl;
     }
   }
@@ -272,7 +272,7 @@ namespace Likelihood {
   void Snapshot_Source::latch_source(const Source& src, bool owned) {
     if ( m_owned ) {
       delete m_norm_param;			
-      m_norm_param = 0;
+      m_norm_param = nullptr;
       delete_map(m_spatial_params);
       delete_map(m_spectral_params);
     }
@@ -329,7 +329,7 @@ namespace Likelihood {
   void Snapshot::latch_model(const SourceModel& model, bool owned) {
     m_sources.clear();
     const std::map<std::string, Source *>& sources = model.sources();
-    for ( std::map<std::string, Source *>::const_iterator itr = sources.begin(); itr != sources.end(); itr++ ) {
+    for ( auto itr = sources.begin(); itr != sources.end(); itr++ ) {
       if ( m_sources.count(itr->first) == 0 ) {
 	m_sources[itr->first] = Snapshot_Source();
       }
@@ -338,14 +338,14 @@ namespace Likelihood {
   }
 
   void Snapshot::print() const {
-    for ( std::map<std::string,Snapshot_Source>::const_iterator itr = m_sources.begin(); itr != m_sources.end(); itr++ ) {
+    for ( auto itr = m_sources.begin(); itr != m_sources.end(); itr++ ) {
       std::cout << itr->first << std::endl;
       itr->second.print();
     }
   }
 
   void Snapshot::print_source(const std::string& srcName) const {
-    std::map<std::string,Snapshot_Source>::const_iterator itr = m_sources.find(srcName);
+    auto itr = m_sources.find(srcName);
     if ( itr == m_sources.end() ) {
       std::cout << "No source named " << srcName << std::endl;
     }
@@ -355,8 +355,8 @@ namespace Likelihood {
 
   
   auto Snapshot::compare_source(const std::string& srcName, const Source* src) const -> Snapshot_Status {
-    std::map<std::string,Snapshot_Source>::const_iterator itrFind = m_sources.find(srcName);
-    if ( src == 0 ) {
+    auto itrFind = m_sources.find(srcName);
+    if ( src == nullptr ) {
       return itrFind->second.fixed() ? 
 	Snapshot_Status(Snapshot_Status::Free_Source_Removed) :
 	Snapshot_Status(Snapshot_Status::Fixed_Source_Removed);
@@ -374,7 +374,7 @@ namespace Likelihood {
     changed_sources.clear();
     const std::map<std::string, Source *>& sources = model.sources();
     Snapshot_Status status;
-    for ( std::map<std::string, Source *>::const_iterator itr = sources.begin(); itr != sources.end(); itr++ ) {
+    for ( auto itr = sources.begin(); itr != sources.end(); itr++ ) {
       Snapshot_Status src_comp = compare_source(itr->first,itr->second);
       if ( src_comp.changed() ) changed_sources.push_back(itr->first);
       status |= src_comp;
@@ -395,16 +395,16 @@ namespace Likelihood {
       std::vector<std::string> model_sources;
       model.getSrcNames(model_sources);
       std::set<std::string> model_set;
-      for ( std::vector<std::string>::const_iterator itr_copy_1 = model_sources.begin();
+      for ( auto itr_copy_1 = model_sources.begin();
 	    itr_copy_1 != model_sources.end(); itr_copy_1++ ) { model_set.insert(*itr_copy_1); }
       std::set<std::string> latched_set;
-      for ( std::vector<std::string>::const_iterator itr_copy_2 = latched_sources.begin();
+      for ( auto itr_copy_2 = latched_sources.begin();
 	    itr_copy_2 != latched_sources.end(); itr_copy_2++ ) { latched_set.insert(*itr_copy_2); }
-      for ( std::map<std::string,Snapshot_Source>::const_iterator itr = m_sources.begin();
+      for ( auto itr = m_sources.begin();
 	    itr != m_sources.end(); itr++ ) {
 	bool is_latched = latched_set.count(itr->first) > 0;
 	const Source* src = model.getSource(itr->first);
-	if ( src != 0 ) {
+	if ( src != nullptr ) {
 	  model_set.erase(itr->first);
 	}
 	Snapshot_Status src_comp = compare_source(itr->first,src);
@@ -422,7 +422,7 @@ namespace Likelihood {
       }
       
       // Now check if there are any sources left
-      for ( std::set<std::string>::const_iterator itr_added = model_set.begin();
+      for ( auto itr_added = model_set.begin();
 	    itr_added != model_set.end(); itr_added++ ) {
 	bool added_is_free = Snapshot::source_free(model.source(*itr_added));
 	if ( added_is_free ) {
